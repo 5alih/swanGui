@@ -10,11 +10,16 @@
 #include <stdexcept>
 #include "raylib.h"
 
-Color color_bg= {30, 30, 30, 255};
-Color color_button= {50, 50, 50, 255};
-Color color_hover= {60, 60, 60, 255};
-Color color_click= {10, 10, 10, 255};
-Color color_text= {150, 150, 150, 255};
+Color ui_background= 	{25, 25, 25, 255};
+Color ui_panel_body= 	{35, 35, 35, 255};
+Color ui_element_body=	{65, 65, 65, 255};
+Color ui_element_hover=	{50, 50, 50, 255};
+Color ui_element_click=	{10, 10, 10, 255};
+Color ui_text_light= {180, 180, 180, 255};
+Color ui_text_dark=	 {180, 180, 180, 255};
+Color ui_text_hover= {200, 200, 200, 255};
+Color ui_special=  	 {255, 211, 105, 255};
+Color ui_special_h=  {255, 220, 145, 255};
 
 const int font_size= 12;
 const int element_padding= 5;
@@ -56,11 +61,13 @@ class Button: public GuiElement{//______________________________________________
 public:
 	std::string m_text;
 	std::function<void()> m_callBackFuntion;
-	Color m_color_button= color_button;
-	Color m_color_hover= color_hover;
-	Color m_color_click= color_click;
-	Color m_color_text= color_text;
-	int m_font_size= font_size;
+	bool m_isHighlighted;
+
+	Button(const std::string text, std::function<void()> callBackFunction, bool isHighlighted){
+		m_text= text;
+		m_callBackFuntion= callBackFunction;
+		m_isHighlighted= isHighlighted;
+	}
 
 	void Update() override{
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -69,18 +76,25 @@ public:
 			}
 		}
 	}
+
     void Draw() override{
-		Color currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? m_color_click : m_color_hover) : m_color_button;
+		Color currentColor= ui_element_body;
+		if(m_isHighlighted){
+			currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_special_h) : ui_special;
+		}
+		else{
+			currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
+		}
 		
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), currentColor);
-
-		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), m_font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - m_font_size/2)};
-		DrawTextEx(m_font, m_text.c_str(), pos, m_font_size, 2.0f, m_color_text);
-	}
-
-	Button(const std::string text, std::function<void()> callBackFunction){
-		m_text= text;
-		m_callBackFuntion= callBackFunction;
+		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2)};
+		
+		if(m_isHighlighted){
+			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_dark);
+		}
+		else{
+			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
+		}
 	}
 };
 
@@ -88,7 +102,6 @@ class Panel: public GuiElement{//_______________________________________________
 public:
 	std::vector<std::shared_ptr<GuiElement>> m_elements;
 	Font m_custom_font= GetFontDefault();
-	Color m_color_bg= color_bg;
 
 	Panel(Vector2 position, Vector2 size){
 		SetPosition(position);
@@ -101,8 +114,18 @@ public:
 		m_custom_font= custom_font;
 	}
 
-	void Update() override;
-	void Draw() override;
+	void Update() override{
+		for(auto& element : m_elements){
+			element->Update();
+		}
+	}
+
+	void Draw() override{
+		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
+		for(auto& element : m_elements){
+			element->Draw();
+		}
+	}
 
 	template <typename T>
 	void addElement(std::shared_ptr<T> element) {
@@ -129,19 +152,6 @@ public:
 		m_elements.erase(std::remove(m_elements.begin(), m_elements.end(), element), m_elements.end());
 	}
 };
-
-void Panel::Update(){
-    for(auto& element : m_elements){
-        element->Update();
-    }
-}
-
-void Panel::Draw(){
-    DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), m_color_bg);
-    for(auto& element : m_elements){
-        element->Draw();
-    }
-}
 
 class SwanGui{//____________________________________________________________________________________________________________________________________________________________________//
 public:

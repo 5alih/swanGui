@@ -18,13 +18,13 @@ int main()
 	SwanGui swanGui;
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
-	auto button1= std::make_shared<Button>("button 1", [](){std::cout<< "button clicked"<< std::endl;});
-	auto button2= std::make_shared<Button>("button 2", [](){std::cout<< "button clicked"<< std::endl;});
-	auto button3= std::make_shared<Button>("button 3", [](){std::cout<< "button clicked"<< std::endl;});
+	auto button1= std::make_shared<Button>("button 1", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button2= std::make_shared<Button>("button 2", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button3= std::make_shared<Button>("button 3", [](){std::cout<< "button clicked"<< std::endl;}, false);
 
 	panel->addElement(button1);
 	panel->addElement(button2);
-	panel->addElement(button3);
+	panel->addElement(button3);	
 
 	swanGui.AddPanel(panel);
 

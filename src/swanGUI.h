@@ -26,8 +26,8 @@ const int element_padding= 3;
 
 class Panel;
 class Button;
+class TextBox;
 //class CheckBox;
-//class TextBox;
 //class Slider;
 //class ImageBox;
 //class GifBox;
@@ -38,6 +38,7 @@ class GuiElement {//____________________________________________________________
 public:
 	Vector2 m_position= {0, 0};
 	Vector2 m_size= {0, 0};
+	std::string m_text;
 	Font m_font;
 	bool m_isVisible= true;
 
@@ -59,7 +60,6 @@ bool GuiElement::IsMouseOver() const{
 
 class Button: public GuiElement{//__________________________________________________________________________________________________________________________________________________//
 public:
-	std::string m_text;
 	std::function<void()> m_callBackFuntion;
 	bool m_isHighlighted;
 
@@ -95,6 +95,20 @@ public:
 		else{
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
 		}
+	}
+};
+
+class TextBox: public GuiElement{
+public:
+	TextBox(std::string text){
+		m_text= text;
+	}
+
+	void Update() override{}
+
+	void Draw() override{
+		Vector2 pos= { (float)static_cast<int>(m_position.x), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
 	}
 };
 

@@ -3,7 +3,6 @@
 
 int main() 
 {
-	// Initialize the window
 	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "SwanGUI Demo");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
@@ -18,13 +17,18 @@ int main()
 	SwanGui swanGui;
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
+	
 	auto button1= std::make_shared<Button>("RENDER", [](){std::cout<< "button clicked"<< std::endl;}, false);
 	auto button2= std::make_shared<Button>("Change Resolution", [](){std::cout<< "button clicked"<< std::endl;}, false);
 	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	
+	auto textbox= std::make_shared<TextBox>("this is a textbox");
 
 	panel->addElement(button1);
 	panel->addElement(button2);
 	panel->addElement(button3);	
+
+	panel->addElement(textbox);
 
 	swanGui.AddPanel(panel);
 

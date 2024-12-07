@@ -8,6 +8,7 @@
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
+#include <sstream>
 #include "raylib.h"
 
 Color ui_background= 	{25, 25, 25, 255};
@@ -17,7 +18,7 @@ Color ui_element_hover=	{50, 50, 50, 255};
 Color ui_element_click=	{10, 10, 10, 255};
 Color ui_text_dark=	 	{40, 40, 40, 255};
 Color ui_text_light= {180, 180, 180, 255};
-Color ui_text_hover= {200, 200, 200, 255};
+Color ui_text_hover= {235, 235, 235, 255};
 Color ui_special=  	 {255, 211, 105, 255};
 Color ui_special_h=   {220, 180, 80, 255};
 
@@ -26,13 +27,24 @@ const int element_padding= 3;
 
 class Panel;
 class Button;
+class CheckBox;
 class TextBox;
-//class CheckBox;
 //class Slider;
 //class ImageBox;
 //class GifBox;
 //class CameraView2D;
 //class CameraView3D;
+
+std::string to_string(int value){
+	std::ostringstream stream;
+	stream << value;
+	return stream.str();
+}
+
+std::string b2s(bool value){
+	std::string is= value ? "Enabled" : "Disabled";
+	return is;
+}
 
 class GuiElement {//________________________________________________________________________________________________________________________________________________________________//
 public:
@@ -69,6 +81,12 @@ public:
 		m_isHighlighted= isHighlighted;
 	}
 
+	Button(const std::string text, std::function<void()> callBackFunction){
+		m_text= text;
+		m_callBackFuntion= callBackFunction;
+		m_isHighlighted= false;
+	}
+
 	void Update() override{
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			if(m_callBackFuntion){
@@ -95,6 +113,38 @@ public:
 		else{
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
 		}
+	}
+};
+
+class CheckBox: public GuiElement{
+public:
+	bool m_is_true;
+
+	CheckBox(std::string text, bool is_true){
+		m_text= text;
+		m_is_true= is_true;
+	}
+
+	CheckBox(std::string text){
+		m_text= text;
+		m_is_true= false;
+	}
+
+	void Update() override{
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_is_true= !m_is_true;
+		}
+	}
+
+	void Draw() override{
+		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
+
+		DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), ui_element_body);
+		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(b2s(m_is_true).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, b2s(m_is_true).c_str(), pos_val, font_size, 2.0f, ui_text_light);
+		
+		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
 	}
 };
 

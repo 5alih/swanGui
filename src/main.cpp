@@ -18,17 +18,23 @@ int main()
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
 	
-	auto button1= std::make_shared<Button>("RENDER", [](){std::cout<< "button clicked"<< std::endl;}, false);
-	auto button2= std::make_shared<Button>("Change Resolution", [](){std::cout<< "button clicked"<< std::endl;}, false);
-	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button1= std::make_shared<Button>("RENDER", [](){std::cout<< "button clicked"<< std::endl;});
+	auto button2= std::make_shared<Button>("Change Resolution", [](){std::cout<< "button clicked"<< std::endl;});
+	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;});
 	
-	auto textbox= std::make_shared<TextBox>("this is a textbox");
+	auto textbox1= std::make_shared<TextBox>("this is a textbox");
+	auto textbox2= std::make_shared<TextBox>("this is another textbox");
+
+	auto checkbox1= std::make_shared<CheckBox>("Bloom", false);
 
 	panel->addElement(button1);
 	panel->addElement(button2);
 	panel->addElement(button3);	
 
-	panel->addElement(textbox);
+	panel->addElement(textbox1);
+	panel->addElement(textbox2);
+
+	panel->addElement(checkbox1);
 
 	swanGui.AddPanel(panel);
 

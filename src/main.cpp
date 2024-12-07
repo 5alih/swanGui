@@ -28,7 +28,9 @@ int main()
 	auto checkbox1= std::make_shared<CheckBox>("Bloom");
 	auto checkbox2= std::make_shared<CheckBox>("Stars", true);
 
-	auto slider1= std::make_shared<Slider>("Resolution", GetMonitorWidth(0));
+	int speed= 50;
+	auto slider1= std::make_shared<Slider>("Speed", speed, 1, 0, 100);
+	auto slider2= std::make_shared<Slider>("Speed", speed, 1, 0, 100);
 
 	panel->addElement(button1);
 	panel->addElement(button2);
@@ -37,6 +39,7 @@ int main()
 	panel->addElement(checkbox2);
 
 	panel->addElement(slider1);
+	panel->addElement(slider2);
 
 	panel->addElement(button3);	
 

@@ -148,39 +148,41 @@ public:
 	}
 };
 
-class Slider: public GuiElement{
+class Slider: public GuiElement {
 public:
-	int m_value;
+	int*  m_target_val;
 	int m_step_size= 1;
 	int m_min= -INT_MAX;
 	int m_max=  INT_MAX;
 	bool m_get_input= false;
 	int m_maxLength= 9;
 
-	Slider(std::string text, int value, int step_size, int min, int max){
+	Slider(std::string text, int &targetVariable, int step_size, int min, int max){
 		m_text= text;
-		m_value= value;
+		 m_target_val= &targetVariable;
 		m_step_size= step_size;
 		m_min= min;
 		m_max= max;
 	}
 
-	Slider(std::string text, int value, int step_size){
+	Slider(std::string text, int &targetVariable, int step_size){
 		m_text= text;
-		m_value= value;
+		 m_target_val= &targetVariable;
 		m_step_size= step_size;
 	}
 
-	Slider(std::string text, int value){
+	Slider(std::string text, int &targetVariable){
 		m_text= text;
-		m_value= value;
+		 m_target_val= &targetVariable;
 	}
 
-	void Update() override{
+	void Update() override {
+		if(!m_target_val) return;
+
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			m_get_input= true;
 		}
-		else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) | IsKeyPressed(KEY_ESCAPE) | IsKeyPressed(KEY_ENTER)){
+		else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
 			m_get_input= false;
 		}
 
@@ -188,32 +190,40 @@ public:
 			int key= GetCharPressed();
 
 			if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-				Vector2 delta= GetMouseDelta();
-				m_value+= delta.x *m_step_size;
+				Vector2 delta = GetMouseDelta();
+				*m_target_val+= delta.x * m_step_size;
 			}
 			else if(IsMouseOver()){
-				m_value+= GetMouseWheelMove() *m_step_size;
+				*m_target_val+= GetMouseWheelMove() *m_step_size;
 			}
-			std::string input= to_string(m_value);
+
+			std::string input= std::to_string(*m_target_val);
 
 			while(key > 0){
-				if((key >= KEY_ZERO) && (key <= KEY_NINE) && ((int)input.length() < m_maxLength)){
+				if((key >= KEY_ZERO) && (key <= KEY_NINE) && (static_cast<int>(input.length()) < m_maxLength)){
 					input+= static_cast<char>(key);
 				}
 				else if(key== KEY_EQUAL || key== KEY_MINUS){
-					m_value= -m_value;
-					input= to_string(m_value);
+					*m_target_val= -*m_target_val;
+					input= to_string(*m_target_val);
 				}
 				key= GetCharPressed();
 			}
-			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()) {
+
+			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()){
 				input.pop_back();
 				if(input.empty() || (input.size()== 1 && input== "-"))
 					input.push_back('0');
 			}
-			if(std::stoi(input)> m_min && std::stoi(input)< m_max)
-				m_value= std::stoi(input);
+
+			try{
+				int newValue= std::stoi(input);
+				if(newValue >= m_min && newValue <= m_max){
+					*m_target_val= newValue;
+				}
+			}catch (const std::exception &e) {}
 		}
+		*m_target_val= std::max(m_min, std::min(* m_target_val, m_max));
 	}
 
 	void Draw() override{
@@ -221,8 +231,8 @@ public:
 		Color currentColor= m_get_input ? ui_element_hover : ui_element_body;
 
 		DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), currentColor);
-		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(m_value).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
-		DrawTextEx(m_font, to_string(m_value).c_str(), pos_val, font_size, 2.0f, ui_text_light);
+		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(*m_target_val).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, to_string(*m_target_val).c_str(), pos_val, font_size, 2.0f, ui_text_light);
 		
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);

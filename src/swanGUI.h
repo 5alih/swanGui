@@ -185,8 +185,17 @@ public:
 		}
 
 		if(m_get_input) {
-			std::string input= to_string(m_value);
 			int key= GetCharPressed();
+
+			if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+				Vector2 delta= GetMouseDelta();
+				m_value+= delta.x *m_step_size;
+			}
+			else if(IsMouseOver()){
+				m_value+= GetMouseWheelMove() *m_step_size;
+			}
+			std::string input= to_string(m_value);
+
 			while(key > 0){
 				if((key >= KEY_ZERO) && (key <= KEY_NINE) && ((int)input.length() < m_maxLength)){
 					input+= static_cast<char>(key);
@@ -196,16 +205,14 @@ public:
 					input= to_string(m_value);
 				}
 				key= GetCharPressed();
-				if(std::stoi(input)> m_min && std::stoi(input)< m_max)
-					m_value= std::stoi(input);
 			}
 			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()) {
 				input.pop_back();
 				if(input.empty() || (input.size()== 1 && input== "-"))
 					input.push_back('0');
-				if(std::stoi(input)> m_min && std::stoi(input)< m_max)
-					m_value= std::stoi(input);
 			}
+			if(std::stoi(input)> m_min && std::stoi(input)< m_max)
+				m_value= std::stoi(input);
 		}
 	}
 

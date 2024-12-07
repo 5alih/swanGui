@@ -7,7 +7,7 @@ int main()
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
-	SetTargetFPS(144);
+	SetTargetFPS(60);
 
 	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
 
@@ -18,15 +18,16 @@ int main()
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
 	
-	auto button1= std::make_shared<Button>("RENDER", [](){std::cout<< "button clicked"<< std::endl;});
-	auto button2= std::make_shared<Button>("Change Resolution", [](){std::cout<< "button clicked"<< std::endl;});
-	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;});
+	auto button1= std::make_shared<Button>("Do Something", [](){std::cout<< "did something"<< std::endl;});
+	auto button2= std::make_shared<Button>("CHANGE RES", [](){std::cout<< "changed resolution"<< std::endl;}, false);
+	auto button3= std::make_shared<Button>("RENDER", [](){std::cout<< "rendered"<< std::endl;}, true);
 	
 	auto textbox1= std::make_shared<TextBox>("this is a textbox");
 	auto textbox2= std::make_shared<TextBox>("and another textbox");
 
-	auto checkbox1= std::make_shared<CheckBox>("Bloom");
-	auto checkbox2= std::make_shared<CheckBox>("Stars", true);
+	bool is_this_enabled= false;
+	auto checkbox1= std::make_shared<CheckBox>("Bloom", is_this_enabled);
+	auto checkbox2= std::make_shared<CheckBox>("Stars", is_this_enabled);
 
 	int speed= 50;
 	auto slider1= std::make_shared<Slider>("Speed", speed, 1, 0, 100);

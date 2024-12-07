@@ -17,10 +17,11 @@ Color ui_element_body=	{65, 65, 65, 255};
 Color ui_element_hover=	{50, 50, 50, 255};
 Color ui_element_click=	{10, 10, 10, 255};
 Color ui_text_dark=	 	{40, 40, 40, 255};
-Color ui_text_light= {180, 180, 180, 255};
-Color ui_text_hover= {235, 235, 235, 255};
-Color ui_special=  	 {255, 211, 105, 255};
-Color ui_special_h=   {220, 180, 80, 255};
+Color ui_text_light= {195, 195, 195, 255};
+Color ui_text_hover= {245, 245, 245, 255};
+Color ui_text_highl= {210, 210, 210, 255};
+Color ui_special=		{0, 85, 155, 255};
+Color ui_special_h=		{0, 65, 135, 255};
 
 const int font_size= 14;
 const int element_padding= 3;
@@ -108,7 +109,7 @@ public:
 		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		
 		if(m_isHighlighted){
-			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_dark);
+			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
 		}
 		else{
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
@@ -118,21 +119,16 @@ public:
 
 class CheckBox: public GuiElement{
 public:
-	bool m_is_true;
+	bool *m_is_true;
 
-	CheckBox(std::string text, bool is_true){
+	CheckBox(std::string text, bool &is_true){
 		m_text= text;
-		m_is_true= is_true;
-	}
-
-	CheckBox(std::string text){
-		m_text= text;
-		m_is_true= false;
+		m_is_true= &is_true;
 	}
 
 	void Update() override{
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-			m_is_true= !m_is_true;
+			*m_is_true= !(*m_is_true);
 		}
 	}
 
@@ -140,8 +136,8 @@ public:
 		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
 
 		DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), ui_element_body);
-		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(b2s(m_is_true).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
-		DrawTextEx(m_font, b2s(m_is_true).c_str(), pos_val, font_size, 2.0f, ui_text_light);
+		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(b2s(*m_is_true).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, b2s(*m_is_true).c_str(), pos_val, font_size, 2.0f, ui_text_light);
 		
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
@@ -150,30 +146,30 @@ public:
 
 class Slider: public GuiElement {
 public:
-	int*  m_target_val;
+	int *m_target_val;
 	int m_step_size= 1;
 	int m_min= -INT_MAX;
 	int m_max=  INT_MAX;
 	bool m_get_input= false;
 	int m_maxLength= 9;
 
-	Slider(std::string text, int &targetVariable, int step_size, int min, int max){
+	Slider(std::string text, int &target_val, int step_size, int min, int max){
 		m_text= text;
-		 m_target_val= &targetVariable;
+		m_target_val= &target_val;
 		m_step_size= step_size;
 		m_min= min;
 		m_max= max;
 	}
 
-	Slider(std::string text, int &targetVariable, int step_size){
+	Slider(std::string text, int &target_val, int step_size){
 		m_text= text;
-		 m_target_val= &targetVariable;
+		m_target_val= &target_val;
 		m_step_size= step_size;
 	}
 
-	Slider(std::string text, int &targetVariable){
+	Slider(std::string text, int &target_val){
 		m_text= text;
-		 m_target_val= &targetVariable;
+		 m_target_val= &target_val;
 	}
 
 	void Update() override {

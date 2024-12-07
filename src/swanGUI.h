@@ -29,7 +29,7 @@ class Panel;
 class Button;
 class CheckBox;
 class TextBox;
-//class Slider;
+class Slider;
 //class ImageBox;
 //class GifBox;
 //class CameraView2D;
@@ -46,7 +46,7 @@ std::string b2s(bool value){
 	return is;
 }
 
-class GuiElement {//________________________________________________________________________________________________________________________________________________________________//
+class GuiElement {//_______________________________________________________________________________ GUI ELEMENTS ____________________________________________________________________________//
 public:
 	Vector2 m_position= {0, 0};
 	Vector2 m_size= {0, 0};
@@ -70,7 +70,7 @@ bool GuiElement::IsMouseOver() const{
 	return (mousePos.x >= m_position.x && mousePos.x <= m_position.x + m_size.x && mousePos.y >= m_position.y && mousePos.y <= m_position.y + m_size.y);
 }
 
-class Button: public GuiElement{//__________________________________________________________________________________________________________________________________________________//
+class Button: public GuiElement{
 public:
 	std::function<void()> m_callBackFuntion;
 	bool m_isHighlighted;
@@ -95,7 +95,7 @@ public:
 		}
 	}
 
-    void Draw() override{
+	void Draw() override{
 		Color currentColor= ui_element_body;
 		if(m_isHighlighted){
 			currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_special_h) : ui_special;
@@ -148,6 +148,80 @@ public:
 	}
 };
 
+class Slider: public GuiElement{
+public:
+	int m_value;
+	int m_step_size= 1;
+	int m_min= -INT_MAX;
+	int m_max=  INT_MAX;
+	bool m_get_input= false;
+	int m_maxLength= 9;
+
+	Slider(std::string text, int value, int step_size, int min, int max){
+		m_text= text;
+		m_value= value;
+		m_step_size= step_size;
+		m_min= min;
+		m_max= max;
+	}
+
+	Slider(std::string text, int value, int step_size){
+		m_text= text;
+		m_value= value;
+		m_step_size= step_size;
+	}
+
+	Slider(std::string text, int value){
+		m_text= text;
+		m_value= value;
+	}
+
+	void Update() override{
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_get_input= true;
+		}
+		else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) | IsKeyPressed(KEY_ESCAPE) | IsKeyPressed(KEY_ENTER)){
+			m_get_input= false;
+		}
+
+		if(m_get_input) {
+			std::string input= to_string(m_value);
+			int key= GetCharPressed();
+			while(key > 0){
+				if((key >= KEY_ZERO) && (key <= KEY_NINE) && ((int)input.length() < m_maxLength)){
+					input+= static_cast<char>(key);
+				}
+				else if(key== KEY_EQUAL || key== KEY_MINUS){
+					m_value= -m_value;
+					input= to_string(m_value);
+				}
+				key= GetCharPressed();
+				if(std::stoi(input)> m_min && std::stoi(input)< m_max)
+					m_value= std::stoi(input);
+			}
+			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()) {
+				input.pop_back();
+				if(input.empty() || (input.size()== 1 && input== "-"))
+					input.push_back('0');
+				if(std::stoi(input)> m_min && std::stoi(input)< m_max)
+					m_value= std::stoi(input);
+			}
+		}
+	}
+
+	void Draw() override{
+		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
+		Color currentColor= m_get_input ? ui_element_hover : ui_element_body;
+
+		DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), currentColor);
+		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(m_value).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, to_string(m_value).c_str(), pos_val, font_size, 2.0f, ui_text_light);
+		
+		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
+	}
+};
+
 class TextBox: public GuiElement{
 public:
 	TextBox(std::string text){
@@ -162,7 +236,7 @@ public:
 	}
 };
 
-class Panel: public GuiElement{//___________________________________________________________________________________________________________________________________________________//
+class Panel: public GuiElement{//_____________________________________________________________________ PANEL ________________________________________________________________________________//
 public:
 	std::vector<std::shared_ptr<GuiElement>> m_elements;
 	Font m_custom_font= GetFontDefault();
@@ -217,7 +291,7 @@ public:
 	}
 };
 
-class SwanGui{//____________________________________________________________________________________________________________________________________________________________________//
+class SwanGui{//_____________________________________________________________________________________ SWANGUI _______________________________________________________________________________//
 public:
 	std::vector<std::shared_ptr<Panel>> m_panels;
 

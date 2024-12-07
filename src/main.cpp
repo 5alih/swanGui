@@ -23,18 +23,25 @@ int main()
 	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;});
 	
 	auto textbox1= std::make_shared<TextBox>("this is a textbox");
-	auto textbox2= std::make_shared<TextBox>("this is another textbox");
+	auto textbox2= std::make_shared<TextBox>("and another textbox");
 
-	auto checkbox1= std::make_shared<CheckBox>("Bloom", false);
+	auto checkbox1= std::make_shared<CheckBox>("Bloom");
+	auto checkbox2= std::make_shared<CheckBox>("Stars", true);
+
+	auto slider1= std::make_shared<Slider>("Resolution", GetMonitorWidth(0));
 
 	panel->addElement(button1);
 	panel->addElement(button2);
-	panel->addElement(button3);	
-
-	panel->addElement(textbox1);
-	panel->addElement(textbox2);
 
 	panel->addElement(checkbox1);
+	panel->addElement(checkbox2);
+
+	panel->addElement(slider1);
+
+	panel->addElement(button3);	
+
+	panel->addElement(textbox2);
+	panel->addElement(textbox1);
 
 	swanGui.AddPanel(panel);
 
@@ -44,8 +51,6 @@ int main()
 
 		BeginDrawing();
 			ClearBackground( (Color){20, 20, 20, 255} );
-			//ClearBackground(BLACK);
-
 			swanGui.Draw();
 
 		EndDrawing();

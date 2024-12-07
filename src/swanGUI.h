@@ -15,14 +15,14 @@ Color ui_panel_body= 	{35, 35, 35, 255};
 Color ui_element_body=	{65, 65, 65, 255};
 Color ui_element_hover=	{50, 50, 50, 255};
 Color ui_element_click=	{10, 10, 10, 255};
+Color ui_text_dark=	 	{40, 40, 40, 255};
 Color ui_text_light= {180, 180, 180, 255};
-Color ui_text_dark=	 {180, 180, 180, 255};
 Color ui_text_hover= {200, 200, 200, 255};
 Color ui_special=  	 {255, 211, 105, 255};
-Color ui_special_h=  {255, 220, 145, 255};
+Color ui_special_h=   {220, 180, 80, 255};
 
-const int font_size= 12;
-const int element_padding= 5;
+const int font_size= 14;
+const int element_padding= 3;
 
 class Panel;
 class Button;
@@ -87,7 +87,7 @@ public:
 		}
 		
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), currentColor);
-		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2)};
+		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		
 		if(m_isHighlighted){
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_dark);
@@ -132,15 +132,15 @@ public:
 		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
 
 		Vector2 newPosition = m_position;
-		newPosition.x += element_padding;
-		newPosition.y += element_padding;
+		newPosition.x += element_padding *2;
+		newPosition.y += element_padding *2;
 		for(const auto& elem : m_elements) {
 			newPosition.y += elem->m_size.y + element_padding;
 		}
 
 		Vector2 newSize= m_size;
-		newSize.x -= element_padding *2;
-		newSize.y= font_size *1.25;
+		newSize.x -= element_padding *4;
+		newSize.y= font_size;
 
 		element->SetPosition(newPosition);
 		element->SetSize(newSize);

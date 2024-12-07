@@ -10,17 +10,17 @@ int main()
 	MaximizeWindow();
 	SetTargetFPS(144);
 
-	Font custom_font= LoadFontEx("my_font.otf", 12, 0, 0);
+	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
 
-	Vector2 panelPos= {0, 0};
-	Vector2 panelSize= {150, 540};
+	Vector2 panelPos=  {0, 0};
+	Vector2 panelSize= {150, 1080};
 
 	SwanGui swanGui;
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
-	auto button1= std::make_shared<Button>("button 1", [](){std::cout<< "button clicked"<< std::endl;}, false);
-	auto button2= std::make_shared<Button>("button 2", [](){std::cout<< "button clicked"<< std::endl;}, false);
-	auto button3= std::make_shared<Button>("button 3", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button1= std::make_shared<Button>("RENDER", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button2= std::make_shared<Button>("Change Resolution", [](){std::cout<< "button clicked"<< std::endl;}, false);
+	auto button3= std::make_shared<Button>("Render", [](){std::cout<< "button clicked"<< std::endl;}, false);
 
 	panel->addElement(button1);
 	panel->addElement(button2);

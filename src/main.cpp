@@ -1,5 +1,4 @@
 #include "swangui.h"
-#include <iostream>
 
 int main() 
 {
@@ -12,7 +11,7 @@ int main()
 	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
 
 	Vector2 panelPos=  {0, 0};
-	Vector2 panelSize= {200, 1080};
+	Vector2 panelSize= {150, 1080};
 
 	SwanGui swanGui;
 
@@ -47,6 +46,20 @@ int main()
 
 	auto thumbnailGif = std::make_shared<ThumbnailGif>("Animated GIF", "swan.gif", [](){std::cout << "GIF Thumbnail clicked" << std::endl;}, "Select",7);
 
+	auto drawSceneFunction = [](Camera3D& camera) {
+		DrawPlane((Vector3){ 0, 0, 0 }, (Vector2){ 20, 20 }, DARKGREEN);
+		DrawCube((Vector3){0.0f, 0.0f, 0.0f}, 1.0f, 1.0f, 1.0f, WHITE);
+		DrawCube(camera.position, 1, 1, 1, RED);
+	};
+
+	Camera3D camera= {0};
+	camera.position= (Vector3){0.0f, 2.0f, -10.0f};
+	camera.target= (Vector3){0.0f, 0.0f, 0.0f};
+	camera.up= (Vector3){0.0f, 1.0f, 0.0f};
+	camera.fovy= 65.0f;
+
+	auto cameraView = std::make_shared<CameraView3D>(camera, 150, drawSceneFunction);
+
 	panel->addElement(button1);
 	panel->addElement(button2);
 
@@ -68,6 +81,8 @@ int main()
 	panel->addElement(billboard2);
 
 	panel->addElement(slider3);
+
+	panel->addElement(cameraView);
 
 	panel->addElement(thumbnailGif);
 

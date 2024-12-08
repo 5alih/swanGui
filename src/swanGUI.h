@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include "raylib.h"
 
 Color ui_background= 	{25, 25, 25, 255};
@@ -36,8 +37,7 @@ class Thumbnail;
 class ThumnailGif;
 class Billboard;
 class BillboardGif;
-//class CameraView2D;
-//class CameraView3D;
+class CameraView3D;
 
 std::string to_string(int value){
 	std::ostringstream stream;
@@ -422,6 +422,63 @@ public:
 	}
 };
 
+class CameraView3D : public GuiElement{
+public:
+	Camera3D m_camera;
+	RenderTexture m_render_texture;
+	std::function<void(Camera3D&)> m_draw_scene_function;
+	int m_width= 0;
+	bool m_update_camera= false;
+
+	CameraView3D(Camera3D camera, int width, std::function<void(Camera3D&)> draw_scene_function){
+		m_camera= camera;
+
+		m_width= width -element_padding *4;
+		m_render_texture= LoadRenderTexture(m_width, m_width);
+		m_draw_scene_function= draw_scene_function;
+	}
+
+	~CameraView3D(){
+		UnloadRenderTexture(m_render_texture);
+	}
+
+	void Update() override{
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_update_camera= true;
+			DisableCursor();
+		}
+		else if(m_update_camera && ((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE))){
+			m_update_camera= false;
+			EnableCursor();
+		}
+
+		if(m_update_camera){
+			UpdateCamera(&m_camera, CAMERA_CUSTOM);
+		}
+	}
+
+	void Draw() override{
+		BeginTextureMode(m_render_texture);
+			ClearBackground(SKYBLUE);
+			
+			BeginMode3D(m_camera);
+				if(m_draw_scene_function) m_draw_scene_function(m_camera);
+			EndMode3D();
+		EndTextureMode();
+
+		Rectangle sourceRec= {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
+		DrawTextureRec(m_render_texture.texture, sourceRec, m_position, WHITE);
+	}
+
+	Camera3D& GetCamera() {
+		return m_camera;
+	}
+
+	RenderTexture& GetRenderTexture() {
+		return m_render_texture;
+	}
+};
+
 class Panel: public GuiElement{//_____________________________________________________________________ PANEL ________________________________________________________________________________//
 public:
 	std::vector<std::shared_ptr<GuiElement>> m_elements;
@@ -468,7 +525,7 @@ public:
 		if constexpr (std::is_same<T, Thumbnail>::value || std::is_same<T, ThumbnailGif>::value){
 			newSize.y= font_size *2 + element_padding;
 		}
-		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value){
+		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value || std::is_same<T, CameraView3D>::value){
 			newSize.y= newSize.x;
 		}
 		else{

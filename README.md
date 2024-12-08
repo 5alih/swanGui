@@ -1,4 +1,4 @@
-
+![swanGui](https://github.com/user-attachments/assets/43ec2c5c-dfe7-405c-9088-fd1b4abfa510)
 # SwanGui: A Lightweight Raylib-based GUI Library
 
 ## Overview

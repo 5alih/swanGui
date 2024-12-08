@@ -12,7 +12,7 @@ int main()
 	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
 
 	Vector2 panelPos=  {0, 0};
-	Vector2 panelSize= {150, 1080};
+	Vector2 panelSize= {200, 1080};
 
 	SwanGui swanGui;
 
@@ -45,6 +45,8 @@ int main()
 
 	auto slider3= std::make_shared<Slider>("frame delay", frame_delay, 1, 0, 50);
 
+	auto thumbnailGif = std::make_shared<ThumbnailGif>("Animated GIF", "swan.gif", [](){std::cout << "GIF Thumbnail clicked" << std::endl;}, "Select",7);
+
 	panel->addElement(button1);
 	panel->addElement(button2);
 
@@ -66,6 +68,8 @@ int main()
 	panel->addElement(billboard2);
 
 	panel->addElement(slider3);
+
+	panel->addElement(thumbnailGif);
 
 	swanGui.AddPanel(panel);
 

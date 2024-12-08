@@ -34,7 +34,7 @@ class Slider;
 class Comment;
 class Thumbnail;
 class Billboard;
-//class ThumnailGif;
+class ThumnailGif;
 class BillboardGif;
 //class CameraView2D;
 //class CameraView3D;
@@ -290,6 +290,73 @@ public:
 	}
 };
 
+class ThumbnailGif: public GuiElement{
+public:
+	Image m_image_anim;
+	Texture2D m_texture_anim;
+	std::function<void()> m_call_back_function;
+	std::string m_text_button;
+	std::string m_gif_path;
+	int m_frames= 0;
+	unsigned int m_next_frame= 0;
+	int m_current_frame= 0;
+	int m_frame_delay= 8;
+	int m_frame_counter= 0;
+
+	ThumbnailGif(std::string text, const std::string& gif_path, std::function<void()> call_back_function, std::string text_button, int frame_delay= 8){
+		m_text= text;
+		m_gif_path= gif_path;
+		m_call_back_function= call_back_function;
+		m_text_button= text_button;
+		m_frame_delay= frame_delay;
+
+		m_image_anim= LoadImageAnim(m_gif_path.c_str(), &m_frames);
+		m_texture_anim= LoadTextureFromImage(m_image_anim);
+	}
+
+	~ThumbnailGif(){
+		UnloadTexture(m_texture_anim);
+		UnloadImage(m_image_anim);
+	}
+
+	void Update() override{
+		m_frame_counter++;
+		if(m_frame_counter>= m_frame_delay){
+			m_current_frame++;
+			if(m_current_frame>= m_frames) m_current_frame= 0;
+			
+			m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
+
+			UpdateTexture(m_texture_anim, ((unsigned char*)m_image_anim.data) +m_next_frame);
+			
+			m_frame_counter= 0;
+		}
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			if(m_call_back_function){
+				m_call_back_function();
+			}
+		}
+	}
+
+	void Draw() override{
+		Color currentColor= IsMouseOver() ? 
+			(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
+		
+		DrawRectangle(static_cast<int>(m_position.x + thumnnail_size + element_padding), static_cast<int>(m_position.y + m_size.y/2),
+					  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
+
+		Vector2 pos= {(float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
+					  (float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
+		DrawTextEx(m_font, m_text_button.c_str(), pos, font_size, 2.0f, ui_text_light);
+
+		float scale= (m_texture_anim.width> m_texture_anim.height) ? thumnnail_size/(float)m_texture_anim.width : thumnnail_size/(float)m_texture_anim.height;
+		DrawTextureEx(m_texture_anim, m_position, 0.0f, scale, WHITE);
+
+		Vector2 pos2= {(float)static_cast<int>(m_position.x +thumnnail_size +element_padding), (float)static_cast<int>(m_position.y +m_size.y/4 -font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos2, font_size, 2.0f, ui_text_light);
+	}
+};
+
 class Billboard: public GuiElement{
 public:
 	Texture2D *m_texture;
@@ -398,7 +465,7 @@ public:
 		Vector2 newSize= m_size;
 		newSize.x -= element_padding *4;
 		
-		if constexpr (std::is_same<T, Thumbnail>::value){
+		if constexpr (std::is_same<T, Thumbnail>::value || std::is_same<T, ThumbnailGif>::value){
 			newSize.y= font_size *2 + element_padding;
 		}
 		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value){

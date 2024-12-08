@@ -33,6 +33,7 @@ class CheckBox;
 class Slider;
 class Comment;
 class Thumbnail;
+class BillboardS;
 //class GifBox;
 //class CameraView2D;
 //class CameraView3D;
@@ -288,6 +289,23 @@ public:
 	}
 };
 
+class BillboardS: public GuiElement{
+public:
+	Texture2D *m_texture;
+
+	BillboardS(std::string text, Texture2D &texture){
+		m_text= text;
+		m_texture= &texture;
+	}
+
+	void Update() override{}
+
+	void Draw() override{
+		float scale= (m_texture->width> m_texture->height) ? m_size.x/(m_texture->width) : m_size.x/(m_texture->height);
+		DrawTextureEx(*m_texture, m_position, 0.0f, scale, WHITE);
+	}
+};
+
 class Panel: public GuiElement{//_____________________________________________________________________ PANEL ________________________________________________________________________________//
 public:
 	std::vector<std::shared_ptr<GuiElement>> m_elements;
@@ -333,6 +351,9 @@ public:
 		
 		if constexpr (std::is_same<T, Thumbnail>::value){
 			newSize.y= font_size *2 + element_padding;
+		}
+		else if constexpr (std::is_same<T, BillboardS>::value){
+			newSize.y= newSize.x;
 		}
 		else{
 			newSize.y= font_size;

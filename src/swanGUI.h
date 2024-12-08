@@ -25,13 +25,14 @@ Color ui_special_h=		{0, 65, 135, 255};
 
 const int font_size= 14;
 const int element_padding= 3;
+const float thumnnail_size= 32.0f;
 
 class Panel;
 class Button;
 class CheckBox;
-class TextBox;
 class Slider;
-//class ImageBox;
+class Comment;
+class Thumbnail;
 //class GifBox;
 //class CameraView2D;
 //class CameraView3D;
@@ -73,32 +74,32 @@ bool GuiElement::IsMouseOver() const{
 
 class Button: public GuiElement{
 public:
-	std::function<void()> m_callBackFuntion;
-	bool m_isHighlighted;
+	std::function<void()> m_call_back_function;
+	bool m_is_special;
 
-	Button(const std::string text, std::function<void()> callBackFunction, bool isHighlighted){
+	Button(const std::string text, std::function<void()> call_back_function, bool is_special){
 		m_text= text;
-		m_callBackFuntion= callBackFunction;
-		m_isHighlighted= isHighlighted;
+		m_call_back_function= call_back_function;
+		m_is_special= is_special;
 	}
 
-	Button(const std::string text, std::function<void()> callBackFunction){
+	Button(const std::string text, std::function<void()> call_back_function){
 		m_text= text;
-		m_callBackFuntion= callBackFunction;
-		m_isHighlighted= false;
+		m_call_back_function= call_back_function;
+		m_is_special= false;
 	}
 
 	void Update() override{
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-			if(m_callBackFuntion){
-				m_callBackFuntion();
+			if(m_call_back_function){
+				m_call_back_function();
 			}
 		}
 	}
 
 	void Draw() override{
 		Color currentColor= ui_element_body;
-		if(m_isHighlighted){
+		if(m_is_special){
 			currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_special_h) : ui_special;
 		}
 		else{
@@ -108,7 +109,7 @@ public:
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), currentColor);
 		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		
-		if(m_isHighlighted){
+		if(m_is_special){
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
 		}
 		else{
@@ -235,9 +236,9 @@ public:
 	}
 };
 
-class TextBox: public GuiElement{
+class Comment: public GuiElement{
 public:
-	TextBox(std::string text){
+	Comment(std::string text){
 		m_text= text;
 	}
 
@@ -246,6 +247,44 @@ public:
 	void Draw() override{
 		Vector2 pos= { (float)static_cast<int>(m_position.x), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
+	}
+};
+
+class Thumbnail: public GuiElement{
+public:
+	Texture2D *m_texture;
+	std::function<void()> m_call_back_function;
+	std::string m_text_button;
+
+	Thumbnail(std::string text, Texture2D &texture, std::function<void()> call_back_function, std::string text_button){
+		m_text= text;
+		m_texture= &texture;
+		m_call_back_function= call_back_function;
+		m_text_button= text_button;
+	}
+
+	void Update() override{
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			if(m_call_back_function){
+				m_call_back_function();
+			}
+		}
+	}
+
+	void Draw() override{
+		Color currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
+		
+		DrawRectangle(static_cast<int>(m_position.x + thumnnail_size + element_padding), static_cast<int>(m_position.y +m_size.y/2),
+					  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
+		Vector2 pos= { (float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
+					   (float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
+		DrawTextEx(m_font, m_text_button.c_str(), pos, font_size, 2.0f, ui_text_light);
+
+		float scale= (m_texture->width> m_texture->height) ? thumnnail_size/(m_texture->width) : thumnnail_size/(m_texture->height);
+		DrawTextureEx(*m_texture, m_position, 0.0f, scale, WHITE);
+
+		Vector2 pos2= { (float)static_cast<int>(m_position.x + thumnnail_size + element_padding), (float)static_cast<int>(m_position.y + m_size.y/4 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos2, font_size, 2.0f, ui_text_light);
 	}
 };
 
@@ -291,7 +330,13 @@ public:
 
 		Vector2 newSize= m_size;
 		newSize.x -= element_padding *4;
-		newSize.y= font_size;
+		
+		if constexpr (std::is_same<T, Thumbnail>::value){
+			newSize.y= font_size *2 + element_padding;
+		}
+		else{
+			newSize.y= font_size;
+		}
 
 		element->SetPosition(newPosition);
 		element->SetSize(newSize);

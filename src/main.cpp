@@ -1,5 +1,28 @@
 #include "swangui.h"
 
+void DrawDemo3DScene(Camera3D& camera) {
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            for (int z = -2; z <= 2; z++) {
+                Color cubeColor = {
+                    static_cast<unsigned char>(abs(x) * 50),
+                    static_cast<unsigned char>(abs(y) * 50),
+                    static_cast<unsigned char>(abs(z) * 50),
+                    255
+                };
+                DrawCube({x * 2.0f, y * 2.0f, z * 2.0f}, 1.0f, 1.0f, 1.0f, cubeColor);
+            }
+        }
+    }
+	DrawCube(camera.position, 1.0f, 1.0f, 1.0f, YELLOW);
+}
+
+auto drawSceneFunction = [](Camera3D& camera) {
+	DrawPlane((Vector3){ 0, 0, 0 }, (Vector2){ 20, 20 }, DARKGREEN);
+	DrawCube((Vector3){0.0f, 0.5f, 0.0f}, 1.0f, 1.0f, 1.0f, WHITE);
+	DrawCube(camera.position, 1, 1, 1, RED);
+};
+
 int main() 
 {
 	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "SwanGUI Demo");
@@ -8,85 +31,138 @@ int main()
 	MaximizeWindow();
 	SetTargetFPS(144);
 
-	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
+	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
+	Texture2D fish= LoadTexture("resource/fish.png");
+	Texture2D logo= LoadTexture("resource/swan.png");
+
+	Texture2D c1= LoadTexture("resource/1.png");
+	Texture2D c2= LoadTexture("resource/2.png");
+	Texture2D c3= LoadTexture("resource/3.png");
+	Texture2D c4= LoadTexture("resource/4.png");
+	Texture2D c5= LoadTexture("resource/5.png");
+	Texture2D c6= LoadTexture("resource/6.png");
+	Texture2D c7= LoadTexture("resource/7.png");
+	Texture2D c8= LoadTexture("resource/8.png");
 
 	Vector2 panelPos=  {0, 0};
-	Vector2 panelSize= {150, 1080};
+	Vector2 panelPos1= {0, 0};
+	Vector2 panelPos2= {202, 0};
+	Vector2 panelPos3= {354, 0};
+	Vector2 panelPos4= {354, 743};
+	Vector2 panelPos5= {606, 0};
+	Vector2 panelPos6= {606, 520};
+
+	Vector2 panelSize= {200, 1080};
+	Vector2 panelSize2= {150, 1080};
+	Vector2 panelSize3= {250, 738};
+	Vector2 panelSize4= {250, 265};
+	Vector2 panelSize5= {500, 515};
 
 	SwanGui swanGui;
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
-	
-	auto button1= std::make_shared<Button>("Do Something", [](){std::cout<< "did something"<< std::endl;});
-	auto button2= std::make_shared<Button>("CHANGE RES", [](){std::cout<< "changed resolution"<< std::endl;}, false);
-	auto button3= std::make_shared<Button>("RENDER", [](){std::cout<< "rendered"<< std::endl;}, true);
-	
-	auto comment1= std::make_shared<Comment>("this is a comment");
-	auto comment2= std::make_shared<Comment>("and another comment");
+	auto panel1= std::make_shared<Panel>(panelPos1, panelSize, custom_font);
+	auto panel2= std::make_shared<Panel>(panelPos2, panelSize2, custom_font);
+	auto panel3= std::make_shared<Panel>(panelPos3, panelSize3, custom_font);
+	auto panel4= std::make_shared<Panel>(panelPos4, panelSize4, custom_font);
+	auto panel5= std::make_shared<Panel>(panelPos5, panelSize5, custom_font);
+	auto panel6= std::make_shared<Panel>(panelPos6, panelSize5, custom_font);
 
-	bool is_this_enabled= false;
-	auto checkbox1= std::make_shared<CheckBox>("Bloom", is_this_enabled);
-	auto checkbox2= std::make_shared<CheckBox>("Stars", is_this_enabled);
+	int force= 10;	
+	bool yes= true;
+	bool no= false;
+	int worldSize= 32000;
+	int entityCount= 128;
+	panel1->addElement(std::make_shared<Comment>("Operations"));
+	panel1->addElement(std::make_shared<Button>("Apply Gravity", [](){}, false));
+	panel1->addElement(std::make_shared<Slider>("Force", force, 1, -100, 100));
+	panel1->addElement(std::make_shared<CheckBox>("Speed Limit", yes));
+	panel1->addElement(std::make_shared<CheckBox>("World Border", no));
+	panel1->addElement(std::make_shared<Slider>("World Size", worldSize, 10));
+	panel1->addElement(std::make_shared<Slider>("Entity Count", entityCount, 1));
+	int colorCount= 3;
+	panel1->addElement(std::make_shared<Button>("Invert Colors", [](){}, false));
+	panel1->addElement(std::make_shared<Slider>("Color Count", colorCount, 1));
+	panel1->addElement(std::make_shared<CheckBox>("Invert", no));
+	panel1->addElement(std::make_shared<Button>("Add Color", [](){}, false));
+	panel1->addElement(std::make_shared<Thumbnail>("logo.png", logo, [](){}, "Rotate 90'"));
+	int attachments= 7;
+	panel1->addElement(std::make_shared<Button>("Attach Selected", [](){}, false));
+	panel1->addElement(std::make_shared<Slider>("Attachments", attachments, 1));
+	panel1->addElement(std::make_shared<Slider>("Attach Limit", attachments, 1));
+	panel1->addElement(std::make_shared<CheckBox>("Attachments", yes));
+	panel1->addElement(std::make_shared<Button>("Deattach", [](){}, false));
+	int selection= 23;
+	panel1->addElement(std::make_shared<Button>("Merge Meshes", [](){}, false));
+	panel1->addElement(std::make_shared<Slider>("Selected", selection, 1));
+	panel1->addElement(std::make_shared<CheckBox>("Auto Merge", no));
+	panel1->addElement(std::make_shared<CheckBox>("Clipping", yes));
+	panel1->addElement(std::make_shared<CheckBox>("Bounding Box", yes));
+	int cubeCount= 19;
+	panel1->addElement(std::make_shared<Button>("Triangulate", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("Reverse", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("Subdivide", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("Toggle Wires", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("Add Cube", [](){}, false));
+	panel1->addElement(std::make_shared<Slider>("Cube Count", cubeCount, 1));
+	panel1->addElement(std::make_shared<Button>("Lock Cursor", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("Add Break Point", [](){}, false));
+	panel1->addElement(std::make_shared<CheckBox>("Until Failure", yes));
+	panel1->addElement(std::make_shared<Button>("Restore Scene", [](){}, false));
+	panel1->addElement(std::make_shared<Button>("SAVE AND EXIT", [](){}, true));
 
-	int speed= 50;
-	auto slider1= std::make_shared<Slider>("Speed", speed, 1, 0, 100);
-	auto slider2= std::make_shared<Slider>("Speed", speed, 1, 0, 100);
+	int colorCount2= 8;
+	panel2->addElement(std::make_shared<Comment>("Colors"));
+	panel2->addElement(std::make_shared<Button>("Add Color", [](){}, false));
+	panel2->addElement(std::make_shared<Button>("Remove Color", [](){}, false));
+	panel2->addElement(std::make_shared<Thumbnail>("Red", c1, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Orange", c2, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Yellow", c3, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Green", c4, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Cyan", c5, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Blue", c6, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Purple", c7, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Thumbnail>("Pink", c8, [](){}, "Select"));
+	panel2->addElement(std::make_shared<Button>("Add List", [](){}, false));
+	panel2->addElement(std::make_shared<Button>("SAVE COLORS", [](){}, true));
+	panel2->addElement(std::make_shared<Button>("Sort By Red", [](){}, false));
+	panel2->addElement(std::make_shared<Slider>("Color Count", colorCount2, 1));
+	panel2->addElement(std::make_shared<CheckBox>("Show List", no));
+	panel2->addElement(std::make_shared<CheckBox>("Editing", no));
 
-	Texture2D test_texture1= LoadTexture("test.png");
-	Texture2D test_texture2= LoadTexture("fish.png");
-	auto thumbnail1= std::make_shared<Thumbnail>("test.png", test_texture1, [](){}, "Select");
-	auto thumbnail2= std::make_shared<Thumbnail>("fish.png", test_texture2, [](){}, "Rename");
+	panel3->addElement(std::make_shared<Comment>("Static Image"));
+	panel3->addElement(std::make_shared<Button>("Add Image", [](){}, false));
+	panel3->addElement(std::make_shared<Billboard>(logo));
+	panel3->addElement(std::make_shared<Billboard>(fish));
+	panel3->addElement(std::make_shared<Button>("Reverse Images", [](){}, false));
+	panel3->addElement(std::make_shared<CheckBox>("Transparency", no));
+	panel3->addElement(std::make_shared<CheckBox>("Lazy Loading", no));
+	panel3->addElement(std::make_shared<Button>("Apply Post Process", [](){}, false));
+	panel3->addElement(std::make_shared<Button>("Add to Scene", [](){}, false));
+	panel3->addElement(std::make_shared<Button>("Set as Background", [](){}, false));
+	panel3->addElement(std::make_shared<Button>("SAVE IMAGES", [](){}, true));
 
-	auto billboard1= std::make_shared<Billboard>(test_texture2);
-
-	int frame_delay = 7;
-	auto billboard2 = std::make_shared<BillboardGif>("swan.gif", frame_delay);
-
-	auto slider3= std::make_shared<Slider>("frame delay", frame_delay, 1, 0, 50);
-
-	auto thumbnailGif = std::make_shared<ThumbnailGif>("Animated GIF", "swan.gif", [](){std::cout << "GIF Thumbnail clicked" << std::endl;}, "Select",7);
-
-	auto drawSceneFunction = [](Camera3D& camera) {
-		DrawPlane((Vector3){ 0, 0, 0 }, (Vector2){ 20, 20 }, DARKGREEN);
-		DrawCube((Vector3){0.0f, 0.0f, 0.0f}, 1.0f, 1.0f, 1.0f, WHITE);
-		DrawCube(camera.position, 1, 1, 1, RED);
-	};
+	int frameDelay= 6;
+	panel4->addElement(std::make_shared<Comment>("Animated Image"));
+	panel4->addElement(std::make_shared<BillboardGif>("resource/swan.gif", frameDelay));
 
 	Camera3D camera= {0};
 	camera.position= (Vector3){0.0f, 2.0f, -10.0f};
 	camera.target= (Vector3){0.0f, 0.0f, 0.0f};
 	camera.up= (Vector3){0.0f, 1.0f, 0.0f};
 	camera.fovy= 65.0f;
+	panel5->addElement(std::make_shared<Comment>("Interactive 3D Camera View"));
+	panel5->addElement(std::make_shared<CameraView3D>(camera, 500, DrawDemo3DScene));
 
-	auto cameraView = std::make_shared<CameraView3D>(camera, 150, drawSceneFunction);
+	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
+	panel6->addElement(std::make_shared<CameraView3D>(camera, 500, drawSceneFunction));
 
-	panel->addElement(button1);
-	panel->addElement(button2);
-
-	panel->addElement(checkbox1);
-	panel->addElement(checkbox2);
-
-	panel->addElement(slider1);
-	panel->addElement(slider2);
-
-	panel->addElement(button3);	
-
-	panel->addElement(comment1);
-	panel->addElement(comment2);
-
-	panel->addElement(thumbnail1);
-	panel->addElement(thumbnail2);
-
-	panel->addElement(billboard1);
-	panel->addElement(billboard2);
-
-	panel->addElement(slider3);
-
-	panel->addElement(cameraView);
-
-	panel->addElement(thumbnailGif);
-
-	swanGui.AddPanel(panel);
+	swanGui.AddPanel(panel1);
+	swanGui.AddPanel(panel2);
+	swanGui.AddPanel(panel3);
+	swanGui.AddPanel(panel4);
+	swanGui.AddPanel(panel5);
+	swanGui.AddPanel(panel6);
 
 	while (!WindowShouldClose())
 	{

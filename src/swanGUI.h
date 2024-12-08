@@ -470,7 +470,7 @@ public:
 
 	void Draw() override{
 		BeginTextureMode(m_render_texture);
-			ClearBackground(SKYBLUE);
+			ClearBackground(BLACK);
 			
 			BeginMode3D(m_camera);
 				if(m_draw_scene_function) m_draw_scene_function(m_camera);

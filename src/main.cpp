@@ -7,7 +7,7 @@ int main()
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
-	SetTargetFPS(60);
+	SetTargetFPS(144);
 
 	Font custom_font= LoadFontEx("source-sans-pro.bold.ttf", 14, 0, 0);
 
@@ -18,7 +18,7 @@ int main()
 
 	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
 	
-	auto button1= std::make_shared<Button>("Set", [](){std::cout<< "did something"<< std::endl;});
+	auto button1= std::make_shared<Button>("Do Something", [](){std::cout<< "did something"<< std::endl;});
 	auto button2= std::make_shared<Button>("CHANGE RES", [](){std::cout<< "changed resolution"<< std::endl;}, false);
 	auto button3= std::make_shared<Button>("RENDER", [](){std::cout<< "rendered"<< std::endl;}, true);
 	
@@ -38,7 +38,12 @@ int main()
 	auto thumbnail1= std::make_shared<Thumbnail>("test.png", test_texture1, [](){}, "Select");
 	auto thumbnail2= std::make_shared<Thumbnail>("fish.png", test_texture2, [](){}, "Rename");
 
-	auto billboard1= std::make_shared<Billboard>("billboard", test_texture2);
+	auto billboard1= std::make_shared<Billboard>(test_texture2);
+
+	int frame_delay = 7;
+	auto billboard2 = std::make_shared<BillboardGif>("swan.gif", frame_delay);
+
+	auto slider3= std::make_shared<Slider>("frame delay", frame_delay, 1, 0, 50);
 
 	panel->addElement(button1);
 	panel->addElement(button2);
@@ -58,6 +63,9 @@ int main()
 	panel->addElement(thumbnail2);
 
 	panel->addElement(billboard1);
+	panel->addElement(billboard2);
+
+	panel->addElement(slider3);
 
 	swanGui.AddPanel(panel);
 

@@ -35,7 +35,7 @@ class Comment;
 class Thumbnail;
 class Billboard;
 //class ThumnailGif;
-//class BillboardGif
+class BillboardGif;
 //class CameraView2D;
 //class CameraView3D;
 
@@ -294,16 +294,64 @@ class Billboard: public GuiElement{
 public:
 	Texture2D *m_texture;
 
-	Billboard(std::string text, Texture2D &texture){
-		m_text= text;
+	Billboard(Texture2D &texture){
 		m_texture= &texture;
+	}
+
+	~Billboard(){
+		UnloadTexture(*m_texture);
 	}
 
 	void Update() override{}
 
 	void Draw() override{
-		float scale= (m_texture->width> m_texture->height) ? m_size.x/(m_texture->width) : m_size.x/(m_texture->height);
+		float scale= (m_texture->width> m_texture->height) ? (float)m_size.x/(m_texture->width) : (float)m_size.x/(m_texture->height);
 		DrawTextureEx(*m_texture, m_position, 0.0f, scale, WHITE);
+	}
+};
+
+class BillboardGif: public GuiElement{
+public:
+	Image m_image_anim;
+	Texture2D m_texture_anim;
+	int m_frames= 0;
+	unsigned int m_next_frame= 0;
+	int m_current_frame= 0;
+	int *m_frame_delay;
+	int m_frame_counter= 0;
+	std::string m_gif_path;
+
+	BillboardGif(const std::string& gif_path, int &frame_delay){
+		m_gif_path = gif_path;
+		m_frame_delay = &frame_delay;
+		
+		m_image_anim = LoadImageAnim(m_gif_path.c_str(), &m_frames);
+		
+		m_texture_anim = LoadTextureFromImage(m_image_anim);
+	}
+
+	~BillboardGif(){
+		UnloadTexture(m_texture_anim);
+		UnloadImage(m_image_anim);
+	}
+
+	void Update() override{
+		m_frame_counter++;
+		if(m_frame_counter >= *m_frame_delay){
+			m_current_frame++;
+			if(m_current_frame>= m_frames) m_current_frame= 0;
+			
+			m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
+
+			UpdateTexture(m_texture_anim, ((unsigned char*)m_image_anim.data) + m_next_frame);
+			
+			m_frame_counter= 0;
+		}
+	}
+
+	void Draw() override{
+		float scale= (m_texture_anim.width> m_texture_anim.height) ? m_size.x/(float)m_texture_anim.width : m_size.x/(float)m_texture_anim.height;
+		DrawTextureEx(m_texture_anim, m_position, 0.0f, scale, WHITE);
 	}
 };
 
@@ -353,7 +401,7 @@ public:
 		if constexpr (std::is_same<T, Thumbnail>::value){
 			newSize.y= font_size *2 + element_padding;
 		}
-		else if constexpr (std::is_same<T, Billboard>::value){
+		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value){
 			newSize.y= newSize.x;
 		}
 		else{

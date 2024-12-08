@@ -33,8 +33,9 @@ class CheckBox;
 class Slider;
 class Comment;
 class Thumbnail;
-class BillboardS;
-//class GifBox;
+class Billboard;
+//class ThumnailGif;
+//class BillboardGif
 //class CameraView2D;
 //class CameraView3D;
 
@@ -289,11 +290,11 @@ public:
 	}
 };
 
-class BillboardS: public GuiElement{
+class Billboard: public GuiElement{
 public:
 	Texture2D *m_texture;
 
-	BillboardS(std::string text, Texture2D &texture){
+	Billboard(std::string text, Texture2D &texture){
 		m_text= text;
 		m_texture= &texture;
 	}
@@ -352,7 +353,7 @@ public:
 		if constexpr (std::is_same<T, Thumbnail>::value){
 			newSize.y= font_size *2 + element_padding;
 		}
-		else if constexpr (std::is_same<T, BillboardS>::value){
+		else if constexpr (std::is_same<T, Billboard>::value){
 			newSize.y= newSize.x;
 		}
 		else{

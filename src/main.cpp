@@ -38,7 +38,7 @@ int main()
 	auto thumbnail1= std::make_shared<Thumbnail>("test.png", test_texture1, [](){}, "Select");
 	auto thumbnail2= std::make_shared<Thumbnail>("fish.png", test_texture2, [](){}, "Rename");
 
-	auto billboard1= std::make_shared<BillboardS>("billboard", test_texture2);
+	auto billboard1= std::make_shared<Billboard>("billboard", test_texture2);
 
 	panel->addElement(button1);
 	panel->addElement(button2);

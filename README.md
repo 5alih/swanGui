@@ -37,7 +37,7 @@ NOTE: The size, position, color and font of panels are fully customisable.
 SwanGui gui;
 
 // Create a panel
-auto panel = std::make_shared<Panel>({50,  50},  {300,  400});
+auto panel = std::make_shared<Panel>({3,  1},  {3,  4});
 
 // Add elements to the panel
 panel->addElement(std::make_shared<Button>("Click Me",  []()  {  /* callback */  }));

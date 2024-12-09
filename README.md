@@ -62,10 +62,10 @@ gui.Draw();`
 -   Flexible element positioning
 -   Color theming
 -   Font customization
+-   Grid based pixel perfect placement
 
 ### Pending Features
 
--   Implement panel carrying (panels can be grabbed and moved in a grid)
 -   Add scrolling functionality to panels
 -   Create super panels that can hold other panels
 -   Develop grid-based panels (can expand vertically)

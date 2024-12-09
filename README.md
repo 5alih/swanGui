@@ -1,4 +1,4 @@
-
+![swanGui](https://github.com/user-attachments/assets/43ec2c5c-dfe7-405c-9088-fd1b4abfa510)
 # SwanGui: A Lightweight Raylib-based GUI Library
 
 ## Overview
@@ -63,7 +63,7 @@ gui.Draw();`
 -   Color theming
 -   Font customization
 
-### Pending Features (from original TODO comments)
+### Pending Features
 
 -   Add handle/header to panels (panels can be minimized)
 -   Implement panel carrying (panels can be grabbed and moved in a grid)

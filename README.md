@@ -65,7 +65,6 @@ gui.Draw();`
 
 ### Pending Features
 
--   Add handle/header to panels (panels can be minimized)
 -   Implement panel carrying (panels can be grabbed and moved in a grid)
 -   Add scrolling functionality to panels
 -   Create super panels that can hold other panels

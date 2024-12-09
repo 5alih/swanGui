@@ -63,7 +63,7 @@ gui.Draw();`
 -   Color theming
 -   Font customization
 
-### Pending Features (from original TODO comments)
+### Pending Features
 
 -   Add handle/header to panels (panels can be minimized)
 -   Implement panel carrying (panels can be grabbed and moved in a grid)

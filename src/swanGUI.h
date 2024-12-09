@@ -2,8 +2,6 @@
 #define SWANGUI_H
 
 //TO DO:
-//	add handle/ header to panels (panels can be minimized)
-//	add carrying panels (panels can be grabbed and moved in a grid)
 //	add scrolling to panels
 //	add super panels that can hold other panels (panels can be placed in a super panel)
 //	add panels that are grid based (can expand vertically)
@@ -39,6 +37,7 @@ Color ui_special_h=		{0, 65, 135, 255};
 const int font_size= 14;
 const int element_padding= 3;
 const float thumnnail_size= 32.0f;
+const int grid_size= 40;
 
 class Panel;
 class Button;
@@ -503,17 +502,18 @@ public:
 	int m_header_size= font_size;
 	bool m_is_minimized= false;
 	bool m_is_moving= false;
+	int m_grid_size= grid_size;
 
 	Panel(std::string text, Vector2 position, Vector2 size){
 		m_text= text;
-		SetPosition(position);
-		SetSize(size);
+		SetPosition( (Vector2){position.x * m_grid_size, position.y * m_grid_size} );
+		SetSize( (Vector2){size.x * m_grid_size, size.y * m_grid_size} );
 	}
 
 	Panel(std::string text, Vector2 position, Vector2 size, Font custom_font){
 		m_text= text;
-		SetPosition(position);
-		SetSize(size);
+		SetPosition( (Vector2){position.x * m_grid_size, position.y * m_grid_size} );
+		SetSize( (Vector2){size.x * m_grid_size, size.y * m_grid_size} );
 		m_custom_font= custom_font;
 	}
 
@@ -524,7 +524,24 @@ public:
 		if(m_is_moving== false && IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
 			m_is_moving= true;
 		}
-		else if(m_is_moving== true && ( IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
+		else if(m_is_moving== true && (IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
+			Vector2 fixedPos;
+			fixedPos.x= (int)(m_position.x / m_grid_size);
+			fixedPos.y= (int)(m_position.y / m_grid_size);
+
+			fixedPos.x= ( ((fixedPos.x *m_grid_size) -m_position.x) *(-1) < (((fixedPos.x + 1) *m_grid_size) -m_position.x )) ? fixedPos.x *m_grid_size : (fixedPos.x + 1) *m_grid_size;
+			fixedPos.y= ( ((fixedPos.y *m_grid_size) -m_position.y) *(-1) < (((fixedPos.y + 1) *m_grid_size) -m_position.y )) ? fixedPos.y *m_grid_size : (fixedPos.y + 1) *m_grid_size;
+			
+			Vector2 delta;
+			delta.x= fixedPos.x -m_position.x;
+			delta.y= fixedPos.y -m_position.y;
+
+			m_position= fixedPos;
+
+			for(auto &element: m_elements){
+				element->m_position.x+= delta.x;
+				element->m_position.y+= delta.y;
+			}
 			m_is_moving= false;
 		}
 
@@ -555,7 +572,7 @@ public:
 		}
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);
 		Vector2 pos= { (float)static_cast<int>(m_position.x + element_padding), (float)static_cast<int>(m_position.y + m_header_size/2 - font_size/2.5)};
-		DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
+		DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
 	}
 
 	template <typename T>

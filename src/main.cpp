@@ -45,17 +45,17 @@ int main()
 	Texture2D c8= LoadTexture("resource/8.png");
 
 	Vector2 panelPos1= {0, 0};
-	Vector2 panelPos2= {202, 0};
-	Vector2 panelPos3= {354, 0};
-	Vector2 panelPos4= {354, 752};
-	Vector2 panelPos5= {606, 0};
-	Vector2 panelPos6= {606, 529};
+	Vector2 panelPos2= {5, 0};
+	Vector2 panelPos3= {8, 0};
+	Vector2 panelPos4= {8, 19};
+	Vector2 panelPos5= {14, 0};
+	Vector2 panelPos6= {14, 13};
 
-	Vector2 panelSize= {200, 1080};
-	Vector2 panelSize2= {150, 1080};
-	Vector2 panelSize3= {250, 749};
-	Vector2 panelSize4= {250, 276};
-	Vector2 panelSize5= {500, 526};
+	Vector2 panelSize= {5, 26};
+	Vector2 panelSize2= {3, 26};
+	Vector2 panelSize3= {6, 19};
+	Vector2 panelSize4= {6, 7};
+	Vector2 panelSize5= {12, 13};
 
 	SwanGui swanGui;
 
@@ -123,7 +123,7 @@ int main()
 	panel2->addElement(std::make_shared<Button>("Add List", [](){}, false));
 	panel2->addElement(std::make_shared<Button>("SAVE COLORS", [](){}, true));
 	panel2->addElement(std::make_shared<Button>("Sort By Red", [](){}, false));
-	panel2->addElement(std::make_shared<Slider>("Color Count", colorCount2, 1));
+	panel2->addElement(std::make_shared<Slider>("Count", colorCount2, 1));
 	panel2->addElement(std::make_shared<CheckBox>("Show List", no));
 	panel2->addElement(std::make_shared<CheckBox>("Editing", no));
 
@@ -149,10 +149,10 @@ int main()
 	camera.up= (Vector3){0.0f, 1.0f, 0.0f};
 	camera.fovy= 65.0f;
 	panel5->addElement(std::make_shared<Comment>("Interactive 3D Camera View"));
-	panel5->addElement(std::make_shared<CameraView3D>(camera, 500, DrawDemo3DScene));
+	panel5->addElement(std::make_shared<CameraView3D>(camera, 480, DrawDemo3DScene));
 
 	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
-	panel6->addElement(std::make_shared<CameraView3D>(camera, 500, drawSceneFunction));
+	panel6->addElement(std::make_shared<CameraView3D>(camera, 480, drawSceneFunction));
 
 	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel1);
@@ -167,7 +167,7 @@ int main()
 		swanGui.Update();
 
 		BeginDrawing();
-			ClearBackground( (Color){20, 20, 20, 255} );
+			ClearBackground( (Color){200, 200, 200, 255} );
 			swanGui.Draw();
 
 		EndDrawing();

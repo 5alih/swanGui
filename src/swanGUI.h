@@ -502,6 +502,7 @@ public:
 	Font m_custom_font= GetFontDefault();
 	int m_header_size= font_size;
 	bool m_is_minimized= false;
+	bool m_is_moving= false;
 
 	Panel(std::string text, Vector2 position, Vector2 size){
 		m_text= text;
@@ -519,6 +520,23 @@ public:
 	void Update() override{
 		if(IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			m_is_minimized= !m_is_minimized;
+		}
+		if(m_is_moving== false && IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
+			m_is_moving= true;
+		}
+		else if(m_is_moving== true && ( IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
+			m_is_moving= false;
+		}
+
+		if(m_is_moving){
+			Vector2 delta= GetMouseDelta();
+			m_position.x+= delta.x;
+			m_position.y+= delta.y;
+
+			for(auto &element: m_elements){
+				element->m_position.x+= delta.x;
+				element->m_position.y+= delta.y;
+			}
 		}
 
 		if(m_is_minimized== false){

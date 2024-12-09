@@ -25,6 +25,7 @@
 
 Color ui_background= 	{25, 25, 25, 255};
 Color ui_panel_body= 	{35, 35, 35, 255};
+Color ui_panel_header= 	{15, 15, 15, 255};
 Color ui_element_body=	{65, 65, 65, 255};
 Color ui_element_hover=	{50, 50, 50, 255};
 Color ui_element_click=	{10, 10, 10, 255};
@@ -77,12 +78,17 @@ public:
 	void SetFont(Font font){m_font= font;};
 
 	bool IsMouseOver() const;
+	bool IsMouseOverEx(Vector2 position, Vector2 size) const;
 };
 
 bool GuiElement::IsMouseOver() const{
 	Vector2 mousePos= GetMousePosition();
-
 	return (mousePos.x >= m_position.x && mousePos.x <= m_position.x + m_size.x && mousePos.y >= m_position.y && mousePos.y <= m_position.y + m_size.y);
+}
+
+bool GuiElement::IsMouseOverEx(Vector2 position, Vector2 size) const{
+	Vector2 mousePos= GetMousePosition();
+	return (mousePos.x >= position.x && mousePos.x <= position.x + size.x && mousePos.y >= position.y && mousePos.y <= position.y + size.y);
 }
 
 class Button: public GuiElement{
@@ -121,7 +127,7 @@ public:
 		
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), currentColor);
 		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
-		
+
 		if(m_is_special){
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
 		}
@@ -494,29 +500,44 @@ class Panel: public GuiElement{//_______________________________________________
 public:
 	std::vector<std::shared_ptr<GuiElement>> m_elements;
 	Font m_custom_font= GetFontDefault();
+	int m_header_size= font_size;
+	bool m_is_minimized= false;
 
-	Panel(Vector2 position, Vector2 size){
+	Panel(std::string text, Vector2 position, Vector2 size){
+		m_text= text;
 		SetPosition(position);
 		SetSize(size);
 	}
 
-	Panel(Vector2 position, Vector2 size, Font custom_font){
+	Panel(std::string text, Vector2 position, Vector2 size, Font custom_font){
+		m_text= text;
 		SetPosition(position);
 		SetSize(size);
 		m_custom_font= custom_font;
 	}
 
 	void Update() override{
-		for(auto& element : m_elements){
-			element->Update();
+		if(IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_is_minimized= !m_is_minimized;
+		}
+
+		if(m_is_minimized== false){
+			for(auto& element : m_elements){
+				element->Update();
+			}
 		}
 	}
 
 	void Draw() override{
-		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
-		for(auto& element : m_elements){
-			element->Draw();
+		if(m_is_minimized== false){
+			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
+			for(auto& element : m_elements){
+				element->Draw();
+			}
 		}
+		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);
+		Vector2 pos= { (float)static_cast<int>(m_position.x + element_padding), (float)static_cast<int>(m_position.y + m_header_size/2 - font_size/2.5)};
+		DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
 	}
 
 	template <typename T>
@@ -525,14 +546,13 @@ public:
 
 		Vector2 newPosition = m_position;
 		newPosition.x += element_padding *2;
-		newPosition.y += element_padding *2;
+		newPosition.y += element_padding +font_size;
 		for(const auto& elem : m_elements) {
 			newPosition.y += elem->m_size.y + element_padding;
 		}
 
 		Vector2 newSize= m_size;
-		newSize.x -= element_padding *4;
-		
+		newSize.x-= element_padding *4;
 		if constexpr (std::is_same<T, Thumbnail>::value || std::is_same<T, ThumbnailGif>::value){
 			newSize.y= font_size *2 + element_padding;
 		}

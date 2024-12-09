@@ -27,8 +27,8 @@ int main()
 {
 	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "SwanGUI Demo");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
+	SetWindowState(FLAG_INTERLACED_HINT);
 	SetExitKey(KEY_NULL);
-	MaximizeWindow();
 	SetTargetFPS(144);
 
 	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
@@ -44,36 +44,33 @@ int main()
 	Texture2D c7= LoadTexture("resource/7.png");
 	Texture2D c8= LoadTexture("resource/8.png");
 
-	Vector2 panelPos=  {0, 0};
 	Vector2 panelPos1= {0, 0};
 	Vector2 panelPos2= {202, 0};
 	Vector2 panelPos3= {354, 0};
-	Vector2 panelPos4= {354, 743};
+	Vector2 panelPos4= {354, 752};
 	Vector2 panelPos5= {606, 0};
-	Vector2 panelPos6= {606, 520};
+	Vector2 panelPos6= {606, 529};
 
 	Vector2 panelSize= {200, 1080};
 	Vector2 panelSize2= {150, 1080};
-	Vector2 panelSize3= {250, 738};
-	Vector2 panelSize4= {250, 265};
-	Vector2 panelSize5= {500, 515};
+	Vector2 panelSize3= {250, 749};
+	Vector2 panelSize4= {250, 276};
+	Vector2 panelSize5= {500, 526};
 
 	SwanGui swanGui;
 
-	auto panel= std::make_shared<Panel>(panelPos, panelSize, custom_font);
-	auto panel1= std::make_shared<Panel>(panelPos1, panelSize, custom_font);
-	auto panel2= std::make_shared<Panel>(panelPos2, panelSize2, custom_font);
-	auto panel3= std::make_shared<Panel>(panelPos3, panelSize3, custom_font);
-	auto panel4= std::make_shared<Panel>(panelPos4, panelSize4, custom_font);
-	auto panel5= std::make_shared<Panel>(panelPos5, panelSize5, custom_font);
-	auto panel6= std::make_shared<Panel>(panelPos6, panelSize5, custom_font);
+	auto panel1= std::make_shared<Panel>("BUTTONS AND SLIDERS", panelPos1, panelSize, custom_font);
+	auto panel2= std::make_shared<Panel>("COLORS", panelPos2, panelSize2, custom_font);
+	auto panel3= std::make_shared<Panel>("BILLBOARDS", panelPos3, panelSize3, custom_font);
+	auto panel4= std::make_shared<Panel>("GIF BILLBOARD", panelPos4, panelSize4, custom_font);
+	auto panel5= std::make_shared<Panel>("3D CAMERA", panelPos5, panelSize5, custom_font);
+	auto panel6= std::make_shared<Panel>("3D CAMERA", panelPos6, panelSize5, custom_font);
 
 	int force= 10;	
 	bool yes= true;
 	bool no= false;
 	int worldSize= 32000;
 	int entityCount= 128;
-	panel1->addElement(std::make_shared<Comment>("Operations"));
 	panel1->addElement(std::make_shared<Button>("Apply Gravity", [](){}, false));
 	panel1->addElement(std::make_shared<Slider>("Force", force, 1, -100, 100));
 	panel1->addElement(std::make_shared<CheckBox>("Speed Limit", yes));
@@ -157,6 +154,7 @@ int main()
 	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
 	panel6->addElement(std::make_shared<CameraView3D>(camera, 500, drawSceneFunction));
 
+	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel2);
 	swanGui.AddPanel(panel3);

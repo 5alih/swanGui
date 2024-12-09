@@ -63,6 +63,7 @@ gui.Draw();`
 -   Color theming
 -   Font customization
 -   Grid based pixel perfect placement
+-   Smooth rounded edges
 
 ### Pending Features
 
@@ -76,7 +77,6 @@ gui.Draw();`
 
 ### Potential Improvements
 
--   Make elements rounded
 -   Add error handling and input validation
 -   Implement more sophisticated layout management
 -   Create a more robust theming system

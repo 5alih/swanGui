@@ -793,24 +793,35 @@ public:
 		DrawRectangleGradientH(m_position.x, m_position.y, m_size.y, m_size.y, WHITE, *m_color);
 		DrawRectangleGradientV(m_position.x, m_position.y, m_size.y, m_size.y, (Color){0, 0, 0, 0}, BLACK);
 
+		Vector2 pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/4)*3 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, ui_text_light);
+
 		DrawRectangleRounded(m_rec_r, 0.3f, 2, (m_is_active_r) ? ui_element_hover : ui_element_body);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText("R", font_size)/2), (float)static_cast<int>(m_pos_r.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, "R", pos_text, font_size, 2.0f, ui_text_light);
 		str= to_string(m_r);
-		Vector2 pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_r.y + m_slider_size.y/2 - font_size/2.5)};
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*7 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_r.y + m_slider_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 
 		DrawRectangleRounded(m_rec_g, 0.3f, 2, (m_is_active_g) ? ui_element_hover : ui_element_body);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText("G", font_size)/2), (float)static_cast<int>(m_pos_g.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, "G", pos_text, font_size, 2.0f, ui_text_light);
 		str= to_string(m_g);
-		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_g.y + m_slider_size.y/2 - font_size/2.5)};
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*7 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_g.y + m_slider_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 
 		DrawRectangleRounded(m_rec_b, 0.3f, 2, (m_is_active_b) ? ui_element_hover : ui_element_body);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText("B", font_size)/2), (float)static_cast<int>(m_pos_b.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, "B", pos_text, font_size, 2.0f, ui_text_light);
 		str= to_string(m_b);
-		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_b.y + m_slider_size.y/2 - font_size/2.5)};
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*7 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_b.y + m_slider_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 
 		DrawRectangleRounded(m_rec_a, 0.3f, 2, (m_is_active_a) ? ui_element_hover : ui_element_body);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText("A", font_size)/2), (float)static_cast<int>(m_pos_a.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, "A", pos_text, font_size, 2.0f, ui_text_light);
 		str= to_string(m_a);
-		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_a.y + m_slider_size.y/2 - font_size/2.5)};
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*7 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_a.y + m_slider_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 	}
 };

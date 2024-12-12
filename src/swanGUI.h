@@ -728,16 +728,16 @@ public:
 	}
 
 	void CompleteCalculation(){
-        m_slider_size = {m_size.x/4, font_size};
-        m_pos_r = {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
-        m_pos_g = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
-        m_pos_b = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
-        m_pos_a = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
+		m_slider_size = {m_size.x/4, font_size};
+		m_pos_r = {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
+		m_pos_g = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
+		m_pos_b = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
+		m_pos_a = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
 
-        m_rec_r = {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
-        m_rec_g = {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
-        m_rec_b = {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
-        m_rec_a = {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
+		m_rec_r = {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
+		m_rec_g = {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
+		m_rec_b = {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
+		m_rec_a = {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
 	}
 
 	void Update() override{

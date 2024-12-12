@@ -14,13 +14,11 @@ void DrawDemo3DScene(Camera3D& camera) {
             }
         }
     }
-	DrawCube(camera.position, 1.0f, 1.0f, 1.0f, YELLOW);
 }
 
 auto drawSceneFunction = [](Camera3D& camera) {
-	DrawPlane((Vector3){ 0, 0, 0 }, (Vector2){ 20, 20 }, DARKGREEN);
-	DrawCube((Vector3){0.0f, 0.5f, 0.0f}, 1.0f, 1.0f, 1.0f, WHITE);
-	DrawCube(camera.position, 1, 1, 1, RED);
+	DrawPlane((Vector3){ 0, 0, 0 }, (Vector2){ 20, 20 }, ui_element_body);
+	DrawCube( (Vector3){0.0f, 0.5f, 0.0f}, 1.0f, 1.0f, 1.0f, ui_special);
 };
 
 int main() 
@@ -124,8 +122,8 @@ int main()
 	panel2->addElement(std::make_shared<Button>("SAVE COLORS", [](){}, true));
 	panel2->addElement(std::make_shared<Button>("Sort By Red", [](){}, false));
 	panel2->addElement(std::make_shared<Slider>("Count", colorCount2, 1));
-	panel2->addElement(std::make_shared<CheckBox>("Show List", no));
-	panel2->addElement(std::make_shared<CheckBox>("Editing", no));
+	panel2->addElement(std::make_shared<CheckBox>("List", no));
+	panel2->addElement(std::make_shared<CheckBox>("Edit", no));
 
 	panel3->addElement(std::make_shared<Comment>("Static Image"));
 	panel3->addElement(std::make_shared<Button>("Add Image", [](){}, false));
@@ -141,7 +139,7 @@ int main()
 
 	int frameDelay= 6;
 	panel4->addElement(std::make_shared<Comment>("Animated Image"));
-	panel4->addElement(std::make_shared<BillboardGif>("resource/swan.gif", frameDelay));
+	panel4->addElement(std::make_shared<BillboardGif>("resource/a.gif", frameDelay));
 
 	Camera3D camera= {0};
 	camera.position= (Vector3){0.0f, 2.0f, -10.0f};
@@ -167,7 +165,8 @@ int main()
 		swanGui.Update();
 
 		BeginDrawing();
-			ClearBackground( (Color){200, 200, 200, 255} );
+			//ClearBackground( (Color){200, 200, 200, 255} );
+			ClearBackground( BLACK );
 			swanGui.Draw();
 
 		EndDrawing();

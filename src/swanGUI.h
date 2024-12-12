@@ -22,17 +22,20 @@
 #include "raylib.h"
 
 Color ui_background= 	{25, 25, 25, 255};
-Color ui_panel_body= 	{35, 35, 35, 255};
-Color ui_panel_header= 	{15, 15, 15, 255};
-Color ui_element_body=	{65, 65, 65, 255};
-Color ui_element_hover=	{50, 50, 50, 255};
+Color ui_panel_body= 	{17, 24, 32, 255};
+Color ui_panel_header= 	{9, 12, 15, 255};
+
+Color ui_element_body=	{29, 38, 51, 255};
+Color ui_element_hover=	{24, 30, 40, 255};
 Color ui_element_click=	{10, 10, 10, 255};
-Color ui_text_dark=	 	{40, 40, 40, 255};
-Color ui_text_light= {195, 195, 195, 255};
-Color ui_text_hover= {245, 245, 245, 255};
-Color ui_text_highl= {210, 210, 210, 255};
-Color ui_special=		{0, 85, 155, 255};
-Color ui_special_h=		{0, 65, 135, 255};
+
+Color ui_text_dark=	 	{255, 255, 255, 255};
+Color ui_text_light= {175, 180, 190, 255};
+Color ui_text_hover= {240, 245, 255, 255};
+Color ui_text_highl= {210, 215, 225, 255};
+
+Color ui_special=		{243, 169, 78, 255};
+Color ui_special_h=		{175, 122, 58, 255};
 
 const int font_size= 14;
 const int element_padding= 3;
@@ -131,7 +134,7 @@ public:
 		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 
 		if(m_is_special){
-			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
+			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_panel_header);
 		}
 		else{
 			DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
@@ -497,7 +500,7 @@ public:
 
 	void Draw() override{
 		BeginTextureMode(m_render_texture);
-			ClearBackground(BLACK);
+			ClearBackground( ui_panel_header );
 			
 			BeginMode3D(m_camera);
 				if(m_draw_scene_function) m_draw_scene_function(m_camera);

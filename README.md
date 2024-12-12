@@ -9,7 +9,7 @@ SwanGui is a single-header C++ GUI library designed for use with Raylib, providi
 
 ### Preview
 
-![preview](https://github.com/user-attachments/assets/4228af8f-b8ba-4de2-bd4f-8743681ad9c2)
+![ss_2](https://github.com/user-attachments/assets/42b56bb9-24ec-4ca1-90ef-2448e70ee071)
 NOTE: The size, position, color and font of panels are fully customisable.
       This is just a screenshot, there is a lot more to see for yourself.
 
@@ -37,7 +37,7 @@ NOTE: The size, position, color and font of panels are fully customisable.
 SwanGui gui;
 
 // Create a panel
-auto panel = std::make_shared<Panel>({50,  50},  {300,  400});
+auto panel = std::make_shared<Panel>({3,  1},  {3,  4});
 
 // Add elements to the panel
 panel->addElement(std::make_shared<Button>("Click Me",  []()  {  /* callback */  }));
@@ -63,6 +63,7 @@ gui.Draw();`
 -   Color theming
 -   Font customization
 -   Grid based pixel perfect placement
+-   Smooth rounded edges
 
 ### Pending Features
 
@@ -76,7 +77,6 @@ gui.Draw();`
 
 ### Potential Improvements
 
--   Make elements rounded
 -   Add error handling and input validation
 -   Implement more sophisticated layout management
 -   Create a more robust theming system

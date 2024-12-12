@@ -9,7 +9,7 @@ SwanGui is a single-header C++ GUI library designed for use with Raylib, providi
 
 ### Preview
 
-![ss_2](https://github.com/user-attachments/assets/42b56bb9-24ec-4ca1-90ef-2448e70ee071)
+![ss_3](https://github.com/user-attachments/assets/6f10282a-f771-4b51-9faa-9cf95e35a302)
 NOTE: The size, position, color and font of panels are fully customisable.
       This is just a screenshot, there is a lot more to see for yourself.
 

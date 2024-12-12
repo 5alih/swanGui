@@ -52,6 +52,7 @@ class ThumnailGif;
 class Billboard;
 class BillboardGif;
 class CameraView3D;
+class ColorPicker;
 
 std::string to_string(int value){
 	std::ostringstream stream;
@@ -311,7 +312,7 @@ public:
 		//			  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
 		
 		Rectangle rec= {static_cast<float>(m_position.x + thumnnail_size + element_padding), static_cast<float>(m_position.y +m_size.y/2),
-					    static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
+						static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
 		
 		Vector2 pos= { (float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
@@ -620,6 +621,9 @@ public:
 		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value || std::is_same<T, CameraView3D>::value){
 			newSize.y= newSize.x;
 		}
+		else if(std::is_same<T, ColorPicker>::value){
+			newSize.y= newSize.x/2;
+		}
 		else{
 			newSize.y= font_size;
 		}
@@ -632,6 +636,182 @@ public:
 
 	void removeElement(std::shared_ptr<GuiElement> element){
 		m_elements.erase(std::remove(m_elements.begin(), m_elements.end(), element), m_elements.end());
+	}
+};
+
+bool updateSlider(int* target_val, bool is_mouse_over, bool is_active, int step_size= 1, int min= -INT_MAX, int max= INT_MAX, int max_length= 9){
+	if(!target_val) return false;
+
+	auto clamp_value = [&](int val){ 
+		return std::max(min, std::min(val, max)); 
+	};
+
+	if(is_active){
+		if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+			Vector2 delta= GetMouseDelta();
+			*target_val+= delta.x * step_size;
+		}
+
+		if(is_mouse_over){
+			*target_val+= GetMouseWheelMove() *step_size;
+		}
+
+		std::string input= std::to_string(*target_val);
+		int key= GetCharPressed();
+
+		while(key > 0){
+			if ((key>= KEY_ZERO) && (key <= KEY_NINE) && 
+				(static_cast<int>(input.length()) < max_length)){
+				input+= static_cast<char>(key);
+			}
+			else if(key== KEY_EQUAL || key== KEY_MINUS){
+				*target_val= -*target_val;
+				input= std::to_string(*target_val);
+			}
+			key= GetCharPressed();
+		}
+
+		if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()){
+			input.pop_back();
+			if(input.empty() || (input.size()== 1 && input== "-")){
+				input= "0";
+			}
+		}
+		try{
+			int new_value= std::stoi(input);
+			if(new_value >= min && new_value <= max){
+				*target_val= new_value;
+			}
+		}
+		catch(const std::exception&) {}
+	}
+	*target_val= clamp_value(*target_val);
+
+	return true;
+}
+
+class ColorPicker: public GuiElement{
+public:
+	Color *m_color;
+	int m_r= 255;
+	int m_g= 0;
+	int m_b= 0;
+	int m_a= 255;
+
+	bool m_calculated= false;
+
+	Vector2 m_slider_size= {m_size.x/4, font_size};
+	Vector2 m_pos_r= {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
+	Vector2 m_pos_g= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
+	Vector2 m_pos_b= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
+	Vector2 m_pos_a= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
+
+	bool m_is_active_r= false;
+	bool m_is_active_g= false;
+	bool m_is_active_b= false;
+	bool m_is_active_a= false;
+
+	Rectangle m_rec_r= {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
+	Rectangle m_rec_g= {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
+	Rectangle m_rec_b= {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
+	Rectangle m_rec_a= {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
+
+
+	ColorPicker(std::string text, Color &color){
+		m_text= text;
+		m_color= &color;
+
+		m_r= color.r;
+		m_g= color.g;
+		m_b= color.b;
+		m_a= color.a;
+	}
+
+	void CompleteCalculation(){
+        m_slider_size = {m_size.x/4, font_size};
+        m_pos_r = {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
+        m_pos_g = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
+        m_pos_b = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
+        m_pos_a = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
+
+        m_rec_r = {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
+        m_rec_g = {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
+        m_rec_b = {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
+        m_rec_a = {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
+	}
+
+	void Update() override{
+		if(!m_calculated) CompleteCalculation();
+
+		if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			if(IsMouseOverEx(m_pos_r, m_slider_size)){
+				m_is_active_r= true;
+				m_is_active_g= false;	
+				m_is_active_b= false;	
+				m_is_active_a= false;	
+			}
+			else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER))		m_is_active_r= false;
+
+			if(IsMouseOverEx(m_pos_g, m_slider_size)){
+				m_is_active_r= false;
+				m_is_active_g= true;	
+				m_is_active_b= false;	
+				m_is_active_a= false;	
+			}
+			else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER))		m_is_active_g= false;
+
+			if(IsMouseOverEx(m_pos_b, m_slider_size)){
+				m_is_active_r= false;
+				m_is_active_g= false;	
+				m_is_active_b= true;	
+				m_is_active_a= false;	
+			}
+			else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER))		m_is_active_b= false;
+
+			if(IsMouseOverEx(m_pos_a, m_slider_size)){
+				m_is_active_r= false;
+				m_is_active_g= false;	
+				m_is_active_b= false;	
+				m_is_active_a= true;	
+			}
+			else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER))		m_is_active_a= false;
+		}
+
+		updateSlider(&m_r, IsMouseOverEx(m_pos_r, m_slider_size), m_is_active_r, 1, 0, 255, 3);
+		updateSlider(&m_g, IsMouseOverEx(m_pos_g, m_slider_size), m_is_active_g, 1, 0, 255, 3);
+		updateSlider(&m_b, IsMouseOverEx(m_pos_b, m_slider_size), m_is_active_b, 1, 0, 255, 3);
+		updateSlider(&m_a, IsMouseOverEx(m_pos_a, m_slider_size), m_is_active_a, 1, 0, 255, 3);
+
+		m_color->r= m_r;
+		m_color->g= m_g;
+		m_color->b= m_b;
+		m_color->a= m_a;
+	}
+
+	void Draw() override{
+		std::string str;
+		DrawRectangleGradientH(m_position.x, m_position.y, m_size.y, m_size.y, WHITE, *m_color);
+		DrawRectangleGradientV(m_position.x, m_position.y, m_size.y, m_size.y, (Color){0, 0, 0, 0}, BLACK);
+
+		DrawRectangleRounded(m_rec_r, 0.3f, 2, (m_is_active_r) ? ui_element_hover : ui_element_body);
+		str= to_string(m_r);
+		Vector2 pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_r.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
+
+		DrawRectangleRounded(m_rec_g, 0.3f, 2, (m_is_active_g) ? ui_element_hover : ui_element_body);
+		str= to_string(m_g);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_g.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
+
+		DrawRectangleRounded(m_rec_b, 0.3f, 2, (m_is_active_b) ? ui_element_hover : ui_element_body);
+		str= to_string(m_b);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_b.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
+
+		DrawRectangleRounded(m_rec_a, 0.3f, 2, (m_is_active_a) ? ui_element_hover : ui_element_body);
+		str= to_string(m_a);
+		pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/8)*5 - MeasureText(str.c_str(), font_size)/2), (float)static_cast<int>(m_pos_a.y + m_slider_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 	}
 };
 

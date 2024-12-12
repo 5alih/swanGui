@@ -152,6 +152,8 @@ int main()
 	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
 	panel6->addElement(std::make_shared<CameraView3D>(camera, 480, drawSceneFunction));
 
+	panel1->addElement(std::make_shared<ColorPicker>("test", ui_special));
+
 	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel2);

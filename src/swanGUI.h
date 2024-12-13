@@ -570,7 +570,7 @@ public:
 			}
 		}
 		float wheel_delta= GetMouseWheelMove();
-		if(IsMouseOver() && wheel_delta!= 0){
+		if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
 			float delta= 0;
 			if(wheel_delta< 0){
 				bool changed_first_element= false;

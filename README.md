@@ -70,19 +70,11 @@ gui.Draw();`
 
 -   Create super panels that can hold other panels
 -   Develop grid-based panels (can expand vertically)
--   Enhance thumbnails with multiple buttons (e.g., [image: select, apply])
--   Allow multiple variables control with a single slider
--   Implement dropdown menus
--   Add dropdown predefined values to buttons and sliders
 
 ### Potential Improvements
 
--   Add error handling and input validation
--   Implement more sophisticated layout management
 -   Create a more robust theming system
--   Add accessibility features
 -   Develop comprehensive documentation and examples
--   Create unit tests
 -   Optimize performance for larger numbers of GUI elements
 
 ## Dependencies

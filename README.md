@@ -64,10 +64,10 @@ gui.Draw();`
 -   Font customization
 -   Grid based pixel perfect placement
 -   Smooth rounded edges
+-   Panel scrolling
 
 ### Pending Features
 
--   Add scrolling functionality to panels
 -   Create super panels that can hold other panels
 -   Develop grid-based panels (can expand vertically)
 -   Enhance thumbnails with multiple buttons (e.g., [image: select, apply])

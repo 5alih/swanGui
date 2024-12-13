@@ -27,7 +27,7 @@ int main()
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetWindowState(FLAG_INTERLACED_HINT);
 	SetExitKey(KEY_NULL);
-	SetTargetFPS(0);
+	SetTargetFPS(144);
 
 	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
 	Texture2D fish= LoadTexture("resource/fish.png");

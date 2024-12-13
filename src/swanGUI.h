@@ -40,7 +40,7 @@ Color ui_special_h=		{175, 122, 58, 255};
 const int font_size= 14;
 const int element_padding= 3;
 const float thumnnail_size= 32.0f;
-const int grid_size= 40;
+const int grid_size= 20;
 
 class Panel;
 class Button;
@@ -71,7 +71,7 @@ public:
 	Vector2 m_size= {0, 0};
 	std::string m_text;
 	Font m_font;
-	bool m_isVisible= true;
+	bool m_is_visible= true;
 
 	virtual void Update()= 0;
 	virtual void Draw()= 0;
@@ -127,7 +127,6 @@ public:
 		else{
 			currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
 		}
-		
 		//DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), currentColor);
 		Rectangle rec= {static_cast<float>(m_position.x), static_cast<float>(m_position.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
@@ -158,18 +157,15 @@ public:
 		}
 	}
 
-	void Draw() override{
-		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
+	void Draw() override{		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
 
 		// DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), ui_element_body);
 
 		Rectangle rec= {static_cast<float>(m_position.x + m_size.x/2), static_cast<float>(m_position.y), static_cast<float>(m_size.x/2), static_cast<float>(m_size.y)};
 		DrawRectangleRounded(rec, 0.3f, 2, ui_element_body);
 
-		
 		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(b2s(*m_is_true).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, b2s(*m_is_true).c_str(), pos_val, font_size, 2.0f, ui_text_light);
-		
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
 	}
@@ -261,10 +257,8 @@ public:
 
 		Rectangle rec= {static_cast<float>(m_position.x + m_size.x/2), static_cast<float>(m_position.y), static_cast<float>(m_size.x/2), static_cast<float>(m_size.y)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
-		
 		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(*m_target_val).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, to_string(*m_target_val).c_str(), pos_val, font_size, 2.0f, ui_text_light);
-		
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
 	}
@@ -307,14 +301,11 @@ public:
 
 	void Draw() override{
 		Color currentColor= IsMouseOver() ? (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
-		
 		//DrawRectangle(static_cast<int>(m_position.x + thumnnail_size + element_padding), static_cast<int>(m_position.y +m_size.y/2),
 		//			  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
-		
 		Rectangle rec= {static_cast<float>(m_position.x + thumnnail_size + element_padding), static_cast<float>(m_position.y +m_size.y/2),
 						static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
-		
 		Vector2 pos= { (float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
 					   (float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
 		DrawTextEx(m_font, m_text_button.c_str(), pos, font_size, 2.0f, ui_text_light);
@@ -361,12 +352,10 @@ public:
 		if(m_frame_counter>= m_frame_delay){
 			m_current_frame++;
 			if(m_current_frame>= m_frames) m_current_frame= 0;
-			
-			m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
+				m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
 
 			UpdateTexture(m_texture_anim, ((unsigned char*)m_image_anim.data) +m_next_frame);
-			
-			m_frame_counter= 0;
+				m_frame_counter= 0;
 		}
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			if(m_call_back_function){
@@ -375,10 +364,8 @@ public:
 		}
 	}
 
-	void Draw() override{
-		Color currentColor= IsMouseOver() ? 
+	void Draw() override{		Color currentColor= IsMouseOver() ? 
 			(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ? ui_element_click : ui_element_hover) : ui_element_body;
-		
 		// DrawRectangle(static_cast<int>(m_position.x + thumnnail_size + element_padding), static_cast<int>(m_position.y + m_size.y/2),
 		// 			  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
 
@@ -433,9 +420,7 @@ public:
 	BillboardGif(const std::string& gif_path, int &frame_delay){
 		m_gif_path = gif_path;
 		m_frame_delay = &frame_delay;
-		
 		m_image_anim = LoadImageAnim(m_gif_path.c_str(), &m_frames);
-		
 		m_texture_anim = LoadTextureFromImage(m_image_anim);
 	}
 
@@ -449,12 +434,10 @@ public:
 		if(m_frame_counter >= *m_frame_delay){
 			m_current_frame++;
 			if(m_current_frame>= m_frames) m_current_frame= 0;
-			
-			m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
+				m_next_frame= m_image_anim.width *m_image_anim.height *4 *m_current_frame;
 
 			UpdateTexture(m_texture_anim, ((unsigned char*)m_image_anim.data) + m_next_frame);
-			
-			m_frame_counter= 0;
+				m_frame_counter= 0;
 		}
 	}
 
@@ -502,8 +485,7 @@ public:
 	void Draw() override{
 		BeginTextureMode(m_render_texture);
 			ClearBackground( ui_panel_header );
-			
-			BeginMode3D(m_camera);
+				BeginMode3D(m_camera);
 				if(m_draw_scene_function) m_draw_scene_function(m_camera);
 			EndMode3D();
 		EndTextureMode();
@@ -557,8 +539,7 @@ public:
 
 			fixedPos.x= ( ((fixedPos.x *m_grid_size) -m_position.x) *(-1) < (((fixedPos.x + 1) *m_grid_size) -m_position.x )) ? fixedPos.x *m_grid_size : (fixedPos.x + 1) *m_grid_size;
 			fixedPos.y= ( ((fixedPos.y *m_grid_size) -m_position.y) *(-1) < (((fixedPos.y + 1) *m_grid_size) -m_position.y )) ? fixedPos.y *m_grid_size : (fixedPos.y + 1) *m_grid_size;
-			
-			Vector2 delta;
+				Vector2 delta;
 			delta.x= fixedPos.x -m_position.x;
 			delta.y= fixedPos.y -m_position.y;
 
@@ -584,7 +565,39 @@ public:
 
 		if(m_is_minimized== false){
 			for(auto& element : m_elements){
-				element->Update();
+				if(element->m_is_visible)
+					element->Update();
+			}
+		}
+		float wheel_delta= GetMouseWheelMove();
+		if(IsMouseOver() && wheel_delta!= 0){
+			float delta= 0;
+			if(wheel_delta< 0){
+				bool changed_first_element= false;
+				for(int i= 0; i<(int)m_elements.size(); i++){
+					if(changed_first_element== false && m_elements[i]->m_is_visible== true){
+						delta= m_elements[i]->m_size.y +element_padding;
+						m_elements[i]->m_is_visible= false;
+						changed_first_element= true;
+					}
+					m_elements[i]->m_position.y-= delta;
+				}
+			}
+			else if(wheel_delta> 0){
+				int counter= 0;
+				for(int i= 0; i<(int)m_elements.size(); i++){
+					if(m_elements[i]->m_is_visible== false){
+						counter++;
+					}
+				}
+				if(counter> 0){
+					delta= m_elements[counter -1]->m_size.y +element_padding;
+					m_elements[counter -1]->m_is_visible= true;
+					for(int i= 0; i<(int)m_elements.size(); i++){
+						if(m_elements[i]->m_is_visible== true)
+							m_elements[i]->m_position.y+= delta;
+					}
+				}
 			}
 		}
 	}
@@ -594,7 +607,8 @@ public:
 			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
 			DrawRectangleLines(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_header);
 			for(auto& element : m_elements){
-				element->Draw();
+				if(element->m_is_visible)
+					element->Draw();
 			}
 		}
 		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);

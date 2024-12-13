@@ -43,17 +43,17 @@ int main()
 	Texture2D c8= LoadTexture("resource/8.png");
 
 	Vector2 panelPos1= {0, 0};
-	Vector2 panelPos2= {5, 0};
-	Vector2 panelPos3= {8, 0};
-	Vector2 panelPos4= {8, 19};
-	Vector2 panelPos5= {14, 0};
-	Vector2 panelPos6= {14, 13};
+	Vector2 panelPos2= {10, 0};
+	Vector2 panelPos3= {16, 0};
+	Vector2 panelPos4= {16, 38};
+	Vector2 panelPos5= {28, 0};
+	Vector2 panelPos6= {28, 26};
 
-	Vector2 panelSize= {5, 26};
-	Vector2 panelSize2= {3, 26};
-	Vector2 panelSize3= {6, 19};
-	Vector2 panelSize4= {6, 7};
-	Vector2 panelSize5= {12, 13};
+	Vector2 panelSize= {10, 26};
+	Vector2 panelSize2= {6, 52};
+	Vector2 panelSize3= {12, 38};
+	Vector2 panelSize4= {12, 14};
+	Vector2 panelSize5= {24, 26};
 
 	SwanGui swanGui;
 
@@ -153,6 +153,9 @@ int main()
 	panel6->addElement(std::make_shared<CameraView3D>(camera, 480, drawSceneFunction));
 
 	panel1->addElement(std::make_shared<ColorPicker>("Accent Color", ui_special));
+	panel1->addElement(std::make_shared<ColorPicker>("Panel Body", ui_panel_body));
+	panel1->addElement(std::make_shared<ColorPicker>("Element Body", ui_element_body));
+	panel1->addElement(std::make_shared<ColorPicker>("Text Light", ui_text_light));
 
 	swanGui.AddPanel(panel1);
 	swanGui.AddPanel(panel1);

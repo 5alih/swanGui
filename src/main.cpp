@@ -49,7 +49,7 @@ int main()
 	Vector2 panelPos5= {28, 0};
 	Vector2 panelPos6= {28, 26};
 
-	Vector2 panelSize= {10, 26};
+	Vector2 panelSize= {10, 52};
 	Vector2 panelSize2= {6, 52};
 	Vector2 panelSize3= {12, 38};
 	Vector2 panelSize4= {12, 14};

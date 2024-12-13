@@ -565,7 +565,7 @@ public:
 
 		if(m_is_minimized== false){
 			for(auto& element : m_elements){
-				if(element->m_is_visible)
+				if(element->m_is_visible && (element->m_position.y + element->m_size.y)< (m_position.y + m_size.y))
 					element->Update();
 			}
 		}
@@ -607,7 +607,7 @@ public:
 			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
 			DrawRectangleLines(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_header);
 			for(auto& element : m_elements){
-				if(element->m_is_visible)
+				if(element->m_is_visible && (element->m_position.y + element->m_size.y)< (m_position.y + m_size.y))
 					element->Draw();
 			}
 		}

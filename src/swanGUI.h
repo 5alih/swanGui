@@ -505,12 +505,10 @@ public:
 	std::function<void(Camera3D&)> m_draw_scene_function;
 	int m_width= 0;
 	bool m_update_camera= false;
+	bool m_is_calculated= false;
 
-	CameraView3D(Camera3D camera, int width, std::function<void(Camera3D&)> draw_scene_function){
+	CameraView3D(Camera3D camera, std::function<void(Camera3D&)> draw_scene_function){
 		m_camera= camera;
-
-		m_width= width -element_padding *4;
-		m_render_texture= LoadRenderTexture(m_width, m_width);
 		m_draw_scene_function= draw_scene_function;
 	}
 
@@ -519,6 +517,12 @@ public:
 	}
 
 	void Update() override{
+		if(m_is_calculated== false){
+			m_width= m_size.x;
+			m_render_texture= LoadRenderTexture(m_width, m_width);
+			m_is_calculated= true;
+		}
+
 		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			m_update_camera= true;
 			DisableCursor();

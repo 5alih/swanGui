@@ -1,15 +1,6 @@
 #ifndef SWANGUI_H
 #define SWANGUI_H
 
-//TO DO:
-//	add scrolling to panels
-//	add super panels that can hold other panels (panels can be placed in a super panel)
-//	add panels that are grid based (can expand vertically)
-//	add multi functionality to thumnails (can have 2 buttons instead of 1) example: [image: select, apply] 
-//	add multiple variables control to sliders (more than 1 variable can be controlled with only 1 slider) example: [position: x, y, z]
-//	add dropdown menus
-//	add dropdown predefined values to the buttons and sliders
-
 #include <vector>
 #include <string>
 #include <unordered_map>

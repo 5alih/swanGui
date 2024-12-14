@@ -170,7 +170,6 @@ int main()
 		swanGui.Update();
 
 		BeginDrawing();
-			//ClearBackground( (Color){200, 200, 200, 255} );
 			ClearBackground( BLACK );
 			swanGui.Draw();
 

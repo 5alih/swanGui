@@ -68,10 +68,11 @@ gui.Draw();`
 
 ### Pending Features
 
--   Develop grid-based panels (can expand vertically)
+-   No other featues are coming in the near future
 
 ### Potential Improvements
 
+-   Develop grid-based panels (can expand vertically)
 -   Add nested panels (tried but failed)
 -   Create a more robust theming system
 -   Develop comprehensive documentation and examples

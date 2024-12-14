@@ -72,7 +72,7 @@ gui.Draw();`
 
 ### Potential Improvements
 
--   Nested panel (tried but failed)
+-   Add nested panels (tried but failed)
 -   Create a more robust theming system
 -   Develop comprehensive documentation and examples
 -   Optimize performance for larger numbers of GUI elements

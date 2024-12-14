@@ -68,11 +68,11 @@ gui.Draw();`
 
 ### Pending Features
 
--   Create super panels that can hold other panels
 -   Develop grid-based panels (can expand vertically)
 
 ### Potential Improvements
 
+-   Nested panel (tried but failed)
 -   Create a more robust theming system
 -   Develop comprehensive documentation and examples
 -   Optimize performance for larger numbers of GUI elements

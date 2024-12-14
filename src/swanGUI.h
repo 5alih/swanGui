@@ -1,4 +1,4 @@
-/**
+/*
  * swanGui.h - a Single-Header library.
  *
  * Usage:

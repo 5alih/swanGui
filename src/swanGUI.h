@@ -658,8 +658,8 @@ public:
 
 	void Draw() override{
 		std::string str;
-		DrawRectangleGradientH(m_position.x, m_position.y, m_size.y, m_size.y, WHITE, *m_color);
-		DrawRectangleGradientV(m_position.x, m_position.y, m_size.y, m_size.y, (Color){0, 0, 0, 0}, BLACK);
+		DrawRectangleGradientH(m_position.x, m_position.y, m_size.x/2- element_padding*3, m_size.y, WHITE, *m_color);
+		DrawRectangleGradientV(m_position.x, m_position.y, m_size.x/2- element_padding*3, m_size.y, (Color){0, 0, 0, 0}, BLACK);
 
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + (m_size.x/4)*3 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_slider_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, ui_text_light);
@@ -827,7 +827,7 @@ public:
 			newSize.y= newSize.x;
 		}
 		else if(std::is_same<T, ColorPicker>::value){
-			newSize.y= newSize.x/2;
+			newSize.y= (font_size + element_padding) *5;
 		}
 		else{
 			newSize.y= font_size;

@@ -68,7 +68,7 @@ gui.Draw();`
 
 ### Pending Features
 
--   No other featues are coming in the near future
+-   Nothing planned for the near future
 
 ### Potential Improvements
 

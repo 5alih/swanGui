@@ -283,7 +283,7 @@ public:
 			m_get_input= false;
 		}
 
-		if(m_get_input) {
+		if(m_get_input){
 			int key= GetCharPressed();
 
 			if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
@@ -333,6 +333,65 @@ public:
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
 		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(*m_target_val).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, to_string(*m_target_val).c_str(), pos_val, font_size, 2.0f, ui_text_light);
+		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
+	}
+};
+
+class InputBox: public GuiElement{
+public:
+	std::string *m_target_str;
+	int m_max_length= 20;
+	bool m_get_input= false;
+
+	InputBox(std::string text, std::string &target_str, int max_length){
+		m_text= text;
+		m_target_str= &target_str;
+		m_max_length= max_length;
+	}
+
+	InputBox(std::string text, std::string &target_str){
+		m_text= text;
+		m_target_str= &target_str;
+	}
+
+	void Update() override{
+		if(!m_target_str) return;
+		
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_get_input= true;
+		}
+		else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
+			m_get_input= false;
+		}
+
+		if(m_get_input){
+			int key= GetCharPressed();
+
+			std::string input= *m_target_str;
+
+			while(key > 0){
+				if(static_cast<int>(input.length()) < m_max_length){
+					input+= static_cast<char>(key);
+				}
+				key= GetCharPressed();
+			}
+
+			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()){
+				input.pop_back();
+			}
+			*m_target_str= input;
+		}
+	}
+
+	void Draw() override{
+		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
+		Color currentColor= m_get_input ? ui_element_hover : ui_element_body;
+
+		Rectangle rec= {static_cast<float>(m_position.x + m_size.x/2), static_cast<float>(m_position.y), static_cast<float>(m_size.x/2), static_cast<float>(m_size.y)};
+		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
+		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText((*m_target_str).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, (*m_target_str).c_str(), pos_val, font_size, 2.0f, ui_text_light);
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
 	}

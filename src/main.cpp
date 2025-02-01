@@ -106,6 +106,9 @@ int main()
 	panel1->addElement(std::make_shared<Button>("Restore Scene", [](){}, false));
 	panel1->addElement(std::make_shared<Button>("SAVE AND EXIT", [](){}, true));
 
+	std::string testaaa= "hello world";
+	panel1->addElement(std::make_shared<InputBox>("test", testaaa, 12));
+
 	int colorCount2= 8;
 	panel2->addElement(std::make_shared<Comment>("Colors"));
 	panel2->addElement(std::make_shared<Button>("Add Color", [](){}, false));

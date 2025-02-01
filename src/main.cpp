@@ -147,10 +147,10 @@ int main()
 	camera.up= (Vector3){0.0f, 1.0f, 0.0f};
 	camera.fovy= 65.0f;
 	panel5->addElement(std::make_shared<Comment>("Interactive 3D Camera View"));
-	panel5->addElement(std::make_shared<CameraView3D>(camera, DrawDemo3DScene));
+	panel5->addElement(std::make_shared<CameraView3D>(camera, DrawDemo3DScene, ui_panel_header));
 
 	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
-	panel6->addElement(std::make_shared<CameraView3D>(camera, drawSceneFunction));
+	panel6->addElement(std::make_shared<CameraView3D>(camera, drawSceneFunction, ui_panel_header));
 
 	panel1->addElement(std::make_shared<ColorPicker>("Accent Color", ui_special));
 	panel1->addElement(std::make_shared<ColorPicker>("Panel Body", ui_panel_body));

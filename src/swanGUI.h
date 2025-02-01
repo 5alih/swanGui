@@ -897,162 +897,6 @@ public:
 		DrawTextEx(m_font, str.c_str(), pos_text, font_size, 2.0f, ui_text_light);
 	}
 };
-/*
-class Panel: public GuiElement{//_____________________________________________________________________ PANEL ________________________________________________________________________________//
-public:
-	std::vector<std::shared_ptr<GuiElement>> m_elements;
-	Font m_custom_font= GetFontDefault();
-	int m_header_size= font_size;
-	bool m_is_minimized= false;
-	bool m_is_moving= false;
-	int m_grid_size= grid_size;
-
-	Panel(std::string text, Vector2 position, Vector2 size){
-		m_text= text;
-		SetPosition( (Vector2){position.x * m_grid_size, position.y * m_grid_size} );
-		SetSize( (Vector2){size.x * m_grid_size, size.y * m_grid_size} );
-	}
-
-	Panel(std::string text, Vector2 position, Vector2 size, Font custom_font){
-		m_text= text;
-		SetPosition( (Vector2){position.x * m_grid_size, position.y * m_grid_size} );
-		SetSize( (Vector2){size.x * m_grid_size, size.y * m_grid_size} );
-		m_custom_font= custom_font;
-	}
-
-	void Update() override{
-		if(IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-			m_is_minimized= !m_is_minimized;
-		}
-		if(m_is_moving== false && IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
-			m_is_moving= true;
-		}
-		else if(m_is_moving== true && (IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
-			Vector2 fixedPos;
-			fixedPos.x= (int)(m_position.x / m_grid_size);
-			fixedPos.y= (int)(m_position.y / m_grid_size);
-
-			fixedPos.x= ( ((fixedPos.x *m_grid_size) -m_position.x) *(-1) < (((fixedPos.x + 1) *m_grid_size) -m_position.x )) ? fixedPos.x *m_grid_size : (fixedPos.x + 1) *m_grid_size;
-			fixedPos.y= ( ((fixedPos.y *m_grid_size) -m_position.y) *(-1) < (((fixedPos.y + 1) *m_grid_size) -m_position.y )) ? fixedPos.y *m_grid_size : (fixedPos.y + 1) *m_grid_size;
-				Vector2 delta;
-			delta.x= fixedPos.x -m_position.x;
-			delta.y= fixedPos.y -m_position.y;
-
-			m_position= fixedPos;
-
-			for(auto &element: m_elements){
-				element->m_position.x+= delta.x;
-				element->m_position.y+= delta.y;
-			}
-			m_is_moving= false;
-		}
-
-		if(m_is_moving){
-			Vector2 delta= GetMouseDelta();
-			m_position.x+= delta.x;
-			m_position.y+= delta.y;
-
-			for(auto &element: m_elements){
-				element->m_position.x+= delta.x;
-				element->m_position.y+= delta.y;
-			}
-		}
-
-		if(m_is_minimized== false){
-			for(auto& element : m_elements){
-				if(element->m_is_visible && (element->m_position.y + element->m_size.y)< (m_position.y + m_size.y))
-					element->Update();
-			}
-		}
-		float wheel_delta= GetMouseWheelMove();
-		if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
-			float delta= 0;
-			if(wheel_delta< 0){
-				bool changed_first_element= false;
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					if(changed_first_element== false && m_elements[i]->m_is_visible== true){
-						delta= m_elements[i]->m_size.y +element_padding;
-						m_elements[i]->m_is_visible= false;
-						changed_first_element= true;
-					}
-					m_elements[i]->m_position.y-= delta;
-				}
-			}
-			else if(wheel_delta> 0){
-				int counter= 0;
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					if(m_elements[i]->m_is_visible== false){
-						counter++;
-					}
-				}
-				if(counter> 0){
-					delta= m_elements[counter -1]->m_size.y +element_padding;
-					m_elements[counter -1]->m_is_visible= true;
-					for(int i= 0; i<(int)m_elements.size(); i++){
-						if(m_elements[i]->m_is_visible== true)
-							m_elements[i]->m_position.y+= delta;
-					}
-				}
-			}
-		}
-	}
-
-	void Draw() override{
-		if(m_is_minimized== false){
-			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
-			DrawRectangleLines(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_header);
-			for(auto& element : m_elements){
-				if(element->m_is_visible && (element->m_position.y + element->m_size.y)< (m_position.y + m_size.y))
-					element->Draw();
-			}
-		}
-		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);
-		Vector2 pos= { (float)static_cast<int>(m_position.x + element_padding), (float)static_cast<int>(m_position.y + m_header_size/2 - font_size/2.5)};
-		DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
-	}
-
-	template <typename T>
-	void addElement(std::shared_ptr<T> element) {
-		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
-
-		Vector2 newPosition = m_position;
-		newPosition.x += element_padding *2;
-		newPosition.y += element_padding +font_size;
-		for(const auto& elem : m_elements) {
-			newPosition.y += elem->m_size.y + element_padding;
-		}
-
-		Vector2 newSize= m_size;
-		newSize.x-= element_padding *4;
-		if constexpr (std::is_same<T, Thumbnail>::value || std::is_same<T, ThumbnailGif>::value){
-			newSize.y= font_size *2 + element_padding;
-		}
-		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value || std::is_same<T, CameraView3D>::value){
-			newSize.y= newSize.x;
-		}
-	    else if constexpr (std::is_same<T, CameraView3DFill>::value){
-        	newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
-    	}
-	    else if constexpr (std::is_same<T, CameraView3DFillBorder>::value){
-        	newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
-    	}
-		else if(std::is_same<T, ColorPicker>::value){
-			newSize.y= (font_size + element_padding) *5;
-		}
-		else{
-			newSize.y= font_size;
-		}
-
-		element->SetPosition(newPosition);
-		element->SetSize(newSize);
-		element->SetFont(m_custom_font);
-		m_elements.push_back(element);
-	}
-
-	void removeElement(std::shared_ptr<GuiElement> element){
-		m_elements.erase(std::remove(m_elements.begin(), m_elements.end(), element), m_elements.end());
-	}
-};*/
 
 class Panel: public GuiElement{//_____________________________________________________________________ PANEL ________________________________________________________________________________//
 public:
@@ -1065,6 +909,7 @@ public:
 	int m_sections= 1;
 
 	int m_counter= 0;
+	int m_counter2= 0;
 
 	Panel(std::string text, Vector2 position, Vector2 size){
 		m_text= text;
@@ -1132,7 +977,23 @@ public:
 			}
 		}
 		float wheel_delta= GetMouseWheelMove();
-		if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
+
+		if((m_sections> 1) && m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
+			float delta= font_size + element_padding;
+			if(wheel_delta> 0 &&  m_counter2> 0){
+				for(int i= 0; i<(int)m_elements.size(); i++){
+					m_elements[i]->m_position.y+= delta;
+				}
+				m_counter2--;
+			}
+			else if(wheel_delta< 0){
+				for(int i= 0; i<(int)m_elements.size(); i++){
+					m_elements[i]->m_position.y-= delta;
+				}
+				m_counter2++;
+			}
+		}
+		else if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
 			float delta= 0;
 			if(wheel_delta< 0){
 				bool changed_first_element= false;

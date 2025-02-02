@@ -976,49 +976,41 @@ public:
 					element->Update();
 			}
 		}
+
 		float wheel_delta= GetMouseWheelMove();
 
-		if((m_sections> 1) && m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
-			float delta= font_size + element_padding;
-			if(wheel_delta> 0 &&  m_counter2> 0){
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					m_elements[i]->m_position.y+= delta;
-				}
-				m_counter2--;
-			}
-			else if(wheel_delta< 0){
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					m_elements[i]->m_position.y-= delta;
-				}
-				m_counter2++;
-			}
-		}
-		else if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
+		if(m_is_minimized==false && IsMouseOver() && wheel_delta!= 0){
 			float delta= 0;
 			if(wheel_delta< 0){
-				bool changed_first_element= false;
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					if(changed_first_element== false && m_elements[i]->m_is_visible== true){
-						delta= m_elements[i]->m_size.y +element_padding;
-						m_elements[i]->m_is_visible= false;
-						changed_first_element= true;
+				for(int i= 0; i< m_sections; i++){
+					bool changed_first_element= false;
+					for(int j= i; j< (int)m_elements.size(); j+= m_sections){
+						if(changed_first_element== false && m_elements[j]->m_is_visible== true){
+							delta= m_elements[j]->m_size.y +element_padding;
+							m_elements[j]->m_is_visible= false;
+							m_elements[j]->m_position.y-= delta;
+							changed_first_element= true;
+						}
+						if(m_elements[j]->m_is_visible== true)
+							m_elements[j]->m_position.y-= delta;
 					}
-					m_elements[i]->m_position.y-= delta;
 				}
 			}
 			else if(wheel_delta> 0){
-				int counter= 0;
-				for(int i= 0; i<(int)m_elements.size(); i++){
-					if(m_elements[i]->m_is_visible== false){
-						counter++;
+				for(int i= 0; i< m_sections; i++){
+					int counter= 0;
+					for(int j= i; j< (int)m_elements.size(); j+= m_sections){
+						if(m_elements[j]->m_is_visible== false){
+							counter++;
+						}
 					}
-				}
-				if(counter> 0){
-					delta= m_elements[counter -1]->m_size.y +element_padding;
-					m_elements[counter -1]->m_is_visible= true;
-					for(int i= 0; i<(int)m_elements.size(); i++){
-						if(m_elements[i]->m_is_visible== true)
-							m_elements[i]->m_position.y+= delta;
+					if(counter> 0){
+						delta= m_elements[i +m_sections *(counter -1)]->m_size.y +element_padding;
+						m_elements[i +m_sections *(counter -1)]->m_is_visible= true;
+						for(int k= i; k<(int)m_elements.size(); k+= m_sections){
+							if(m_elements[k]->m_is_visible== true)
+								m_elements[k]->m_position.y+= delta;
+						}
 					}
 				}
 			}

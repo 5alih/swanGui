@@ -69,7 +69,7 @@ gui.Draw();`
 
 ### Pending Features
 
--   Nothing planned for the near future
+-   Console element for logging
 
 ### Potential Improvements
 

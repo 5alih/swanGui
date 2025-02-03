@@ -65,14 +65,14 @@ gui.Draw();`
 -   Grid based pixel perfect placement
 -   Smooth rounded edges
 -   Panel scrolling
+-   Grid-based panels (sections)
 
 ### Pending Features
 
--   Nothing planned for the near future
+-   Console element for logging
 
 ### Potential Improvements
 
--   Develop grid-based panels (can expand vertically)
 -   Add nested panels (tried but failed)
 -   Create a more robust theming system
 -   Develop comprehensive documentation and examples

@@ -907,9 +907,8 @@ public:
 	bool m_is_moving= false;
 	int m_grid_size= grid_size;
 	int m_sections= 1;
-
+	bool m_has_header= true;
 	int m_counter= 0;
-	int m_counter2= 0;
 
 	Panel(std::string text, Vector2 position, Vector2 size){
 		m_text= text;
@@ -932,41 +931,52 @@ public:
 		m_custom_font= custom_font;
 	}
 
+	Panel(std::string text, Vector2 position, Vector2 size, bool has_header, int sections, Font custom_font){
+		m_text= text;
+		SetPosition( (Vector2){position.x * m_grid_size, position.y * m_grid_size} );
+		SetSize( (Vector2){size.x * m_grid_size, size.y * m_grid_size} );
+		m_has_header= has_header;
+		m_sections= sections;
+		m_custom_font= custom_font;
+	}
+
 	void Update() override{
-		if(IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-			m_is_minimized= !m_is_minimized;
-		}
-		if(m_is_moving== false && IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
-			m_is_moving= true;
-		}
-		else if(m_is_moving== true && (IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
-			Vector2 fixedPos;
-			fixedPos.x= (int)(m_position.x / m_grid_size);
-			fixedPos.y= (int)(m_position.y / m_grid_size);
-
-			fixedPos.x= ( ((fixedPos.x *m_grid_size) -m_position.x) *(-1) < (((fixedPos.x + 1) *m_grid_size) -m_position.x )) ? fixedPos.x *m_grid_size : (fixedPos.x + 1) *m_grid_size;
-			fixedPos.y= ( ((fixedPos.y *m_grid_size) -m_position.y) *(-1) < (((fixedPos.y + 1) *m_grid_size) -m_position.y )) ? fixedPos.y *m_grid_size : (fixedPos.y + 1) *m_grid_size;
-				Vector2 delta;
-			delta.x= fixedPos.x -m_position.x;
-			delta.y= fixedPos.y -m_position.y;
-
-			m_position= fixedPos;
-
-			for(auto &element: m_elements){
-				element->m_position.x+= delta.x;
-				element->m_position.y+= delta.y;
+		if(m_has_header){
+			if(IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+				m_is_minimized= !m_is_minimized;
 			}
-			m_is_moving= false;
-		}
+			if(m_is_moving== false && IsMouseOverEx(m_position, (Vector2){m_size.x, (float)m_header_size}) && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
+				m_is_moving= true;
+			}
+			else if(m_is_moving== true && (IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
+				Vector2 fixedPos;
+				fixedPos.x= (int)(m_position.x / m_grid_size);
+				fixedPos.y= (int)(m_position.y / m_grid_size);
 
-		if(m_is_moving){
-			Vector2 delta= GetMouseDelta();
-			m_position.x+= delta.x;
-			m_position.y+= delta.y;
+				fixedPos.x= ( ((fixedPos.x *m_grid_size) -m_position.x) *(-1) < (((fixedPos.x + 1) *m_grid_size) -m_position.x )) ? fixedPos.x *m_grid_size : (fixedPos.x + 1) *m_grid_size;
+				fixedPos.y= ( ((fixedPos.y *m_grid_size) -m_position.y) *(-1) < (((fixedPos.y + 1) *m_grid_size) -m_position.y )) ? fixedPos.y *m_grid_size : (fixedPos.y + 1) *m_grid_size;
+					Vector2 delta;
+				delta.x= fixedPos.x -m_position.x;
+				delta.y= fixedPos.y -m_position.y;
 
-			for(auto &element: m_elements){
-				element->m_position.x+= delta.x;
-				element->m_position.y+= delta.y;
+				m_position= fixedPos;
+
+				for(auto &element: m_elements){
+					element->m_position.x+= delta.x;
+					element->m_position.y+= delta.y;
+				}
+				m_is_moving= false;
+			}
+
+			if(m_is_moving){
+				Vector2 delta= GetMouseDelta();
+				m_position.x+= delta.x;
+				m_position.y+= delta.y;
+
+				for(auto &element: m_elements){
+					element->m_position.x+= delta.x;
+					element->m_position.y+= delta.y;
+				}
 			}
 		}
 
@@ -1019,16 +1029,19 @@ public:
 
 	void Draw() override{
 		if(m_is_minimized== false){
-			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_body);
+			Color tempColor= m_has_header ? ui_panel_body : ui_panel_header;
+			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), tempColor);
 			DrawRectangleLines(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_size.y), ui_panel_header);
 			for(auto& element : m_elements){
 				if(element->m_is_visible && (element->m_position.y + element->m_size.y)< (m_position.y + m_size.y) && (element-> m_position.y > m_position.y))
 					element->Draw();
 			}
 		}
-		DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);
-		Vector2 pos= { (float)static_cast<int>(m_position.x + element_padding), (float)static_cast<int>(m_position.y + m_header_size/2 - font_size/2.5)};
-		DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
+		if(m_has_header){
+			DrawRectangle(static_cast<int>(m_position.x), static_cast<int>(m_position.y), static_cast<int>(m_size.x), static_cast<int>(m_header_size), ui_panel_header);
+			Vector2 pos= { (float)static_cast<int>(m_position.x + element_padding), (float)static_cast<int>(m_position.y + m_header_size/2 - font_size/2.5)};
+			DrawTextEx(m_custom_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_highl);
+		}
 	}
 
 	template <typename T>
@@ -1041,7 +1054,7 @@ public:
 
 		Vector2 newPosition= m_position;
 		newPosition.x+= element_padding *2 +(m_counter *(m_size.x/ m_sections));
-		newPosition.y+= element_padding +font_size;
+		newPosition.y+= (m_has_header ? element_padding +font_size : element_padding);
 		int group= 0;
 		for(const auto& elem : m_elements){
 			if(group== m_counter)

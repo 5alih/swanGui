@@ -55,6 +55,9 @@ int main()
 	Vector2 panelSize4= {12, 14};
 	Vector2 panelSize5= {24, 26};
 
+	Vector2 panelPos7= {54, 0};
+	Vector2 panelSize7= {24, 1};
+
 	SwanGui swanGui;
 
 	auto panel1= std::make_shared<Panel>("BUTTONS AND SLIDERS", panelPos1, panelSize, 3, custom_font);
@@ -63,6 +66,11 @@ int main()
 	auto panel4= std::make_shared<Panel>("GIF BILLBOARD", panelPos4, panelSize4, custom_font);
 	auto panel5= std::make_shared<Panel>("3D CAMERA", panelPos5, panelSize5, custom_font);
 	auto panel6= std::make_shared<Panel>("3D CAMERA", panelPos6, panelSize5, custom_font);
+	
+	auto panel7= std::make_shared<Panel>("no-header", panelPos7, panelSize7, false, 5, custom_font);
+	panel7->addElement(std::make_shared<Comment>("R3D Engine"));
+	panel7->addElement(std::make_shared<Button>("SETTINGS", [](){}, false));
+	panel7->addElement(std::make_shared<Button>("EDITOR", [](){}, false));
 
 	int force= 10;	
 	bool yes= true;
@@ -165,6 +173,7 @@ int main()
 	swanGui.AddPanel(panel4);
 	swanGui.AddPanel(panel5);
 	swanGui.AddPanel(panel6);
+	swanGui.AddPanel(panel7);
 
 	while (!WindowShouldClose())
 	{

@@ -1099,6 +1099,73 @@ public:
 	}
 };
 
+class DropDown: public GuiElement{
+public:
+	bool m_is_selected= false;
+	int m_extra_width= 0;
+	int m_element_count= 0;
+	Vector2 m_panel_pos;
+	Vector2 m_panel_size;
+	std::shared_ptr<Panel> *m_panel;
+
+	DropDown(const std::string text, int extra_width, int element_count){
+		m_text= text;
+		m_extra_width= extra_width;
+		m_element_count= element_count;
+
+		// m_panel= std::make_shared<Panel>("dropdown-panel", m_panel_pos, m_panel_size, false, 1, m_font);
+	}
+
+	Vector2 GetPanelPos(){
+		Vector2 temp;
+		temp.x= m_panel_pos.x/20.0;
+		temp.y= m_panel_pos.y/20.0;
+		return temp;
+	}
+
+	Vector2 GetPanelSize(){
+		Vector2 temp;
+		temp.x= m_panel_size.x/20.0;
+		temp.y= m_panel_size.y/20.0;
+		return temp;
+	}
+
+	void SetPanel(std::shared_ptr<Panel> &panel){
+		m_panel= &panel;
+	}
+
+	void Update() override{
+		static bool is_initialized= false;
+		if(!is_initialized){
+			m_panel_pos.x= m_position.x;
+			m_panel_pos.y= (m_position.y +font_size +element_padding);
+			m_panel_size.x= (m_size.x +m_extra_width);
+			m_panel_size.y= (element_padding +((font_size +element_padding) *m_element_count));
+			is_initialized= true;
+		}
+
+		if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			if(IsMouseOver()){
+				m_is_selected= !m_is_selected;
+			}
+		}
+		if(m_is_selected){
+			(*m_panel)->Update();
+		}
+	}
+
+	void Draw() override{
+		Rectangle rec= {static_cast<float>(m_position.x), static_cast<float>(m_position.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y)};
+		DrawRectangleRounded(rec, 0.3f, 2, ui_element_body);
+		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
+
+		if(m_is_selected){
+			(*m_panel)->Draw();
+		}
+	}
+};
+
 class SwanGui{//_____________________________________________________________________________________ SWANGUI _______________________________________________________________________________//
 public:
 	std::vector<std::shared_ptr<Panel>> m_panels;

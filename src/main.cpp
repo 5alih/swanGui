@@ -55,7 +55,7 @@ int main()
 	Vector2 panelSize4= {12, 14};
 	Vector2 panelSize5= {24, 26};
 
-	Vector2 panelPos7= {54, 0};
+	Vector2 panelPos7= {52, 0};
 	Vector2 panelSize7= {24, 1};
 
 	SwanGui swanGui;
@@ -68,7 +68,7 @@ int main()
 	auto panel6= std::make_shared<Panel>("3D CAMERA", panelPos6, panelSize5, custom_font);
 	
 	auto panel7= std::make_shared<Panel>("no-header", panelPos7, panelSize7, false, 5, custom_font);
-	panel7->addElement(std::make_shared<Comment>("R3D Engine"));
+	panel7->addElement(std::make_shared<Comment>("FAKE TITLE"));
 	panel7->addElement(std::make_shared<Button>("SETTINGS", [](){}, false));
 	panel7->addElement(std::make_shared<Button>("EDITOR", [](){}, false));
 

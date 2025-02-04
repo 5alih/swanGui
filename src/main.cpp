@@ -194,12 +194,6 @@ int main()
 	while (!WindowShouldClose())
 	{
 		swanGui.Update();
-		static bool is= false;
-		if(!is){
-			dropDown1->PrintDimensions();
-			dropDown2->PrintDimensions();
-			is= true;
-		}
 
 		BeginDrawing();
 			ClearBackground( ui_panel_body );

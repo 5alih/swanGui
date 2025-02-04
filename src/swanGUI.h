@@ -1099,9 +1099,10 @@ public:
 	}
 };
 
+//might add drop right and drop left menus
 class DropDown: public GuiElement{
 public:
-	bool m_is_selected= true;
+	bool m_is_selected= false;
 	int m_extra_width= 0;
 	int m_element_count= 0;
 	Vector2 m_panel_pos;

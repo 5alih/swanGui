@@ -57,7 +57,7 @@ inline Color ui_text_hover= {240, 245, 255, 255};
 inline Color ui_text_highl= {210, 215, 225, 255};
 
 inline Color ui_special=	{243, 169, 78, 255};
-inline Color ui_special_h=	{175, 122, 58, 255};
+inline Color ui_special_h=	{255, 180, 100, 255};
 
 inline const int font_size= 14;
 inline const int element_padding= 3;
@@ -1132,12 +1132,16 @@ public:
 	}
 
 	void PrintDimensions(){
-		Vector2 pos= GetPanelPos();
-		Vector2 size= GetPanelSize();
-		std::cout<<"pos x :"<<pos.x<<std::endl;
-		std::cout<<"pos y :"<<pos.y<<std::endl;
-		std::cout<<"size x :"<<size.x<<std::endl;
-		std::cout<<"size y :"<<size.y<<std::endl;
+		static bool did_print= false;
+		if(!did_print){
+			Vector2 pos= GetPanelPos();
+			Vector2 size= GetPanelSize();
+			std::cout<<"pos x: "<<pos.x<<std::endl;
+			std::cout<<"pos y: "<<pos.y<<std::endl;
+			std::cout<<"size x: "<<size.x<<std::endl;
+			std::cout<<"size y: "<<size.y<<std::endl;
+			did_print= true;
+		}
 		//size.y is +0.85 for each element
 	}
 
@@ -1146,13 +1150,13 @@ public:
 	}
 
 	void Update() override{
-		static bool is_initialized= false;
-		if(!is_initialized){
+		static int is_initialized= 0;
+		if(is_initialized <10){
 			m_panel_pos.x= m_position.x;
 			m_panel_pos.y= (m_position.y +font_size +element_padding);
 			m_panel_size.x= (m_size.x +m_extra_width);
 			m_panel_size.y= (element_padding +((font_size +element_padding) *m_element_count));
-			is_initialized= false;
+			is_initialized++;
 		}
 
 		if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -1178,8 +1182,8 @@ public:
 		Vector2 pos= { (float)static_cast<int>(m_position.x + m_size.x/2 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos, font_size, 2.0f, ui_text_light);
 
-		Vector2 pos2= {(float)static_cast<int>(m_position.x + m_size.x - MeasureText(m_text.c_str(), font_size)/2), pos.y +5};
-		DrawTriangle( (Vector2){pos2.x, pos2.y}, (Vector2){pos2.x +3, pos2.y +5}, (Vector2){pos2.x +6, pos2.y}, ui_text_light);
+		Vector2 pos2= {(float)static_cast<int>(m_position.x + m_size.x -10), pos.y +5};
+		DrawTriangle( (Vector2){pos2.x, pos2.y}, (Vector2){pos2.x +3, pos2.y +5}, (Vector2){pos2.x +6, pos2.y}, ui_element_hover);
 
 		if(m_is_selected){
 			(*m_panel)->Draw();

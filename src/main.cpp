@@ -71,9 +71,22 @@ int main()
 	panel7->addElement(std::make_shared<Comment>("FAKE TITLE"));
 	panel7->addElement(std::make_shared<Button>("SETTINGS", [](){}, false));
 	panel7->addElement(std::make_shared<Button>("EDITOR", [](){}, false));
-	auto dropDown1= std::make_shared<DropDown>("test", 0, 2);
+	auto dropDown1= std::make_shared<DropDown>("test", 0, 4);
 	panel7->addElement(dropDown1);
 
+	auto panel8= std::make_shared<Panel>("dropdown-panel", (Vector2){66.7, 1}, (Vector2){4.2, 3.55}, false, 1, custom_font);
+	panel8->addElement(std::make_shared<Button>("test1", [](){}, false));
+	panel8->addElement(std::make_shared<Button>("test2", [](){}, false));
+	panel8->addElement(std::make_shared<Button>("test3", [](){}, false));
+	auto dropDown2= std::make_shared<DropDown>("test2", 0, 3);
+	panel8->addElement(dropDown2);
+	dropDown1->SetPanel(panel8);
+	
+	auto panel9= std::make_shared<Panel>("dropdown-panel", (Vector2){67, 4.55}, (Vector2){3.6, 2.70}, false, 1, custom_font);
+	panel9->addElement(std::make_shared<Button>("test4", [](){}, false));
+	panel9->addElement(std::make_shared<Button>("test5", [](){}, false));
+	panel9->addElement(std::make_shared<Button>("test6", [](){}, false));
+	dropDown2->SetPanel(panel9);
 
 	int force= 10;	
 	bool yes= true;
@@ -170,31 +183,26 @@ int main()
 	panel1->addElement(std::make_shared<ColorPicker>("Element Body", ui_element_body));
 	panel1->addElement(std::make_shared<ColorPicker>("Text Light", ui_text_light));
 
-	std::shared_ptr<Panel> panel8;
-
-	// swanGui.AddPanel(panel1);
-	// swanGui.AddPanel(panel2);
-	// swanGui.AddPanel(panel3);
-	// swanGui.AddPanel(panel4);
-	// swanGui.AddPanel(panel5);
-	// swanGui.AddPanel(panel6);
+	swanGui.AddPanel(panel1);
+	swanGui.AddPanel(panel2);
+	swanGui.AddPanel(panel3);
+	swanGui.AddPanel(panel4);
+	swanGui.AddPanel(panel5);
+	swanGui.AddPanel(panel6);
 	swanGui.AddPanel(panel7);
 
-	bool is= false;
 	while (!WindowShouldClose())
 	{
 		swanGui.Update();
-		
+		static bool is= false;
 		if(!is){
-			panel8= std::make_shared<Panel>("dropdown-panel", dropDown1->GetPanelPos(), dropDown1->GetPanelSize(), false, 1, custom_font);
-			panel8->addElement(std::make_shared<Comment>("test1"));
-			panel8->addElement(std::make_shared<Comment>("test2"));
+			dropDown1->PrintDimensions();
+			dropDown2->PrintDimensions();
 			is= true;
 		}
-		dropDown1->SetPanel(panel8);
 
 		BeginDrawing();
-			ClearBackground( BLACK );
+			ClearBackground( ui_panel_body );
 			swanGui.Draw();
 
 		EndDrawing();

@@ -34,11 +34,8 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
 #include <memory>
 #include <functional>
-#include <algorithm>
-#include <stdexcept>
 #include <sstream>
 #include <iostream>
 #include "raylib.h"

@@ -1,33 +1,33 @@
 /*
- * swanGui.h - a Single-Header library.
- *
- * Usage:
- * #include "swanGui.h"
- *
- * License:
- * The MIT License (MIT)
- *
- * Copyright (c) 2024 Salih
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
+* swanGui.h - a Single-Header library.
+*
+* Usage:
+* #include "swanGui.h"
+*
+* License:
+* The MIT License (MIT)
+*
+* Copyright (c) 2024 Salih
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
+*/
 
 #ifndef SWANGUI_H
 #define SWANGUI_H
@@ -39,6 +39,8 @@
 #include <sstream>
 #include <iostream>
 #include "raylib.h"
+#include <cfloat>
+#include <iomanip>
 
 inline Color ui_background=		{25, 25, 25, 255};
 inline Color ui_panel_body=		{17, 24, 32, 255};
@@ -194,7 +196,7 @@ public:
 inline bool updateSlider(int* target_val, bool is_mouse_over, bool is_active, int step_size= 1, int min= -INT_MAX, int max= INT_MAX, int max_length= 9){
 	if(!target_val) return false;
 
-	auto clamp_value = [&](int val){ 
+	auto clamp_value= [&](int val){ 
 		return std::max(min, std::min(val, max)); 
 	};
 
@@ -267,7 +269,7 @@ public:
 
 	Slider(std::string text, int &target_val){
 		m_text= text;
-		 m_target_val= &target_val;
+		m_target_val= &target_val;
 	}
 
 	void Update() override {
@@ -284,7 +286,7 @@ public:
 			int key= GetCharPressed();
 
 			if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-				Vector2 delta = GetMouseDelta();
+				Vector2 delta= GetMouseDelta();
 				*m_target_val+= delta.x * m_step_size;
 			}
 			else if(IsMouseOver()){
@@ -323,15 +325,122 @@ public:
 	void Draw() override{
 		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
 		Color currentColor= m_get_input ? ui_element_hover : ui_element_body;
-
-		// DrawRectangle(static_cast<int>(m_position.x + m_size.x/2), static_cast<int>(m_position.y), static_cast<int>(m_size.x/2), static_cast<int>(m_size.y), currentColor);
-
 		Rectangle rec= {static_cast<float>(m_position.x + m_size.x/2), static_cast<float>(m_position.y), static_cast<float>(m_size.x/2), static_cast<float>(m_size.y)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
 		Vector2 pos_val= { (float)static_cast<int>(m_position.x + m_size.x/2 + m_size.x/4 - MeasureText(to_string(*m_target_val).c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, to_string(*m_target_val).c_str(), pos_val, font_size, 2.0f, ui_text_light);
 		Vector2 pos_text= { (float)static_cast<int>(m_position.x + m_size.x/4 - MeasureText(m_text.c_str(), font_size)/2), (float)static_cast<int>(m_position.y + m_size.y/2 - font_size/2.5)};
 		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
+	}
+};
+
+class SliderF : public GuiElement{
+public:
+	float *m_target_val;
+	float m_step_size= 0.1f;
+	float m_min= -FLT_MAX;
+	float m_max= FLT_MAX;
+	bool m_get_input= false;
+	int m_maxLength= 9;
+	std::string m_input_buffer;
+
+	SliderF(std::string text, float &target_val, float step_size, float min, float max){
+		m_text= text;
+		m_target_val= &target_val;
+		m_step_size= step_size;
+		m_min= min;
+		m_max= max;
+		m_input_buffer= format_float(*m_target_val);
+	}
+
+	SliderF(std::string text, float &target_val, float step_size){
+		m_text= text;
+		m_target_val= &target_val;
+		m_step_size= step_size;
+		m_input_buffer= format_float(*m_target_val);
+	}
+
+	SliderF(std::string text, float &target_val){
+		m_text= text;
+		m_target_val= &target_val;
+		m_input_buffer= format_float(*m_target_val);
+	}
+
+	void Update() override{
+		if(!m_target_val) return;
+
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_get_input= true;
+		}
+		else if((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
+			m_get_input= false;
+			m_input_buffer= format_float(*m_target_val);
+		}
+
+		if(m_get_input){
+			int key= GetCharPressed();
+
+			if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+				Vector2 delta= GetMouseDelta();
+				*m_target_val+= delta.x * m_step_size;
+				m_input_buffer= format_float(*m_target_val);
+			}
+		else if(IsMouseOver()){
+				*m_target_val+= GetMouseWheelMove() * m_step_size;
+				m_input_buffer= format_float(*m_target_val);
+			}
+
+			while (key > 0){
+				if((key >= KEY_ZERO && key <= KEY_NINE) && (static_cast<int>(m_input_buffer.length()) < m_maxLength)){
+					m_input_buffer+= static_cast<char>(key);
+				}
+		else if(key== KEY_PERIOD && m_input_buffer.find('.')== std::string::npos){
+					m_input_buffer+= '.';
+				}
+		else if(key== KEY_MINUS && m_input_buffer.empty()){
+					m_input_buffer= "-";
+				}
+				key= GetCharPressed();
+			}
+			if(IsKeyPressed(KEY_BACKSPACE) && !m_input_buffer.empty()){
+				m_input_buffer.pop_back();
+				if(m_input_buffer.empty() || (m_input_buffer.size()== 1 && m_input_buffer== "-")){
+					m_input_buffer= "0";
+				}
+			}
+			try{
+				float newValue= std::stof(m_input_buffer);
+				if(newValue >= m_min && newValue <= m_max){
+					*m_target_val= newValue;
+				}
+			} catch (const std::exception &e){
+				m_input_buffer= format_float(*m_target_val);
+			}
+		}
+		*m_target_val= std::max(m_min, std::min(*m_target_val, m_max));
+	}
+
+	void Draw() override{
+		Color textColor= IsMouseOver() ? ui_text_hover : ui_text_light;
+		Color currentColor= m_get_input ? ui_element_hover : ui_element_body;
+		Rectangle rec= {static_cast<float>(m_position.x + m_size.x / 2), static_cast<float>(m_position.y), static_cast<float>(m_size.x / 2), static_cast<float>(m_size.y)};
+		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
+
+		std::string display_value= m_get_input ? m_input_buffer : format_float(*m_target_val);
+		Vector2 pos_val= {(float)static_cast<int>(m_position.x + m_size.x / 2 + m_size.x / 4 - MeasureText(display_value.c_str(), font_size) / 2),
+						(float)static_cast<int>(m_position.y + m_size.y / 2 - font_size / 2.5)};
+		DrawTextEx(m_font, display_value.c_str(), pos_val, font_size, 2.0f, ui_text_light);
+
+		Vector2 pos_text= {(float)static_cast<int>(m_position.x + m_size.x / 4 - MeasureText(m_text.c_str(), font_size) / 2),
+							(float)static_cast<int>(m_position.y + m_size.y / 2 - font_size / 2.5)};
+		DrawTextEx(m_font, m_text.c_str(), pos_text, font_size, 2.0f, textColor);
+	}
+
+private:
+	std::string format_float(float value, int precision= 2){
+		std::ostringstream oss;
+		oss << std::fixed << std::setprecision(precision) << value;
+		return oss.str();
 	}
 };
 
@@ -437,7 +546,7 @@ public:
 						static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
 		Vector2 pos= { (float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
-					   (float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
+					(float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
 		DrawTextEx(m_font, m_text_button.c_str(), pos, font_size, 2.0f, ui_text_light);
 
 		float scale= (m_texture->width> m_texture->height) ? thumnnail_size/(m_texture->width) : thumnnail_size/(m_texture->height);
@@ -500,12 +609,12 @@ public:
 		// 			  static_cast<int>(m_size.x - thumnnail_size - element_padding), static_cast<int>(m_size.y/2), currentColor);
 
 		Rectangle rec= {static_cast<float>(m_position.x + thumnnail_size + element_padding), static_cast<float>(m_position.y + m_size.y/2),
-					  static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
+					static_cast<float>(m_size.x - thumnnail_size - element_padding), static_cast<float>(m_size.y/2)};
 		DrawRectangleRounded(rec, 0.3f, 2, currentColor);
 
 
 		Vector2 pos= {(float)static_cast<int>(m_position.x + thumnnail_size + element_padding + (m_size.x - thumnnail_size - element_padding)/2 - MeasureText(m_text_button.c_str(), font_size)/2),
-					  (float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
+					(float)static_cast<int>(m_position.y + 3*(m_size.y/4) - font_size/2.5)};
 		DrawTextEx(m_font, m_text_button.c_str(), pos, font_size, 2.0f, ui_text_light);
 
 		float scale= (m_texture_anim.width> m_texture_anim.height) ? thumnnail_size/(float)m_texture_anim.width : thumnnail_size/(float)m_texture_anim.height;
@@ -548,10 +657,10 @@ public:
 	std::string m_gif_path;
 
 	BillboardGif(const std::string& gif_path, int &frame_delay){
-		m_gif_path = gif_path;
-		m_frame_delay = &frame_delay;
-		m_image_anim = LoadImageAnim(m_gif_path.c_str(), &m_frames);
-		m_texture_anim = LoadTextureFromImage(m_image_anim);
+		m_gif_path= gif_path;
+		m_frame_delay= &frame_delay;
+		m_image_anim= LoadImageAnim(m_gif_path.c_str(), &m_frames);
+		m_texture_anim= LoadTextureFromImage(m_image_anim);
 	}
 
 	~BillboardGif(){
@@ -579,7 +688,7 @@ public:
 
 class CameraView3D : public GuiElement{
 public:
-	Camera3D m_camera;
+	Camera3D *m_camera;
 	RenderTexture m_render_texture;
 	Color m_color;
 	std::function<void(Camera3D&)> m_draw_scene_function;
@@ -587,8 +696,8 @@ public:
 	bool m_update_camera= false;
 	bool m_is_calculated= false;
 
-	CameraView3D(Camera3D camera, std::function<void(Camera3D&)> draw_scene_function, Color background_color){
-		m_camera= camera;
+	CameraView3D(Camera3D &camera, std::function<void(Camera3D&)> draw_scene_function, Color background_color){
+		m_camera= &camera;
 		m_draw_scene_function= draw_scene_function;
 		m_color= background_color;
 	}
@@ -608,30 +717,26 @@ public:
 			m_update_camera= true;
 			DisableCursor();
 		}
-		else if(m_update_camera && ((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE))){
+		else if(IsKeyPressed(KEY_ESCAPE)){
 			m_update_camera= false;
 			EnableCursor();
 		}
 
 		if(m_update_camera){
-			UpdateCamera(&m_camera, CAMERA_CUSTOM);
+			UpdateCamera(m_camera, CAMERA_CUSTOM);
 		}
 	}
 
 	void Draw() override{
 		BeginTextureMode(m_render_texture);
 			ClearBackground(m_color);
-				BeginMode3D(m_camera);
-				if(m_draw_scene_function) m_draw_scene_function(m_camera);
+				BeginMode3D(*m_camera);
+				if(m_draw_scene_function) m_draw_scene_function(*m_camera);
 			EndMode3D();
 		EndTextureMode();
 
 		Rectangle sourceRec= {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
 		DrawTextureRec(m_render_texture.texture, sourceRec, m_position, WHITE);
-	}
-
-	Camera3D& GetCamera(){
-		return m_camera;
 	}
 
 	RenderTexture& GetRenderTexture(){
@@ -641,122 +746,114 @@ public:
 
 class CameraView3DFill : public GuiElement{
 public:
-    Camera3D m_camera;
-    RenderTexture m_render_texture;
+	Camera3D *m_camera;
+	RenderTexture m_render_texture;
 	Color m_color;
-    std::function<void(Camera3D&)> m_draw_scene_function;
-    bool m_update_camera = false;
-    bool m_is_calculated = false;
+	std::function<void(Camera3D&)> m_draw_scene_function;
+	bool m_update_camera= false;
+	bool m_is_calculated= false;
 
-    CameraView3DFill(Camera3D camera, std::function<void(Camera3D&)> draw_scene_function, Color color){
-        m_camera= camera;
-        m_draw_scene_function= draw_scene_function;
+	CameraView3DFill(Camera3D &camera, std::function<void(Camera3D&)> draw_scene_function, Color color){
+		m_camera= &camera;
+		m_draw_scene_function= draw_scene_function;
 		m_color= color;
-    }
+	}
 
-    ~CameraView3DFill(){
-        UnloadRenderTexture(m_render_texture);
-    }
+	~CameraView3DFill(){
+		UnloadRenderTexture(m_render_texture);
+	}
 
-    void Update() override{
-        if(m_is_calculated== false){
-            m_render_texture= LoadRenderTexture(m_size.x +12, m_size.y);	//altered "+12"
-            m_is_calculated= true;
-        }
+	void Update() override{
+		if(m_is_calculated== false){
+			m_render_texture= LoadRenderTexture(m_size.x +12, m_size.y);	//altered "+12"
+			m_is_calculated= true;
+		}
 
-        if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            m_update_camera= true;
-            DisableCursor();
-        }
-        else if(m_update_camera && ((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE))){
-            m_update_camera= false;
-            EnableCursor();
-        }
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_update_camera= true;
+			DisableCursor();
+		}
+		else if(IsKeyPressed(KEY_ESCAPE)){
+			m_update_camera= false;
+			EnableCursor();
+		}
 
-        if (m_update_camera){
-            UpdateCamera(&m_camera, CAMERA_CUSTOM);
-        }
-    }
+		if(m_update_camera){
+			UpdateCamera(m_camera, CAMERA_CUSTOM);
+		}
+	}
 
-    void Draw() override{
-        BeginTextureMode(m_render_texture);
-            ClearBackground(m_color);
-            BeginMode3D(m_camera);
-                if(m_draw_scene_function) m_draw_scene_function(m_camera);
-            EndMode3D();
-        EndTextureMode();
+	void Draw() override{
+		BeginTextureMode(m_render_texture);
+			ClearBackground(m_color);
+			BeginMode3D(*m_camera);
+				if(m_draw_scene_function) m_draw_scene_function(*m_camera);
+			EndMode3D();
+		EndTextureMode();
 
-        Rectangle sourceRec = {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
-        DrawTextureRec(m_render_texture.texture, sourceRec, (Vector2){m_position.x -6, m_position.y}, WHITE);	//altered "-6"
-    }
+		Rectangle sourceRec= {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
+		DrawTextureRec(m_render_texture.texture, sourceRec, (Vector2){m_position.x -6, m_position.y}, WHITE);	//altered "-6"
+	}
 
-    Camera3D& GetCamera(){
-        return m_camera;
-    }
-
-    RenderTexture& GetRenderTexture(){
-        return m_render_texture;
-    }
+	RenderTexture& GetRenderTexture(){
+		return m_render_texture;
+	}
 };
 
 class CameraView3DFillBorder : public GuiElement{
 public:
-    Camera3D m_camera;
-    RenderTexture m_render_texture;
+	Camera3D *m_camera;
+	RenderTexture m_render_texture;
 	Color m_color;
-    std::function<void(Camera3D&)> m_draw_scene_function;
-    bool m_update_camera= false;
-    bool m_is_calculated= false;
+	std::function<void(Camera3D&)> m_draw_scene_function;
+	bool m_update_camera= false;
+	bool m_is_calculated= false;
 
-    CameraView3DFillBorder(Camera3D camera, std::function<void(Camera3D&)> draw_scene_function, Color color){
-        m_camera= camera;
-        m_draw_scene_function= draw_scene_function;
+	CameraView3DFillBorder(Camera3D &camera, std::function<void(Camera3D&)> draw_scene_function, Color color){
+		m_camera= &camera;
+		m_draw_scene_function= draw_scene_function;
 		m_color= color;
-    }
+	}
 
-    ~CameraView3DFillBorder(){
-        UnloadRenderTexture(m_render_texture);
-    }
+	~CameraView3DFillBorder(){
+		UnloadRenderTexture(m_render_texture);
+	}
 
-    void Update() override{
-        if(m_is_calculated== false){
-            m_render_texture= LoadRenderTexture(m_size.x, m_size.y);
-            m_is_calculated= true;
-        }
+	void Update() override{
+		if(m_is_calculated== false){
+			m_render_texture= LoadRenderTexture(m_size.x, m_size.y);
+			m_is_calculated= true;
+		}
 
-        if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            m_update_camera= true;
-            DisableCursor();
-        }
-        else if(m_update_camera && ((!IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ESCAPE))){
-            m_update_camera= false;
-            EnableCursor();
-        }
+		if(IsMouseOver() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			m_update_camera= true;
+			DisableCursor();
+		}
+		else if(IsKeyPressed(KEY_ESCAPE)){
+			m_update_camera= false;
+			EnableCursor();
+		}
 
-        if (m_update_camera){
-            UpdateCamera(&m_camera, CAMERA_CUSTOM);
-        }
-    }
+		if(m_update_camera){
+			UpdateCamera(m_camera, CAMERA_CUSTOM);
+		}
+	}
 
-    void Draw() override{
-        BeginTextureMode(m_render_texture);
-            ClearBackground(m_color);
-            BeginMode3D(m_camera);
-                if(m_draw_scene_function) m_draw_scene_function(m_camera);
-            EndMode3D();
-        EndTextureMode();
+	void Draw() override{
+		BeginTextureMode(m_render_texture);
+			ClearBackground(m_color);
+			BeginMode3D(*m_camera);
+				if(m_draw_scene_function) m_draw_scene_function(*m_camera);
+			EndMode3D();
+		EndTextureMode();
 
-        Rectangle sourceRec= {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
-        DrawTextureRec(m_render_texture.texture, sourceRec, m_position, WHITE);
-    }
+		Rectangle sourceRec= {0.0f, 0.0f, (float)m_render_texture.texture.width, (float)-m_render_texture.texture.height};
+		DrawTextureRec(m_render_texture.texture, sourceRec, m_position, WHITE);
+	}
 
-    Camera3D& GetCamera(){
-        return m_camera;
-    }
-
-    RenderTexture& GetRenderTexture(){
-        return m_render_texture;
-    }
+	RenderTexture& GetRenderTexture(){
+		return m_render_texture;
+	}
 };
 
 class ColorPicker: public GuiElement{
@@ -797,16 +894,16 @@ public:
 	}
 
 	void CompleteCalculation(){
-		m_slider_size = {m_size.x/4, font_size};
-		m_pos_r = {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
-		m_pos_g = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
-		m_pos_b = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
-		m_pos_a = {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
+		m_slider_size= {m_size.x/4, font_size};
+		m_pos_r= {m_position.x + (m_size.x/4)*3, m_position.y + font_size + element_padding};
+		m_pos_g= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*2 + element_padding*2};
+		m_pos_b= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*3 + element_padding*3};
+		m_pos_a= {m_position.x + (m_size.x/4)*3, m_position.y + font_size*4 + element_padding*4};
 
-		m_rec_r = {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
-		m_rec_g = {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
-		m_rec_b = {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
-		m_rec_a = {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
+		m_rec_r= {m_pos_r.x, m_pos_r.y, m_slider_size.x, m_slider_size.y};
+		m_rec_g= {m_pos_g.x, m_pos_g.y, m_slider_size.x, m_slider_size.y};
+		m_rec_b= {m_pos_b.x, m_pos_b.y, m_slider_size.x, m_slider_size.y};
+		m_rec_a= {m_pos_a.x, m_pos_a.y, m_slider_size.x, m_slider_size.y};
 	}
 
 	void Update() override{
@@ -1042,7 +1139,7 @@ public:
 	}
 
 	template <typename T>
-	void addElement(std::shared_ptr<T> element) {
+	void addElement(std::shared_ptr<T> element){
 		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
 
 		if(m_counter>= m_sections){
@@ -1070,12 +1167,12 @@ public:
 		else if constexpr (std::is_same<T, Billboard>::value || std::is_same<T, BillboardGif>::value || std::is_same<T, CameraView3D>::value){
 			newSize.y= newSize.x;
 		}
-	    else if constexpr (std::is_same<T, CameraView3DFill>::value){
-        	newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
-    	}
-	    else if constexpr (std::is_same<T, CameraView3DFillBorder>::value){
-        	newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
-    	}
+		else if constexpr (std::is_same<T, CameraView3DFill>::value){
+			newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
+		}
+		else if constexpr (std::is_same<T, CameraView3DFillBorder>::value){
+			newSize.y= m_size.y -(newPosition.y -m_position.y) -element_padding;
+		}
 		else if(std::is_same<T, ColorPicker>::value){
 			newSize.y= (font_size + element_padding) *5;
 		}

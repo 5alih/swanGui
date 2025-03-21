@@ -60,6 +60,7 @@ int main()
 
 	SwanGui swanGui;
 
+
 	auto panel1= std::make_shared<Panel>("BUTTONS AND SLIDERS", panelPos1, panelSize, 3, custom_font);
 	auto panel2= std::make_shared<Panel>("COLORS", panelPos2, panelSize2, custom_font);
 	auto panel3= std::make_shared<Panel>("BILLBOARDS", panelPos3, panelSize3, custom_font);
@@ -173,13 +174,15 @@ int main()
 	camera.up= (Vector3){0.0f, 1.0f, 0.0f};
 	camera.fovy= 65.0f;
 	panel5->addElement(std::make_shared<Comment>("Interactive 3D Camera View"));
-	panel5->addElement(std::make_shared<CameraView3D>(camera, DrawDemo3DScene, ui_panel_header));
+	panel5->addElement(std::make_shared<CameraView3D>(camera, DrawDemo3DScene, ui_panel_body));
 
 	panel6->addElement(std::make_shared<Comment>("Another Interactive 3D Camera View"));
-	panel6->addElement(std::make_shared<CameraView3D>(camera, drawSceneFunction, ui_panel_header));
+	panel6->addElement(std::make_shared<CameraView3D>(camera, drawSceneFunction, ui_panel_body));
 
+	panel1->addElement(std::make_shared<ColorPicker>("Accent Color", ui_background));
 	panel1->addElement(std::make_shared<ColorPicker>("Accent Color", ui_special));
 	panel1->addElement(std::make_shared<ColorPicker>("Panel Body", ui_panel_body));
+	panel1->addElement(std::make_shared<ColorPicker>("Panel Header", ui_panel_header));
 	panel1->addElement(std::make_shared<ColorPicker>("Element Body", ui_element_body));
 	panel1->addElement(std::make_shared<ColorPicker>("Text Light", ui_text_light));
 
@@ -191,12 +194,12 @@ int main()
 	swanGui.AddPanel(panel6);
 	swanGui.AddPanel(panel7);
 
-	while (!WindowShouldClose())
+	while(!WindowShouldClose())
 	{
 		swanGui.Update();
 
 		BeginDrawing();
-			ClearBackground( ui_panel_body );
+			ClearBackground( ui_background );
 			swanGui.Draw();
 
 		EndDrawing();

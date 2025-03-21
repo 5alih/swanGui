@@ -7,7 +7,7 @@
 * License:
 * The MIT License (MIT)
 *
-* Copyright (c) 2024 Salih
+* Copyright (c) 2024 5alih
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -42,21 +42,21 @@
 #include <cfloat>
 #include <iomanip>
 
-inline Color ui_background=		{25, 25, 25, 255};
-inline Color ui_panel_body=		{17, 24, 32, 255};
-inline Color ui_panel_header=   {9, 12, 15, 255};
+inline Color ui_background=		{60, 60, 60, 255};
+inline Color ui_panel_body=		{19, 19, 19, 255};
+inline Color ui_panel_header=   {32, 32, 32, 255};
 
-inline Color ui_element_body=  {29, 38, 51, 255};
-inline Color ui_element_hover= {44, 55, 70, 255};
+inline Color ui_element_body=  {32, 32, 32, 255};
+inline Color ui_element_hover= {48, 48, 48, 255};
 inline Color ui_element_click= {10, 10, 10, 255};
 
 inline Color ui_text_dark=	{255, 255, 255, 255};
-inline Color ui_text_light= {175, 180, 190, 255};
-inline Color ui_text_hover= {240, 245, 255, 255};
-inline Color ui_text_highl= {210, 215, 225, 255};
+inline Color ui_text_light= {221, 221, 221, 255};
+inline Color ui_text_hover= {255, 255, 255, 255};
+inline Color ui_text_highl= {255, 255, 255, 255};
 
-inline Color ui_special=	{243, 169, 78, 255};
-inline Color ui_special_h=	{255, 180, 100, 255};
+inline Color ui_special=	{144, 159, 175, 255};
+inline Color ui_special_h=	{165, 182, 201, 255};
 
 inline const int font_size= 14;
 inline const int element_padding= 3;

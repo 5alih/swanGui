@@ -49,7 +49,7 @@ int main()
 	Vector2 panelPos5= {28, 0};
 	Vector2 panelPos6= {28, 26};
 
-	Vector2 panelSize= {30, 52};
+	Vector2 panelSize= {10, 52};
 	Vector2 panelSize2= {6, 52};
 	Vector2 panelSize3= {12, 38};
 	Vector2 panelSize4= {12, 14};
@@ -61,7 +61,7 @@ int main()
 	SwanGui swanGui;
 
 
-	auto panel1= std::make_shared<Panel>("BUTTONS AND SLIDERS", panelPos1, panelSize, 3, custom_font);
+	auto panel1= std::make_shared<Panel>("BUTTONS AND SLIDERS", panelPos1, panelSize, 1, custom_font);
 	auto panel2= std::make_shared<Panel>("COLORS", panelPos2, panelSize2, custom_font);
 	auto panel3= std::make_shared<Panel>("BILLBOARDS", panelPos3, panelSize3, custom_font);
 	auto panel4= std::make_shared<Panel>("GIF BILLBOARD", panelPos4, panelSize4, custom_font);
@@ -192,7 +192,7 @@ int main()
 	swanGui.AddPanel(panel4);
 	swanGui.AddPanel(panel5);
 	swanGui.AddPanel(panel6);
-	swanGui.AddPanel(panel7);
+	// swanGui.AddPanel(panel7);
 
 	while(!WindowShouldClose())
 	{

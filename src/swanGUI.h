@@ -42,13 +42,13 @@
 #include <cfloat>
 #include <iomanip>
 
-inline Color ui_background=		{60, 60, 60, 255};
-inline Color ui_panel_body=		{19, 19, 19, 255};
-inline Color ui_panel_header=   {32, 32, 32, 255};
+inline Color ui_background=	{221, 221, 221, 255};
+inline Color ui_panel_body=	   {19, 19, 19, 255};
+inline Color ui_panel_header=  {10, 10, 10, 255};
 
 inline Color ui_element_body=  {32, 32, 32, 255};
-inline Color ui_element_hover= {48, 48, 48, 255};
-inline Color ui_element_click= {10, 10, 10, 255};
+inline Color ui_element_hover= {44, 44, 44, 255};
+inline Color ui_element_click= {01, 01, 01, 255};
 
 inline Color ui_text_dark=	{255, 255, 255, 255};
 inline Color ui_text_light= {221, 221, 221, 255};

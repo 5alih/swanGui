@@ -45,6 +45,7 @@
 
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
+inline Font g_font= GetFontDefault();
 
 inline Color hex(const std::string &hex_code){
 	std::string m_hex= hex_code;
@@ -59,9 +60,21 @@ inline Color hex(const std::string &hex_code){
 }
 
 enum enum_position{
-	P_NORMAL,
-	p_FIXED,
-	P_RELATIVE,
+	P_NORMAL,		// default position of the element decided by the parent panel
+	P_FIXED,		// fixed position relative to top left corner, doesnt get effected by anything
+	p_FIXED_RIGHT,	// fixed position relative to top right corner, right side effects the position
+	p_FIXED_BOTTOM,	// fixed position relative to bottom left corner, bottom side effects the position
+	P_RELATIVE,		// relative to the default position of the element, changes when default position changes
+	P_HORIZONTAL,	// relative to width of the window, keeps the distance in % to the right side
+	P_VERTICAL,		// relative to height of the window, keeps the distance in % to the bottom side
+	P_CENTERAL,		// relative to both width and height of the window, keeps the distance in % to the (max, max) point
+};
+
+enum enum_status{
+	S_NORMAL,
+	S_HOVERED,
+	S_CLICKED,
+	S_DISABLED,
 };
 
 struct Position{
@@ -77,38 +90,34 @@ public:
 	std::optional<Color> border_color= hex("#202020");
 	std::optional<int> font_size= g_font_size;
 	std::optional<Position> position= (Position){ P_NORMAL, (Vector2){0, 0} };
-};
-
-enum enum_status{
-	S_NORMAL,
-	S_HOVERED,
-	S_CLICKED,
-	S_DISABLED,
+	std::optional<Vector2> size= (Vector2){0, 0};
+	std::optional<Font> font= g_font;
 };
 
 class GuiElement{
 public:
-	Vector2 m_position= {0, 0};
-	Vector2 m_size= {0, 0};
 	std::string m_text;
-	Font m_font;
 	enum_status m_status= S_NORMAL;
 	Style style;
 
 	virtual void Update()= 0;
 	virtual void Draw()= 0;
-
-	void SetPosition(Vector2 position){ m_position= position; }
-	void SetSize(Vector2 size){ m_size= size; }
-	void SetFont(Font font){ m_font= font; }
 };
 
 
 
-class Panel{
+class Panel: public GuiElement{
 public:
-	void Update(){}
-	void Draw(){}
+	std::vector<std::shared_ptr<GuiElement>> m_elements;
+	
+
+	void Update() override{
+
+	}
+
+	void Draw() override{
+
+	}
 };
 
 class SwanGui{
@@ -123,6 +132,10 @@ public:
 			m_panels.push_back(panel);
 		}
 	}
+
+	// will check each panel to see if mouse is over
+	// and if so searcg the elements in panel to set hovered element's status
+	void UpdateElementHovered(){}
 
 	void Update(){
 		for(auto &panel: m_panels){

@@ -43,8 +43,11 @@
 
 #define rgb(red, green, blue) (Color){red, green, blue, 255}
 
+inline Vector2 g_mouse_position= GetMousePosition();
+inline int g_font_size= 14;
+
 inline Color hex(const std::string &hex_code){
-    std::string m_hex= hex_code;
+	std::string m_hex= hex_code;
     if(m_hex[0]== '#'){
         m_hex.erase(0, 1);
     }
@@ -55,21 +58,33 @@ inline Color hex(const std::string &hex_code){
     return (Color){(unsigned char)r, (unsigned char)g, (unsigned char)b, 255};
 }
 
-class Style{
+enum enum_position{
+	P_NORMAL,
+	p_FIXED,
+	P_RELATIVE,
+};
+
+struct Position{
+public:
+	enum_position type;
+	Vector2 position;
+};
+
+struct Style{
 public:
 	std::optional<Color> color= hex("#f5f5f5"); 
 	std::optional<Color> background_color= hex("#131313");
 	std::optional<Color> border_color= hex("#202020");
+	std::optional<int> font_size= g_font_size;
+	std::optional<Position> position= (Position){ P_NORMAL, (Vector2){0, 0} };
 };
 
-enum Status{
+enum enum_status{
 	S_NORMAL,
 	S_HOVERED,
 	S_CLICKED,
 	S_DISABLED,
 };
-
-Vector2 g_mouse_position= GetMousePosition();
 
 class GuiElement{
 public:
@@ -77,7 +92,7 @@ public:
 	Vector2 m_size= {0, 0};
 	std::string m_text;
 	Font m_font;
-	int m_status= S_NORMAL;
+	enum_status m_status= S_NORMAL;
 	Style style;
 
 	virtual void Update()= 0;

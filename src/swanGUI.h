@@ -39,8 +39,56 @@
 #include <sstream>
 #include <iostream>
 #include "raylib.h"
-#include <cfloat>
-#include <iomanip>
+#include <optional>
+
+#define rgb(red, green, blue) (Color){red, green, blue, 255}
+
+inline Color hex(const std::string &hex_code){
+    std::string m_hex= hex_code;
+    if(m_hex[0]== '#'){
+        m_hex.erase(0, 1);
+    }
+    int r= 0, g= 0, b= 0;
+    if(m_hex.length()>= 6){
+        sscanf(m_hex.c_str(), "%02x%02x%02x", &r, &g, &b);
+    }
+    return (Color){(unsigned char)r, (unsigned char)g, (unsigned char)b, 255};
+}
+
+class Style{
+public:
+	std::optional<Color> color= hex("#f5f5f5"); 
+	std::optional<Color> background_color= hex("#131313");
+	std::optional<Color> border_color= hex("#202020");
+};
+
+enum Status{
+	S_NORMAL,
+	S_HOVERED,
+	S_CLICKED,
+	S_DISABLED,
+};
+
+Vector2 g_mouse_position= GetMousePosition();
+
+class GuiElement{
+public:
+	Vector2 m_position= {0, 0};
+	Vector2 m_size= {0, 0};
+	std::string m_text;
+	Font m_font;
+	int m_status= S_NORMAL;
+	Style style;
+
+	virtual void Update()= 0;
+	virtual void Draw()= 0;
+
+	void SetPosition(Vector2 position){ m_position= position; }
+	void SetSize(Vector2 size){ m_size= size; }
+	void SetFont(Font font){ m_font= font; }
+};
+
+
 
 class Panel{
 public:

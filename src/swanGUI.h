@@ -42,19 +42,22 @@
 #include <optional>
 
 #define rgb(red, green, blue) (Color){red, green, blue, 255}
+#define sx (Style)
+#define sw(x) std::make_shared<x>
 
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
 inline Font g_font= GetFontDefault();
+inline bool g_left_clicked= IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 
-inline Color hex(const std::string &hex_code){
-	std::string m_hex= hex_code;
-    if(m_hex[0]== '#'){
-        m_hex.erase(0, 1);
+inline Color hex(const std::string &hex_code_){
+	std::string hex_code= hex_code_;
+    if(hex_code[0]== '#'){
+        hex_code.erase(0, 1);
     }
     int r= 0, g= 0, b= 0;
-    if(m_hex.length()>= 6){
-        sscanf(m_hex.c_str(), "%02x%02x%02x", &r, &g, &b);
+    if(hex_code.length()>= 6){
+        sscanf(hex_code.c_str(), "%02x%02x%02x", &r, &g, &b);
     }
     return (Color){(unsigned char)r, (unsigned char)g, (unsigned char)b, 255};
 }
@@ -77,27 +80,24 @@ enum enum_status{
 	S_DISABLED,
 };
 
-struct Position{
-public:
-	enum_position type;
-	Vector2 position;
-};
-
 struct Style{
-public:
-	std::optional<Color> color= hex("#f5f5f5"); 
-	std::optional<Color> background_color= hex("#131313");
-	std::optional<Color> border_color= hex("#202020");
-	std::optional<int> font_size= g_font_size;
-	std::optional<Position> position= (Position){ P_NORMAL, (Vector2){0, 0} };
+	std::optional<enum_position> display= P_NORMAL;
+	std::optional<Vector2> position= (Vector2){0, 0};
 	std::optional<Vector2> size= (Vector2){0, 0};
+	std::optional<Color> background_color= hex("#131313");
+	std::optional<Color> color= hex("#f5f5f5");
+	std::optional<Color> border_color= hex("#202020");
+	std::optional<bool> border= true;
+	std::optional<float> padding= 3.0;
+	std::optional<int> font_size= g_font_size;
 	std::optional<Font> font= g_font;
+	std::optional<float> spacing= 2.0f;
 };
 
 class GuiElement{
 public:
-	std::string m_text;
-	enum_status m_status= S_NORMAL;
+	std::string text;
+	enum_status status= S_NORMAL;
 	Style style;
 
 	virtual void Update()= 0;
@@ -108,28 +108,62 @@ public:
 
 class Panel: public GuiElement{
 public:
-	std::vector<std::shared_ptr<GuiElement>> m_elements;
-	
+	std::vector<std::shared_ptr<GuiElement>> elements;
+	int sections= 1;	// column count
+	bool can_minimize= false;
+
+	Panel(std::string text_, Style style_){
+		text= text_;
+		style= style_;
+	}
+
+	Panel(std::string text_, Style style_, bool can_minimize_){
+		text= text_;
+		style= style_;
+		can_minimize= can_minimize_;
+	}
 
 	void Update() override{
+		if(style.border.value()){
+			if(status== S_HOVERED && g_left_clicked){
+				
+			}
+		}
 
+		for(auto &element: elements){
+			element->Update();
+		}
 	}
 
 	void Draw() override{
-
+		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
+		
+		if(style.border.value()){
+			DrawRectangleLines(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y, style.border_color.value());
+			DrawRectangle(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value(), style.border_color.value());
+			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		}
+		for(auto &element: elements){
+			element->Draw();
+		}
 	}
 };
 
 class SwanGui{
 public:
-	std::vector<std::shared_ptr<Panel>> m_panels;
+	std::vector<std::shared_ptr<Panel>> panels;
 	
 	SwanGui(){}
 
+	SwanGui( std::vector<std::shared_ptr<Panel>> panels_ ){
+		panels= panels_;
+	}
+
 	void AddPanel(std::shared_ptr<Panel> panel){
-		auto it= std::find(m_panels.begin(), m_panels.end(), panel);
-		if(it== m_panels.end()){
-			m_panels.push_back(panel);
+		auto it= std::find(panels.begin(), panels.end(), panel);
+		if(it== panels.end()){
+			panels.push_back(panel);
 		}
 	}
 
@@ -138,13 +172,13 @@ public:
 	void UpdateElementHovered(){}
 
 	void Update(){
-		for(auto &panel: m_panels){
+		for(auto &panel: panels){
 			panel->Update();
 		}
 	}
 
 	void Draw(){
-		for(auto &panel: m_panels){
+		for(auto &panel: panels){
 			panel->Draw();
 		}
 	}

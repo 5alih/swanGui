@@ -43,12 +43,15 @@
 
 #define rgb(red, green, blue) (Color){red, green, blue, 255}
 #define sx (Style)
+#define util (Utility)
 #define sw(x) std::make_shared<x>
 
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
 inline Font g_font= GetFontDefault();
 inline bool g_left_clicked= IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+inline bool g_right_clicked= IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+inline bool g_middle_clicked= IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE);
 
 inline Color hex(const std::string &hex_code_){
 	std::string hex_code= hex_code_;
@@ -76,6 +79,9 @@ enum enum_position{
 enum enum_status{
 	S_NORMAL,
 	S_HOVERED,
+	S_HOVERED_HEADER,	// panel only, to detect if cursor is on header. used for panel utility
+	S_HOVERED_RIGHT,	// panel only, to detect if cursor is on the right border of the panel. used for resizing
+	S_HOVERED_BOTTOM,	// panel only, to detect if cursor is on the bottom border of the panel. used for resizing
 	S_CLICKED,
 	S_DISABLED,
 };
@@ -84,6 +90,7 @@ struct Style{
 	std::optional<enum_position> display= P_NORMAL;
 	std::optional<Vector2> position= (Vector2){0, 0};
 	std::optional<Vector2> size= (Vector2){0, 0};
+	std::optional<Vector2> min_size= (Vector2){20, 20};
 	std::optional<Color> background_color= hex("#131313");
 	std::optional<Color> color= hex("#f5f5f5");
 	std::optional<Color> border_color= hex("#202020");
@@ -104,38 +111,122 @@ public:
 	virtual void Draw()= 0;
 };
 
+struct Utility{
+	std::optional<bool> can_minimize= false;
+	std::optional<bool> is_minimized= true;
 
+	std::optional<bool> can_rescale= false;
+	std::optional<bool> is_rescaling= false;
+	
+	std::optional<bool> can_move= false;
+	std::optional<bool> is_moving= false;
+
+	std::optional<bool> grid_align= true;
+	std::optional<int> grid_size= 40;
+};
 
 class Panel: public GuiElement{
 public:
 	std::vector<std::shared_ptr<GuiElement>> elements;
 	int sections= 1;	// column count
-	bool can_minimize= false;
+	Utility utility;	// utilities for panels
 
 	Panel(std::string text_, Style style_){
 		text= text_;
 		style= style_;
 	}
 
-	Panel(std::string text_, Style style_, bool can_minimize_){
+	Panel(std::string text_, Style style_, Utility utility_){
 		text= text_;
 		style= style_;
-		can_minimize= can_minimize_;
+		utility= utility_;
 	}
 
 	void Update() override{
 		if(style.border.value()){
-			if(status== S_HOVERED && g_left_clicked){
-				
+			if(utility.can_minimize.value() && status== S_HOVERED_HEADER && g_left_clicked){
+				utility.is_minimized.value()= !utility.is_minimized.value();
+			}
+			if(utility.can_move.value() && utility.is_moving.value()== false && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
+				utility.is_moving.value()= true;
+			}
+			else if(utility.can_move.value() && utility.is_moving.value() && (IsKeyPressed(KEY_ESCAPE) || IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))){
+				if(utility.grid_align.value()){
+					Vector2 fixed_pos;
+					fixed_pos.x= (int)(style.position.value().x/ utility.grid_size.value());
+					fixed_pos.y= (int)(style.position.value().y/ utility.grid_size.value());
+
+					fixed_pos.x= ( ((fixed_pos.x *utility.grid_size.value()) -style.position.value().x) *(-1)< (((fixed_pos.x +1) *utility.grid_size.value()) -style.position.value().x)) ?
+						fixed_pos.x *utility.grid_size.value(): (fixed_pos.x +1) *utility.grid_size.value();
+					fixed_pos.y= ( ((fixed_pos.y *utility.grid_size.value()) -style.position.value().y) *(-1)< (((fixed_pos.y +1) *utility.grid_size.value()) -style.position.value().y)) ?
+						fixed_pos.y *utility.grid_size.value(): (fixed_pos.y +1) *utility.grid_size.value();
+					
+					Vector2 delta;
+					delta.x= fixed_pos.x -style.position.value().x;
+					delta.y= fixed_pos.y -style.position.value().y;
+
+					style.position.value()= fixed_pos;
+
+					for(auto &element: elements){
+						element->style.position.value().x+= delta.x;
+						element->style.position.value().y+= delta.y;
+					}
+					utility.is_moving.value()= false;
+				}
+			}
+		}
+		if(utility.can_move.value() && utility.is_moving.value()){
+			Vector2 delta= GetMouseDelta();
+			style.position.value().x+= delta.x;
+			style.position.value().y+= delta.y;
+
+			for(auto &element: elements){
+				element->style.position.value().x+= delta.x;
+				element->style.position.value().y+= delta.y;
 			}
 		}
 
-		for(auto &element: elements){
-			element->Update();
+		if(utility.can_rescale.value() && !utility.is_rescaling.value()){
+			if(1 && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+				float delta= GetMouseDelta().x;
+
+				if((style.size.value().x +delta)<= style.min_size.value().x){
+					style.size.value().x= style.min_size.value().x;
+				}
+				else{
+					style.size.value().x+= delta;
+				}
+			}
+			if(1 && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+				float delta= GetMouseDelta().y;
+
+				if((style.size.value().y +delta)<= style.min_size.value().y){
+					style.size.value().y= style.min_size.value().y;
+				}
+				else{
+					style.size.value().y+= delta;
+				}
+			}
+		}
+
+		if(!utility.is_minimized.value()){
+			for(auto &element: elements){
+				if((element->style.position.value().y /*+element->style.size.value().y*/)< (style.position.value().y +style.size.value().y))
+					element->Update();
+			}
+		}
+
+		float wheel_delta= GetMouseWheelMove();
+
+		if(!utility.is_minimized.value() && status== S_HOVERED && wheel_delta!= 0){
+			float delta= wheel_delta;	// can be changed for scroll speed
+			for(auto &element: elements){
+				element->style.position.value().y+= delta;
+			}
 		}
 	}
 
-	void Draw() override{
+	void Draw() override{	// use scissoring
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
 		
 		if(style.border.value()){

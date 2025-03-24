@@ -90,7 +90,7 @@ struct Style{
 	std::optional<enum_position> display= P_NORMAL;
 	std::optional<Vector2> position= (Vector2){0, 0};
 	std::optional<Vector2> size= (Vector2){0, 0};
-	std::optional<Vector2> min_size= (Vector2){20, 20};
+	std::optional<Vector2> min_size= (Vector2){100, 100};
 	std::optional<Color> background_color= hex("#131313");
 	std::optional<Color> color= hex("#f5f5f5");
 	std::optional<Color> border_color= hex("#202020");
@@ -187,7 +187,7 @@ public:
 		}
 
 		if(utility.can_rescale.value() && !utility.is_rescaling.value()){
-			if(1 && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+			if(status== S_HOVERED_RIGHT && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
 				float delta= GetMouseDelta().x;
 
 				if((style.size.value().x +delta)<= style.min_size.value().x){
@@ -197,7 +197,7 @@ public:
 					style.size.value().x+= delta;
 				}
 			}
-			if(1 && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+			if(status== S_HOVERED_BOTTOM && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
 				float delta= GetMouseDelta().y;
 
 				if((style.size.value().y +delta)<= style.min_size.value().y){
@@ -227,6 +227,7 @@ public:
 	}
 
 	void Draw() override{	// use scissoring
+		BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
 		
 		if(style.border.value()){
@@ -238,6 +239,7 @@ public:
 		for(auto &element: elements){
 			element->Draw();
 		}
+		EndScissorMode();
 	}
 };
 

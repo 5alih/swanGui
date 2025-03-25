@@ -19,9 +19,7 @@ int main()
 		sw(Panel)("test", sx{ .position= (Vector2){1000, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dddd"), .font= custom_font }),
 		sw(Panel)("test", sx{ .position= (Vector2){1200, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddddd"), .font= custom_font }),
 
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}, add{
-			sw(Button)("AAAAA", [](){}, sx{.background_color= DARKPURPLE, .color= YELLOW, .font= GetFontDefault()} ),
-			sw(Button)("BBBBBB", [](){}, sx{.background_color= DARKBLUE, .color= YELLOW} ),
+		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 2}, add{
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
@@ -68,7 +66,6 @@ int main()
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
-			sw(Button)("CCCC", [](){}),
 		}),
 	});
 

@@ -293,6 +293,27 @@ public:
 		counter++;
 	}
 
+	template<typename T>
+	void RescaleElement(std::shared_ptr<T> &element){
+		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
+
+		if(counter>= utility.sections.value()){
+			counter= 0;
+		}
+
+		Vector2 position_= style.position.value();
+		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
+
+		Vector2 size_= style.size.value();
+		size_.x= style.size.value().x/ utility.sections.value();
+		size_.x-= style.padding.value() *4;
+
+		element->style.position.value().x= position_.x;
+		element->style.size.value().x= size_.x;
+
+		counter++;
+	}
+
 	void Update() override{
 		if(style.border.value()){
 			if(utility.can_minimize.value() && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -361,6 +382,10 @@ public:
 				else{
 					style.size.value().x+= delta;
 				}
+				counter= 0;
+				for(auto &element: elements){
+					RescaleElement(element);
+				}
 			}
 			if(utility.is_rescaling_v.value()){
 				float delta= GetMouseDelta().y;
@@ -370,6 +395,10 @@ public:
 				}
 				else{
 					style.size.value().y+= delta;
+				}
+				counter= 0;
+				for(auto &element: elements){
+					RescaleElement(element);
 				}
 			}
 		}

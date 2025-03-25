@@ -82,6 +82,7 @@ enum enum_status{
 	S_HOVERED_HEADER,	// panel only, to detect if cursor is on header. used for panel utility
 	S_HOVERED_RIGHT,	// panel only, to detect if cursor is on the right border of the panel. used for resizing
 	S_HOVERED_BOTTOM,	// panel only, to detect if cursor is on the bottom border of the panel. used for resizing
+	S_HOVERED_CORNER,
 	S_CLICKED,
 	S_DISABLED,
 };
@@ -116,7 +117,8 @@ struct Utility{
 	std::optional<bool> is_minimized= true;
 
 	std::optional<bool> can_rescale= false;
-	std::optional<bool> is_rescaling= false;
+	std::optional<bool> is_rescaling_h= false;
+	std::optional<bool> is_rescaling_v= false;
 	
 	std::optional<bool> can_move= false;
 	std::optional<bool> is_moving= false;
@@ -134,17 +136,23 @@ public:
 	Panel(std::string text_, Style style_){
 		text= text_;
 		style= style_;
+		if(!utility.can_minimize.value()){
+			utility.is_minimized.value()= false;
+		}
 	}
 
 	Panel(std::string text_, Style style_, Utility utility_){
 		text= text_;
 		style= style_;
 		utility= utility_;
+		if(!utility.can_minimize.value()){
+			utility.is_minimized.value()= false;
+		}
 	}
 
 	void Update() override{
 		if(style.border.value()){
-			if(utility.can_minimize.value() && status== S_HOVERED_HEADER && g_left_clicked){
+			if(utility.can_minimize.value() && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 				utility.is_minimized.value()= !utility.is_minimized.value();
 			}
 			if(utility.can_move.value() && utility.is_moving.value()== false && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
@@ -186,8 +194,22 @@ public:
 			}
 		}
 
-		if(utility.can_rescale.value() && !utility.is_rescaling.value()){
-			if(status== S_HOVERED_RIGHT && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+		if(utility.can_rescale.value()){
+			if((status== S_HOVERED_RIGHT || status== S_HOVERED_CORNER) && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+				utility.is_rescaling_h.value()= true;
+			}
+			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)){
+				utility.is_rescaling_h.value()= false;
+			}
+
+			if((status== S_HOVERED_BOTTOM || status== S_HOVERED_CORNER) && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+				utility.is_rescaling_v.value()= true;
+			}
+			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)){
+				utility.is_rescaling_v.value()= false;
+			}
+
+			if(utility.is_rescaling_h.value()){
 				float delta= GetMouseDelta().x;
 
 				if((style.size.value().x +delta)<= style.min_size.value().x){
@@ -197,7 +219,7 @@ public:
 					style.size.value().x+= delta;
 				}
 			}
-			if(status== S_HOVERED_BOTTOM && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+			if(utility.is_rescaling_v.value()){
 				float delta= GetMouseDelta().y;
 
 				if((style.size.value().y +delta)<= style.min_size.value().y){
@@ -227,7 +249,12 @@ public:
 	}
 
 	void Draw() override{	// use scissoring
-		BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+		if(!utility.is_minimized.value()){
+			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+		}
+		else{
+			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
+		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
 		
 		if(style.border.value()){
@@ -261,10 +288,56 @@ public:
 	}
 
 	// will check each panel to see if mouse is over
-	// and if so searcg the elements in panel to set hovered element's status
-	void UpdateElementHovered(){}
+	// and if so search the elements in panel to set hovered element's status
+	void UpdateElementHovered(){
+		Vector2 mouse= GetMousePosition();
+
+		for(auto &panel: panels){
+			// if the cursor is on the panel
+			if((panel->style.position.value().x< mouse.x) && (mouse.x< (panel->style.position.value().x +panel->style.size.value().x)) &&
+			   (panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.size.value().y)) ){
+
+				// if the cursor is on the element
+				for(auto &element: panel->elements){
+					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
+					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
+						element->status= S_HOVERED;
+					}
+					else{
+						if(element->status!= S_DISABLED)
+							element->status= S_NORMAL;
+					}
+				}
+
+				// if the cursor is on the panel header
+				if((panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.font_size.value())) ){
+					panel->status= S_HOVERED_HEADER;
+				}
+				else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
+						(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)) ){
+					panel->status= S_HOVERED_CORNER;
+				}
+				// if the cursor is on the right border
+				else if(mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)){
+					panel->status= S_HOVERED_RIGHT;
+				}
+				//if the cursor is on the bottom border
+				else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)){
+					panel->status= S_HOVERED_BOTTOM;
+				}
+				else{
+					panel->status= S_HOVERED;
+				}
+			}
+			else{
+				if(panel->status!= S_DISABLED)
+					panel->status= S_NORMAL;
+			}
+		}
+	}
 
 	void Update(){
+		UpdateElementHovered();
 		for(auto &panel: panels){
 			panel->Update();
 		}

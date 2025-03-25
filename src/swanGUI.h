@@ -62,6 +62,19 @@ inline Color hex(const std::string &hex_code_){
     return (Color){(unsigned char)r, (unsigned char)g, (unsigned char)b, 255};
 }
 
+bool operator==(const Vector2& lhs, const Vector2& rhs){
+    return lhs.x== rhs.x && lhs.y== rhs.y;
+}
+
+bool operator==(const Font& lhs, const Font& rhs){
+    return lhs.glyphs== rhs.glyphs && lhs.baseSize== rhs.baseSize && lhs.recs== rhs.recs;
+}
+
+bool operator==(const Color& lhs, const Color& rhs){
+    return lhs.r== rhs.r && lhs.g== rhs.g && lhs.b== rhs.b && lhs.a== rhs.a;
+}
+
+
 enum enum_position{
 	P_NORMAL,		// default position of the element decided by the parent panel
 	P_FIXED,		// fixed position relative to top left corner, doesnt get effected by anything
@@ -90,7 +103,7 @@ struct Style{
 	std::optional<enum_position> display= P_NORMAL;			// position type
 	std::optional<Vector2> position= (Vector2){0, 0};		// position in 2D space
 	
-	std::optional<Vector2> size= (Vector2){0, 0};			// size in (width, height)
+	std::optional<Vector2> size= (Vector2){100, 100};		// size in (width, height)
 	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
 	
 	std::optional<Color> background_color= hex("#131313");	// background color of the element
@@ -166,7 +179,7 @@ public:
 
 	void Draw() override{
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
-		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value()/2.0f)), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 	}
 };
@@ -247,21 +260,23 @@ public:
 		
 		size_.y= style.font_size.value();
 
-		element->style.position.value()= position_;
-		element->style.size.value()= size_;
+		Style default_style;
 
-		element->style.font_size.value()= style.font_size.value();
-		element->style.font.value()= style.font.value();
-		element->style.spacing.value()= utility.element_spacing.value();
-		element->style.border_radius.value()= style.border_radius.value();
+		if(element->style.position.value()== default_style.position.value())	element->style.position.value()= position_;
+		if(element->style.size.value()== default_style.size.value())			element->style.size.value()= size_;
+
+		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= style.font_size.value();
+		if(element->style.font.value()== default_style.font.value())					element->style.font.value()= style.font.value();
+		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.element_spacing.value();
+		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= style.border_radius.value();
 		
-		element->style.background_color.value()= utility.element_background_color.value();
-		element->style.background_color_click.value()= utility.element_background_color_click.value();
-		element->style.background_color_hover.value()= utility.element_background_color_hover.value();
-		element->style.border_color.value()= utility.element_border_color.value();
-		element->style.border_color_hover.value()= utility.element_border_color_hover.value();
-		element->style.color.value()= utility.element_color.value();
-		element->style.color_hover.value()= utility.element_color_hover.value();
+		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.element_background_color.value();
+		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.element_background_color_click.value();
+		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.element_background_color_hover.value();
+		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.element_border_color.value();
+		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
+		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
+		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
 		elements.push_back(element);
 
 		counter++;
@@ -367,7 +382,7 @@ public:
 
 	void Draw() override{	// use scissoring
 		if(!utility.is_minimized.value()){
-			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+			// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 		}
 		else{
 			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
@@ -383,7 +398,7 @@ public:
 		for(auto &element: elements){
 			element->Draw();
 		}
-		EndScissorMode();
+		// EndScissorMode();
 	}
 };
 

@@ -115,7 +115,7 @@ struct Style{
 	std::optional<Color> border_color_hover= hex("#2C2C2C");
 	
 	std::optional<bool> border= true;						// enables/ disables border
-	std::optional<int> border_radius= 0;						// for corner rounding, doesnt get effected by border is being disabled
+	std::optional<int> border_radius= 3;						// for corner rounding, doesnt get effected by border is being disabled
 	std::optional<float> padding= 3.0;						// padding between elements and borders; only effects panels
 	
 	std::optional<int> font_size= g_font_size;				// text size
@@ -189,7 +189,8 @@ public:
 
 	void Draw() override{
 		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
-		DrawRectangleV(style.position.value(), style.size.value(), color);
+		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
 		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 	}

@@ -139,6 +139,8 @@ struct Utility{
 	std::optional<int> grid_size= 10;
 	
 	std::optional<int> sections= 1;
+	std::optional<float> scroll_amount= 0.0f;
+	std::optional<float> scroll_speed= 10.0f;
 
 	// for styling every element in this panel
 	std::optional<Color> element_background_color= hex("#202020");
@@ -382,32 +384,35 @@ public:
 		float wheel_delta= GetMouseWheelMove();
 
 		if(!utility.is_minimized.value() && status== S_HOVERED && wheel_delta!= 0){
-			float delta= wheel_delta;	// can be changed for scroll speed
-			for(auto &element: elements){
-				element->style.position.value().y+= delta;
+			float delta= utility.scroll_speed.value() *wheel_delta;	// can be changed for scroll speed
+
+			if((utility.scroll_amount.value() +delta)<= 0){	
+				for(auto &element: elements){
+					element->style.position.value().y+= delta;
+					utility.scroll_amount.value()+= delta;
+				}
 			}
 		}
 	}
 
 	void Draw() override{	// use scissoring
 		if(!utility.is_minimized.value()){
-			// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 		}
 		else{
 			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
 		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
-		
+		for(auto &element: elements){
+			element->Draw();
+		}
 		if(style.border.value()){
 			DrawRectangleLines(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y, style.border_color.value());
 			DrawRectangle(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value(), style.border_color.value());
 			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
 			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
-		for(auto &element: elements){
-			element->Draw();
-		}
-		// EndScissorMode();
+		EndScissorMode();
 	}
 };
 

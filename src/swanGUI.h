@@ -44,6 +44,7 @@
 #define sx (Style)
 #define util (Utility)
 #define sw(x) std::make_shared<x>
+#define add std::vector<std::shared_ptr<GuiElement>>
 
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
@@ -88,29 +89,28 @@ enum enum_status{
 struct Style{
 	std::optional<enum_position> display= P_NORMAL;			// position type
 	std::optional<Vector2> position= (Vector2){0, 0};		// position in 2D space
+	
 	std::optional<Vector2> size= (Vector2){0, 0};			// size in (width, height)
 	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
+	
 	std::optional<Color> background_color= hex("#131313");	// background color of the element
+	std::optional<Color> background_color_hover= hex("#2C2C2C");
+	std::optional<Color> background_color_click= hex("#010101");
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
+	std::optional<Color> color_hover= hex("#FFFFFF");
 	std::optional<Color> border_color= hex("#202020");		// border color of the element
+	std::optional<Color> border_color_hover= hex("#2C2C2C");
+	
 	std::optional<bool> border= true;						// enables/ disables border
-	std::optional<int> border_radius;						// for corner rounding, doesnt get effected by border is being disabled
+	std::optional<int> border_radius= 0;						// for corner rounding, doesnt get effected by border is being disabled
 	std::optional<float> padding= 3.0;						// padding between elements and borders; only effects panels
+	
 	std::optional<int> font_size= g_font_size;				// text size
 	std::optional<Font> font= g_font;						// for custom fonts
 	std::optional<float> spacing= 2.0f;						// spacing of letters in text
 };
 
-class GuiElement{
-public:
-	std::string text;
-	enum_status status= S_NORMAL;
-	Style style;
-
-	virtual void Update()= 0;
-	virtual void Draw()= 0;
-};
-
+// utilities for panels, can be set per panel.
 struct Utility{
 	std::optional<bool> can_minimize= false;
 	std::optional<bool> is_minimized= true;
@@ -124,17 +124,75 @@ struct Utility{
 
 	std::optional<bool> grid_align= true;
 	std::optional<int> grid_size= 10;
+	
+	std::optional<int> sections= 1;
+
+	// for styling every element in this panel
+	std::optional<Color> element_background_color= hex("#202020");
+	std::optional<Color> element_background_color_hover= hex("#2C2C2C");
+	std::optional<Color> element_background_color_click= hex("#010101");
+	std::optional<Color> element_color= hex("#F5F5F5");
+	std::optional<Color> element_color_hover= hex("#FFFFFF");
+	std::optional<Color> element_border_color= hex("#202020");
+	std::optional<Color> element_border_color_hover= hex("#");
+
+	std::optional<float> element_spacing= 2.0f;
+};
+
+class GuiElement{
+public:
+	std::string text;
+	enum_status status= S_NORMAL;
+	Style style;
+
+	virtual void Update()= 0;
+	virtual void Draw()= 0;
+};
+
+class Button: public GuiElement{
+public:
+	Button(const std::string text_){
+		text= text_;
+	}
+
+	Button(const std::string text_, Style style_){
+		text= text_;
+		style= style_;
+	}
+
+	void Update() override{
+		
+	}
+
+	void Draw() override{
+		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
+		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value()/2.0f)), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	}
 };
 
 class Panel: public GuiElement{
+private:
+	int counter= 0;
+
 public:
 	std::vector<std::shared_ptr<GuiElement>> elements;
-	int sections= 1;	// column count
 	Utility utility;	// utilities for panels
 
 	Panel(std::string text_, Style style_){
 		text= text_;
 		style= style_;
+		if(!utility.can_minimize.value()){
+			utility.is_minimized.value()= false;
+		}
+	}
+
+	Panel(std::string text_, Style style_, std::vector<std::shared_ptr<GuiElement>> elements_){
+		text= text_;
+		style= style_;
+		for(auto &element: elements_){
+			this->AddElement(element);
+		}
 		if(!utility.can_minimize.value()){
 			utility.is_minimized.value()= false;
 		}
@@ -147,6 +205,66 @@ public:
 		if(!utility.can_minimize.value()){
 			utility.is_minimized.value()= false;
 		}
+	}
+
+	Panel(std::string text_, Style style_, Utility utility_, std::vector<std::shared_ptr<GuiElement>> elements_){
+		text= text_;
+		style= style_;
+		utility= utility_;
+		for(auto &element: elements_){
+			this->AddElement(element);
+		}
+		if(!utility.can_minimize.value()){
+			utility.is_minimized.value()= false;
+		}
+	}
+
+	template<typename T>
+	void AddElement(std::shared_ptr<T> element){
+		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
+
+		if(counter>= utility.sections.value()){
+			counter= 0;
+		}
+
+		Vector2 position_= style.position.value();
+		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
+		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
+
+		int group= 0;
+		for(const auto &elem: elements){
+			if(group== counter)
+				position_.y+= elem->style.size.value().y +style.padding.value();
+			
+			group++;
+			if(group== utility.sections.value())
+				group= 0;
+		}
+
+		Vector2 size_= style.size.value();
+		size_.x= style.size.value().x/ utility.sections.value();
+		size_.x-= style.padding.value() *4;
+		
+		size_.y= style.font_size.value();
+
+		element->style.position.value()= position_;
+		element->style.size.value()= size_;
+
+		element->style.font_size.value()= style.font_size.value();
+		element->style.font.value()= style.font.value();
+		element->style.spacing.value()= utility.element_spacing.value();
+		element->style.border_radius.value()= style.border_radius.value();
+		
+		element->style.background_color.value()= utility.element_background_color.value();
+		element->style.background_color_click.value()= utility.element_background_color_click.value();
+		element->style.background_color_hover.value()= utility.element_background_color_hover.value();
+		element->style.border_color.value()= utility.element_border_color.value();
+		element->style.border_color_hover.value()= utility.element_border_color_hover.value();
+		element->style.color.value()= utility.element_color.value();
+		element->style.color_hover.value()= utility.element_color_hover.value();
+		elements.push_back(element);
+
+		counter++;
 	}
 
 	void Update() override{

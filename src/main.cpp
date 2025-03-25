@@ -19,11 +19,11 @@ int main()
 		sw(Panel)("test", sx{ .position= (Vector2){1000, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dddd"), .font= custom_font }),
 		sw(Panel)("test", sx{ .position= (Vector2){1200, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddddd"), .font= custom_font }),
 
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}),
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}),
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}),
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}),
+		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true,}, add{
+			sw(Button)("test button", sx{.background_color= BLUE, .color= RED} ),
+		}),
 	});
+
 
 	while(!WindowShouldClose())
 	{

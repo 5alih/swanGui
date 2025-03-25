@@ -143,7 +143,7 @@ struct Utility{
 	// for styling every element in this panel
 	std::optional<Color> element_background_color= hex("#202020");
 	std::optional<Color> element_background_color_hover= hex("#2C2C2C");
-	std::optional<Color> element_background_color_click= hex("#010101");
+	std::optional<Color> element_background_color_click= hex("#000000");
 	std::optional<Color> element_color= hex("#F5F5F5");
 	std::optional<Color> element_color_hover= hex("#FFFFFF");
 	std::optional<Color> element_border_color= hex("#202020");
@@ -164,21 +164,30 @@ public:
 
 class Button: public GuiElement{
 public:
-	Button(const std::string text_){
+	std::function<void()> call_back_function;
+
+	Button(const std::string text_, std::function<void()> call_back_function_){
 		text= text_;
+		call_back_function= call_back_function_;
 	}
 
-	Button(const std::string text_, Style style_){
+	Button(const std::string text_, std::function<void()> call_back_function_, Style style_){
 		text= text_;
 		style= style_;
+		call_back_function= call_back_function_;
 	}
 
 	void Update() override{
-		
+		if(status== S_CLICKED){
+			if(call_back_function){
+				call_back_function();
+			}
+		}
 	}
 
 	void Draw() override{
-		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
+		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
+		DrawRectangleV(style.position.value(), style.size.value(), color);
 		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 	}

@@ -48,9 +48,6 @@
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
 inline Font g_font= GetFontDefault();
-inline bool g_left_clicked= IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-inline bool g_right_clicked= IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
-inline bool g_middle_clicked= IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE);
 
 inline Color hex(const std::string &hex_code_){
 	std::string hex_code= hex_code_;
@@ -293,8 +290,12 @@ public:
 	// and if so search the elements in panel to set hovered element's status
 	void UpdateElementHovered(){
 		Vector2 mouse= GetMousePosition();
+		bool did_click_L= IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+		bool did_click_M= IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE);
+		bool clicked_once= false;
 
-		for(auto &panel: panels){
+		for(int i= (int)panels.size() -1; i>= 0; i--){
+			auto &panel= panels[i]; 
 			// if the cursor is on the panel
 			if((panel->style.position.value().x< mouse.x) && (mouse.x< (panel->style.position.value().x +panel->style.size.value().x)) &&
 			   (panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.size.value().y)) ){
@@ -302,8 +303,9 @@ public:
 				// if the cursor is on the element
 				for(auto &element: panel->elements){
 					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
-					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
-						element->status= S_HOVERED;
+					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) && !clicked_once){
+						element->status= did_click_L? S_CLICKED: S_HOVERED;
+						clicked_once= true;
 					}
 					else{
 						if(element->status!= S_DISABLED)
@@ -311,24 +313,32 @@ public:
 					}
 				}
 
-				// if the cursor is on the panel header
-				if((panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.font_size.value())) ){
-					panel->status= S_HOVERED_HEADER;
-				}
-				else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
-						(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)) ){
-					panel->status= S_HOVERED_CORNER;
-				}
-				// if the cursor is on the right border
-				else if(mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)){
-					panel->status= S_HOVERED_RIGHT;
-				}
-				//if the cursor is on the bottom border
-				else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)){
-					panel->status= S_HOVERED_BOTTOM;
-				}
-				else{
-					panel->status= S_HOVERED;
+				if(!clicked_once){
+					// if the cursor is on the panel header
+					if((panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.font_size.value())) ){
+						panel->status= S_HOVERED_HEADER;
+						if(did_click_M || did_click_L){
+							auto temp= panel;
+							panels.erase(panels.begin() +i);
+							panels.push_back(temp);
+						}
+						clicked_once= true;
+					}
+					else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
+							(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)) ){
+						panel->status= S_HOVERED_CORNER;
+					}
+					// if the cursor is on the right border
+					else if(mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)){
+						panel->status= S_HOVERED_RIGHT;
+					}
+					//if the cursor is on the bottom border
+					else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)){
+						panel->status= S_HOVERED_BOTTOM;
+					}
+					else{
+						panel->status= S_HOVERED;
+					}
 				}
 			}
 			else{

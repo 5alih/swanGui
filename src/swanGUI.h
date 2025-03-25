@@ -1,5 +1,5 @@
 /*
-* swanGui.h - a Single-Header library.
+* swanGui.h - a Single-Header GUI library.
 *
 * Usage:
 * #include "swanGui.h"
@@ -29,8 +29,7 @@
 *
 */
 
-#ifndef SWANGUI_H
-#define SWANGUI_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -87,19 +86,22 @@ enum enum_status{
 	S_DISABLED,
 };
 
+// default styling
+// to change the styling for every element
 struct Style{
-	std::optional<enum_position> display= P_NORMAL;
-	std::optional<Vector2> position= (Vector2){0, 0};
-	std::optional<Vector2> size= (Vector2){0, 0};
-	std::optional<Vector2> min_size= (Vector2){100, 100};
-	std::optional<Color> background_color= hex("#131313");
-	std::optional<Color> color= hex("#f5f5f5");
-	std::optional<Color> border_color= hex("#202020");
-	std::optional<bool> border= true;
-	std::optional<float> padding= 3.0;
-	std::optional<int> font_size= g_font_size;
-	std::optional<Font> font= g_font;
-	std::optional<float> spacing= 2.0f;
+	std::optional<enum_position> display= P_NORMAL;			// position type
+	std::optional<Vector2> position= (Vector2){0, 0};		// position in 2D space
+	std::optional<Vector2> size= (Vector2){0, 0};			// size in (width, height)
+	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
+	std::optional<Color> background_color= hex("#131313");	// background color of the element
+	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
+	std::optional<Color> border_color= hex("#202020");		// border color of the element
+	std::optional<bool> border= true;						// enables/ disables border
+	std::optional<int> border_radius;						// for corner rounding, doesnt get effected by border is being disabled
+	std::optional<float> padding= 3.0;						// padding between elements and borders; only effects panels
+	std::optional<int> font_size= g_font_size;				// text size
+	std::optional<Font> font= g_font;						// for custom fonts
+	std::optional<float> spacing= 2.0f;						// spacing of letters in text
 };
 
 class GuiElement{
@@ -124,7 +126,7 @@ struct Utility{
 	std::optional<bool> is_moving= false;
 
 	std::optional<bool> grid_align= true;
-	std::optional<int> grid_size= 40;
+	std::optional<int> grid_size= 10;
 };
 
 class Panel: public GuiElement{
@@ -349,5 +351,3 @@ public:
 		}
 	}
 };
-
-#endif // SWANGUI_H

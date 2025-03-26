@@ -44,7 +44,7 @@
 #define sx (Style)
 #define util (Utility)
 #define sw(x) std::make_shared<x>
-#define add std::vector<std::shared_ptr<GuiElement>>
+#define add(x) std::vector<std::shared_ptr<x>>
 
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
@@ -168,6 +168,12 @@ public:
 
 	virtual void Update()= 0;
 	virtual void Draw()= 0;
+
+	virtual void UpdateElements(){}
+	virtual void CheckCollision(){}
+	virtual float CalcSizeY(){
+		return style.font_size.value();
+	}
 };
 
 class Button: public GuiElement{
@@ -203,10 +209,8 @@ public:
 };
 
 class Checkbox: public GuiElement{
-private:
-	bool *is_checked;
-
 public:
+	bool *is_checked;
 
 	Checkbox(const std::string text_, bool &is_checked_){
 		text= text_;
@@ -217,7 +221,7 @@ public:
 		text= text_;
 		is_checked= &is_checked_;
 		style= style_;
-	} 
+	}
 
 	void Update() override{
 		if(status== S_CLICKED && is_checked!= nullptr){
@@ -232,12 +236,144 @@ public:
 
 		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
 
-		std::cout<< *is_checked<< " "<< status<< std::endl;
-
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().y, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);
 		Vector2 pos= {(style.position.value().x +style.padding.value() + style.size.value().y), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+	}
+};
+
+class RadioGroup: public GuiElement{
+private:
+	int counter= 0;
+	bool run_once= false;
+
+public:
+	std::vector<std::shared_ptr<Checkbox>> checkboxes;
+	Utility utility;
+
+	RadioGroup(std::string text_, Utility utility_, std::vector<std::shared_ptr<Checkbox>> checkboxes_){
+		text= text_;
+		utility= utility_;
+		checkboxes= checkboxes_;
+	}
+
+	void Update() override{
+		if(!run_once){
+			for(auto &checkbox: checkboxes){
+				UpdateElement(checkbox);
+				ApplyStyle(checkbox);
+			}
+			run_once= true;
+		}
+
+		for(auto &checkbox: checkboxes){
+			bool old= *(checkbox->is_checked);
+			checkbox->Update();
+			if(old== true && *(checkbox->is_checked)== false){
+				*(checkbox->is_checked)= true;
+				break;
+			}
+			else if(old== false && *(checkbox->is_checked)== true){
+				for(auto &chbx: checkboxes){
+					if(chbx!= checkbox)
+						*(chbx->is_checked)= false;
+				}
+				break;
+			}
+		}
+	}
+
+	void Draw() override{
+		Vector2 pos= {(style.position.value().x +style.padding.value()), (style.position.value().y + style.font_size.value()/2.0f -style.font_size.value()/2.5f)};
+		// Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.font_size.value()/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		for(auto &checkbox: checkboxes){
+			checkbox->Draw();
+		}
+	}
+
+	void ApplyStyle(std::shared_ptr<GuiElement> element){
+		Style default_style;
+
+		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= style.font_size.value();
+		if(element->style.font.value()== default_style.font.value())					element->style.font.value()= style.font.value();
+		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.element_spacing.value();
+		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= style.border_radius.value();
+		
+		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.element_background_color.value();
+		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.element_background_color_click.value();
+		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.element_background_color_hover.value();
+		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.element_border_color.value();
+		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
+		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
+		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
+		if(element->style.color_accent.value()== default_style.color_hover.value())							element->style.color_accent.value()= utility.element_color_accent.value();
+		if(element->style.color_accent_hover.value()== default_style.color_hover.value())					element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
+		if(element->style.color_accent_disabled.value()== default_style.color_hover.value())				element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
+	}
+
+	void CheckCollision() override{
+		Vector2 mouse= GetMousePosition();
+		for(auto &element: checkboxes){
+
+			// std::cout<< element->style.position.value().x<< " "<< element->style.position.value().y<< " "<< element->style.size.value().x<< " "<< element->style.size.value().y<< std::endl;		
+			// std::cout<< mouse.x<< " "<< mouse.y<< std::endl;
+
+			std::cout<< style.size.value().y<< std::endl;
+
+			if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
+			   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
+				element->status= IsMouseButtonPressed(MOUSE_BUTTON_LEFT)? S_CLICKED: S_HOVERED;
+			}
+			else{
+				if(element->status!= S_DISABLED)
+					element->status= S_NORMAL;
+			}
+		}
+	}
+
+	void UpdateElement(std::shared_ptr<Checkbox> element){
+		if(counter>= utility.sections.value()){
+			counter= 0;
+		}
+
+		Vector2 position_= style.position.value();
+		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
+		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
+
+		int group= 0;
+		for(const auto &elem: checkboxes){
+			if(elem== element)
+				break;
+
+			if(group== counter)
+				position_.y+= elem->style.size.value().y +style.padding.value();
+			
+			group++;
+			if(group== utility.sections.value())
+				group= 0;
+		}
+
+		Vector2 size_= style.size.value();
+		size_.x= style.size.value().x/ utility.sections.value();
+		size_.x-= style.padding.value() *4;
+
+		size_.y= style.font_size.value();
+
+		element->style.position.value()= position_;
+		element->style.size.value()= size_;
+	}
+
+	void UpdateElements() override{
+		counter= 0;
+		for(auto &checkbox: checkboxes){
+			UpdateElement(checkbox);
+		}
+	}
+
+	float CalcSizeY() override{
+		return (checkboxes.size() +1)* (style.font_size.value() +style.padding.value());
 	}
 };
 
@@ -315,7 +451,13 @@ public:
 		size_.x= style.size.value().x/ utility.sections.value();
 		size_.x-= style.padding.value() *4;
 		
-		size_.y= style.font_size.value();
+		// if constexpr(std::is_same<T, RadioGroup>::value){
+		// 	size_.y= element->style.font_size.value() *(element->checkboxes.size() +element->style.padding.value());
+		// }
+		// else{
+		// 	size_.y= style.font_size.value();
+		// }
+		size_.y= element->CalcSizeY();
 
 		Style default_style;
 
@@ -454,8 +596,11 @@ public:
 
 		if(!utility.is_minimized.value()){
 			for(auto &element: elements){
-				if((element->style.position.value().y /*+element->style.size.value().y*/)< (style.position.value().y +style.size.value().y))
+				if((element->style.position.value().y /*+element->style.size.value().y*/)< (style.position.value().y +style.size.value().y)){
+
 					element->Update();
+					element->UpdateElements();
+				}
 			}
 		}
 
@@ -531,6 +676,7 @@ public:
 					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) && !clicked_once){
 						element->status= did_click_L? S_CLICKED: S_HOVERED;
 						clicked_once= true;
+						element->CheckCollision();
 					}
 					else{
 						if(element->status!= S_DISABLED)

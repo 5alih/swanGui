@@ -111,6 +111,7 @@ struct Style{
 	std::optional<Color> background_color_click= hex("#010101");
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
+	std::optional<Color> color_disabled= hex("#aaaaaa");
 	std::optional<Color> color_accent= hex("#fdd835");
 	std::optional<Color> color_accent_hover= hex("#fff176");
 	std::optional<Color> color_accent_disabled= hex("##CBB867");
@@ -124,6 +125,8 @@ struct Style{
 	std::optional<int> font_size= g_font_size;				// text size
 	std::optional<Font> font= g_font;						// for custom fonts
 	std::optional<float> spacing= 2.0f;						// spacing of letters in text
+
+	// std::optional<bool> legacy= false;						// design of legacy version (swanGui 1.0)
 };
 
 // utilities for panels, can be set per panel.
@@ -151,9 +154,13 @@ struct Utility{
 	std::optional<Color> element_background_color_click= hex("#000000");
 	std::optional<Color> element_color= hex("#dddddd");
 	std::optional<Color> element_color_hover= hex("#FFFFFF");
-	std::optional<Color> element_color_accent= hex("#fdd835");
-	std::optional<Color> element_color_accent_hover= hex("#fff176");
-	std::optional<Color> element_color_accent_disabled= hex("##CBB867");
+	std::optional<Color> element_color_disabled= hex("#aaaaaa");
+	// std::optional<Color> element_color_accent= hex("#fdd835");
+	std::optional<Color> element_color_accent= hex("#dddddd");
+	// std::optional<Color> element_color_accent_hover= hex("#fff176");
+	std::optional<Color> element_color_accent_hover= hex("#efefef");
+	// std::optional<Color> element_color_accent_disabled= hex("##CBB867");
+	std::optional<Color> element_color_accent_disabled= hex("#999999");
 	std::optional<Color> element_border_color= hex("#aaaaaa");
 	std::optional<Color> element_border_color_hover= hex("#dddddd");
 
@@ -233,7 +240,6 @@ public:
 		Color color_box;
 		if(*is_checked== true)  color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
 		if(*is_checked== false) color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.background_color_hover.value(): style.background_color.value();
-
 		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
 
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().y, style.size.value().y};
@@ -286,7 +292,6 @@ public:
 
 	void Draw() override{
 		Vector2 pos= {(style.position.value().x +style.padding.value()), (style.position.value().y + style.font_size.value()/2.0f -style.font_size.value()/2.5f)};
-		// Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.font_size.value()/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		for(auto &checkbox: checkboxes){
 			checkbox->Draw();
@@ -308,9 +313,10 @@ public:
 		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
 		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
 		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
-		if(element->style.color_accent.value()== default_style.color_hover.value())							element->style.color_accent.value()= utility.element_color_accent.value();
-		if(element->style.color_accent_hover.value()== default_style.color_hover.value())					element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
-		if(element->style.color_accent_disabled.value()== default_style.color_hover.value())				element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
+		if(element->style.color_disabled.value()== default_style.color_disabled.value())					element->style.color_disabled.value()= utility.element_color_disabled.value();
+		if(element->style.color_accent.value()== default_style.color_accent.value())						element->style.color_accent.value()= utility.element_color_accent.value();
+		if(element->style.color_accent_hover.value()== default_style.color_accent_hover.value())			element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
+		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
 	}
 
 	void CheckCollision() override{

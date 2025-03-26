@@ -10,29 +10,30 @@ int main()
 
 	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
 
-	bool my_bool_var= false;
 	bool my_bool_var1= false;
 	bool my_bool_var2= false;
-	bool my_bool_var3= true;
-	bool my_bool_var4= false;
+	bool my_bool_var3= false;
 
 	SwanGui swanGui({
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
-			sw(Button)("test button", [](){}, sx{ .background_color= hex("#fdd835"), .background_color_hover= hex("#fff176"), .color= hex("#101010") }),
+		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 2}, add(GuiElement){
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
-			sw(Checkbox)("test checkbox", my_bool_var, sx{ .color_accent= hex("#dddddd"), .color_accent_hover= hex("#eeeeee") } ),
-			sw(Checkbox)("test checkbox", my_bool_var1, sx{ .color_accent= hex("#dd9999"), .color_accent_hover= hex("#ff9999") }),
-			sw(Checkbox)("test checkbox", my_bool_var2, sx{ .color= hex("#ff0000"), .color_hover= hex("#0000ff") }),
-			sw(Checkbox)("test checkbox", my_bool_var3),
-			sw(Checkbox)("test checkbox", my_bool_var4),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
 			
-			sw(RadioGroup)( "test radio group", util{}, add(Checkbox){
-				sw(Checkbox)("abc 123", my_bool_var1),
-				sw(Checkbox)("abc 123", my_bool_var2),
-				sw(Checkbox)("abc 123", my_bool_var3),
+			sw(RadioGroup)( "Select Language", util{}, add(Checkbox){
+				sw(Checkbox)("Turkish", my_bool_var1),
+				sw(Checkbox)("English", my_bool_var2),
+				sw(Checkbox)("Spanish", my_bool_var3),
 			}),
 
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
+			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 		}),
 	});

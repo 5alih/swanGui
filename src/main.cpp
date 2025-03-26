@@ -10,6 +10,12 @@ int main()
 
 	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
 
+	bool my_bool_var= false;
+	bool my_bool_var1= false;
+	bool my_bool_var2= false;
+	bool my_bool_var3= true;
+	bool my_bool_var4= false;
+
 	SwanGui swanGui({
 		sw(Panel)("test", sx{ .position= (Vector2){0, 0}, .size= (Vector2){200, 1040}, .color= hex("#9999dd"), .font= custom_font }),
 		sw(Panel)("test", sx{ .position= (Vector2){200, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dd99"), .font= custom_font }),
@@ -19,53 +25,15 @@ int main()
 		sw(Panel)("test", sx{ .position= (Vector2){1000, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dddd"), .font= custom_font }),
 		sw(Panel)("test", sx{ .position= (Vector2){1200, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddddd"), .font= custom_font }),
 
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 2}, add{
+		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 1}, add{
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
+			sw(Checkbox)("test checkbox", my_bool_var),
+			sw(Checkbox)("test checkbox", my_bool_var1),
+			sw(Checkbox)("test checkbox", my_bool_var2),
+			sw(Checkbox)("test checkbox", my_bool_var3),
+			sw(Checkbox)("test checkbox", my_bool_var4),
 		}),
 	});
 

@@ -148,8 +148,8 @@ struct Utility{
 	std::optional<Color> element_background_color_click= hex("#000000");
 	std::optional<Color> element_color= hex("#F5F5F5");
 	std::optional<Color> element_color_hover= hex("#FFFFFF");
-	std::optional<Color> element_border_color= hex("#202020");
-	std::optional<Color> element_border_color_hover= hex("#");
+	std::optional<Color> element_border_color= hex("#aaaaaa");
+	std::optional<Color> element_border_color_hover= hex("#dddddd");
 
 	std::optional<float> element_spacing= 2.0f;
 };
@@ -175,8 +175,8 @@ public:
 
 	Button(const std::string text_, std::function<void()> call_back_function_, Style style_){
 		text= text_;
-		style= style_;
 		call_back_function= call_back_function_;
+		style= style_;
 	}
 
 	void Update() override{
@@ -190,6 +190,41 @@ public:
 	void Draw() override{
 		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
+		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	}
+};
+
+class Checkbox: public GuiElement{
+public:
+	bool *is_checked;
+
+	Checkbox(const std::string text_, bool &is_checked_){
+		text= text_;
+		is_checked= &is_checked_;
+	}
+
+	Checkbox(const std::string text_, bool &is_checked_, Style style_){
+		text= text_;
+		is_checked= &is_checked_;
+		style= style_;
+	} 
+
+	void Update() override{
+		if(status== S_CLICKED && is_checked!= nullptr){
+			*is_checked= !(*is_checked);
+		}
+	}
+
+	void Draw() override{
+		Color color;
+		if(*is_checked== true)  color= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.border_color_hover.value(): style.border_color.value();
+		if(*is_checked== false) color= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.background_color_hover.value(): style.background_color.value();
+
+		std::cout<< *is_checked<< " "<< status<< std::endl;
+
+		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().y, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
 		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());

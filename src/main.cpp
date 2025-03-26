@@ -17,21 +17,21 @@ int main()
 	bool my_bool_var4= false;
 
 	SwanGui swanGui({
-		sw(Panel)("test", sx{ .position= (Vector2){0, 0}, .size= (Vector2){200, 1040}, .color= hex("#9999dd"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){200, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dd99"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){400, 0}, .size= (Vector2){200, 1040}, .color= hex("#dd9999"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){600, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddd99"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){800, 0}, .size= (Vector2){200, 1040}, .color= hex("#dd99dd"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){1000, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dddd"), .font= custom_font }),
-		sw(Panel)("test", sx{ .position= (Vector2){1200, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddddd"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){0, 0}, .size= (Vector2){200, 1040}, .color= hex("#9999dd"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){200, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dd99"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){400, 0}, .size= (Vector2){200, 1040}, .color= hex("#dd9999"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){600, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddd99"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){800, 0}, .size= (Vector2){200, 1040}, .color= hex("#dd99dd"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){1000, 0}, .size= (Vector2){200, 1040}, .color= hex("#99dddd"), .font= custom_font }),
+		// sw(Panel)("test", sx{ .position= (Vector2){1200, 0}, .size= (Vector2){200, 1040}, .color= hex("#dddddd"), .font= custom_font }),
 
 		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 1}, add{
+			sw(Button)("test button", [](){}, sx{ .background_color= hex("#fdd835"), .background_color_hover= hex("#fff176"), .color= hex("#101010") }),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Checkbox)("test checkbox", my_bool_var),
-			sw(Checkbox)("test checkbox", my_bool_var1),
-			sw(Checkbox)("test checkbox", my_bool_var2),
+			sw(Checkbox)("test checkbox", my_bool_var, sx{ .color_accent= hex("#dddddd"), .color_accent_hover= hex("#eeeeee") } ),
+			sw(Checkbox)("test checkbox", my_bool_var1, sx{ .color_accent= hex("#dd9999"), .color_accent_hover= hex("#ff9999") }),
+			sw(Checkbox)("test checkbox", my_bool_var2, sx{ .color= hex("#ff0000"), .color_hover= hex("#0000ff") }),
 			sw(Checkbox)("test checkbox", my_bool_var3),
 			sw(Checkbox)("test checkbox", my_bool_var4),
 		}),

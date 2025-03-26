@@ -111,6 +111,9 @@ struct Style{
 	std::optional<Color> background_color_click= hex("#010101");
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
+	std::optional<Color> color_accent= hex("#fdd835");
+	std::optional<Color> color_accent_hover= hex("#fff176");
+	std::optional<Color> color_accent_disabled= hex("##CBB867");
 	std::optional<Color> border_color= hex("#202020");		// border color of the element
 	std::optional<Color> border_color_hover= hex("#2C2C2C");
 	
@@ -146,8 +149,11 @@ struct Utility{
 	std::optional<Color> element_background_color= hex("#202020");
 	std::optional<Color> element_background_color_hover= hex("#2C2C2C");
 	std::optional<Color> element_background_color_click= hex("#000000");
-	std::optional<Color> element_color= hex("#F5F5F5");
+	std::optional<Color> element_color= hex("#dddddd");
 	std::optional<Color> element_color_hover= hex("#FFFFFF");
+	std::optional<Color> element_color_accent= hex("#fdd835");
+	std::optional<Color> element_color_accent_hover= hex("#fff176");
+	std::optional<Color> element_color_accent_disabled= hex("##CBB867");
 	std::optional<Color> element_border_color= hex("#aaaaaa");
 	std::optional<Color> element_border_color_hover= hex("#dddddd");
 
@@ -197,8 +203,10 @@ public:
 };
 
 class Checkbox: public GuiElement{
-public:
+private:
 	bool *is_checked;
+
+public:
 
 	Checkbox(const std::string text_, bool &is_checked_){
 		text= text_;
@@ -218,16 +226,18 @@ public:
 	}
 
 	void Draw() override{
-		Color color;
-		if(*is_checked== true)  color= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.border_color_hover.value(): style.border_color.value();
-		if(*is_checked== false) color= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.background_color_hover.value(): style.background_color.value();
+		Color color_box;
+		if(*is_checked== true)  color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
+		if(*is_checked== false) color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.background_color_hover.value(): style.background_color.value();
+
+		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
 
 		std::cout<< *is_checked<< " "<< status<< std::endl;
 
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().y, style.size.value().y};
-		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
-		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);
+		Vector2 pos= {(style.position.value().x +style.padding.value() + style.size.value().y), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 	}
 };
 
@@ -324,6 +334,9 @@ public:
 		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
 		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
 		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
+		if(element->style.color_accent.value()== default_style.color_hover.value())							element->style.color_accent.value()= utility.element_color_accent.value();
+		if(element->style.color_accent_hover.value()== default_style.color_hover.value())					element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
+		if(element->style.color_accent_disabled.value()== default_style.color_hover.value())				element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
 		elements.push_back(element);
 
 		counter++;

@@ -15,7 +15,7 @@ int main()
 	bool my_bool_var3= false;
 
 	SwanGui swanGui({
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){350, 600}, .font= custom_font, .spacing= 10.0f }, util{ .can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
+		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font, .spacing= 10.0f }, util{.can_rescale= true, .can_move= true, .sections= 2}, add(GuiElement){
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
@@ -33,17 +33,17 @@ int main()
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 
-			sw(Panel)("please work", add(GuiElement){
+			sw(Panel)("please work", sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){
 				sw(Button)("test button", [](){}),
 				sw(Button)("test button", [](){}),
 				sw(Button)("test button", [](){}),
 				sw(Button)("test button", [](){}),
 
-				sw(Panel)("AAAAAAAAAAA", add(GuiElement){
+				sw(Panel)("AAAAAAAAAAA",  sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){
 					sw(Button)("test button", [](){}),
 					sw(Button)("test button", [](){}),
 
-					sw(Panel)("BBBBBBBBBB", add(GuiElement){
+					sw(Panel)("BBBBBBBBBB",  sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){
 						sw(Button)("test button", [](){}),
 						sw(Button)("test button", [](){}),
 						sw(Button)("test button", [](){}),
@@ -53,6 +53,7 @@ int main()
 					sw(Button)("test button", [](){}),
 					sw(Button)("test button", [](){}),
 				}),
+				sw(Button)("test button", [](){}, sx{.background_color= hex("#dddddd"), .background_color_hover= hex("#eeeeee"), .color= hex("#131313")}),
 			}),
 
 			sw(Button)("test button", [](){}),

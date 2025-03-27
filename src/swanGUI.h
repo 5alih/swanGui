@@ -113,15 +113,19 @@ struct Style{
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
 	std::optional<Color> color_disabled= hex("#aaaaaa");
-	std::optional<Color> color_accent= hex("#fdd835");
-	std::optional<Color> color_accent_hover= hex("#fff176");
-	std::optional<Color> color_accent_disabled= hex("##CBB867");
-	std::optional<Color> border_color= hex("#202020");		// border color of the element
+	// std::optional<Color> color_accent= hex("#fdd835");
+	std::optional<Color> color_accent= hex("#dddddd");
+	// std::optional<Color> color_accent_hover= hex("#fff176");
+	std::optional<Color> color_accent_hover= hex("#eeeeee");
+	// std::optional<Color> color_accent_disabled= hex("##CBB867");
+	std::optional<Color> color_accent_disabled= hex("#aaaaaa");
+	std::optional<Color> border_color= hex("#404040");		// border color of the element
 	std::optional<Color> border_color_hover= hex("#2C2C2C");
 	
 	std::optional<bool> border= true;						// enables/ disables border
 	std::optional<int> border_radius= 3;						// for corner rounding, doesnt get effected by border is being disabled
-	std::optional<float> padding= 3.0;						// padding between elements and borders; only effects panels
+	std::optional<float> padding= 3.0;						// horizontal padding between elements and borders; only effects panels
+	std::optional<float> margin= 3.0;						// vertical margin between elements; only effects panels
 	
 	std::optional<int> font_size= g_font_size;				// text size
 	std::optional<Font> font= g_font;						// for custom fonts
@@ -143,7 +147,7 @@ struct Utility{
 	std::optional<bool> is_moving= false;
 
 	std::optional<bool> grid_align= true;
-	std::optional<int> grid_size= 10;
+	std::optional<int> grid_size= 20;
 	
 	std::optional<int> sections= 1;
 	std::optional<float> scroll_amount= 0.0f;
@@ -163,7 +167,9 @@ public:
 	virtual void Draw(bool is_parent)= 0;
 
 	virtual void UpdateElements(){}
-	virtual void CheckCollision(){}
+	virtual bool CheckCollision(){
+		return false;
+	}
 	virtual float CalcSizeY(){
 		return style.font_size.value();
 	}
@@ -252,8 +258,8 @@ public:
 
 	void Update() override{
 		if(!run_once){
+			UpdateElements();
 			for(auto &checkbox: checkboxes){
-				UpdateElement(checkbox);
 				ApplyStyle(checkbox);
 			}
 			run_once= true;
@@ -305,7 +311,7 @@ public:
 		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.style.value().color_accent_disabled.value();
 	}
 
-	void CheckCollision() override{
+	bool CheckCollision() override{
 		Vector2 mouse= GetMousePosition();
 		for(auto &element: checkboxes){
 			if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
@@ -318,6 +324,7 @@ public:
 					element->status= S_NORMAL;
 			}
 		}
+		return true;
 	}
 
 	void UpdateElement(std::shared_ptr<Checkbox> element){
@@ -327,7 +334,7 @@ public:
 
 		Vector2 position_= style.position.value();
 		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
-		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
+		position_.y+= style.border.value()? style.margin.value() +style.font_size.value(): style.margin.value();
 
 		int group= 0;
 		for(const auto &elem: checkboxes){
@@ -335,7 +342,7 @@ public:
 				break;
 
 			if(group== counter)
-				position_.y+= elem->style.size.value().y +style.padding.value();
+				position_.y+= elem->style.size.value().y +style.margin.value();
 			
 			group++;
 			if(group== utility.sections.value())
@@ -360,7 +367,7 @@ public:
 	}
 
 	float CalcSizeY() override{	
-		return (checkboxes.size() +1) *(style.font_size.value() +style.padding.value());
+		return (checkboxes.size() +1) *(style.font_size.value() +style.margin.value());
 	}
 };
 
@@ -411,8 +418,8 @@ public:
 
 	void Update() override{
 		if(ind< 2){
+			UpdateElements();
 			for(auto &element: elements){
-				UpdateElement(element);
 				ApplyStyle(element);
 			}
 			ind++;
@@ -535,9 +542,11 @@ public:
 			}
 		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
-		for(auto &element: elements){
-			// if(element->style.position.value().y> style.position.value().y && (element->style.position.value().y /*+element->style.size.value().y*/< style.position.value().y +style.size.value().y))
+		if(!utility.is_minimized.value()){
+			for(auto &element: elements){
+				// if(element->style.position.value().y> style.position.value().y && (element->style.position.value().y /*+element->style.size.value().y*/< style.position.value().y +style.size.value().y))
 				element->Draw(false);
+			}
 		}
 		if(style.border.value()){
 			DrawRectangleLines(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y, style.border_color.value());
@@ -557,6 +566,7 @@ public:
 		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.style.value().spacing.value();
 		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= utility.style.value().border_radius.value();
 		if(element->style.padding.value()== default_style.padding.value())				element->style.padding.value()= utility.style.value().padding.value();
+		if(element->style.margin.value()== default_style.margin.value())				element->style.margin.value()= utility.style.value().margin.value();
 		
 		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.style.value().background_color.value();
 		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.style.value().background_color_click.value();
@@ -571,19 +581,24 @@ public:
 		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.style.value().color_accent_disabled.value();
 	}
 
-	void CheckCollision() override{
+	bool CheckCollision() override{
 		Vector2 mouse= GetMousePosition();
 		for(auto &element: elements){
 			if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
 			   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
 				element->status= IsMouseButtonPressed(MOUSE_BUTTON_LEFT)? S_CLICKED: S_HOVERED;
-				element->CheckCollision();
+				if(element->CheckCollision()){
+					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
+					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.font_size.value())))
+						element->status= S_HOVERED_HEADER;
+				}
 			}
 			else{
 				if(element->status!= S_DISABLED)
 					element->status= S_NORMAL;
 			}
 		}
+		return true;
 	}
 
 	template<typename T>
@@ -594,15 +609,14 @@ public:
 
 		Vector2 position_= style.position.value();
 		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
-		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
+		position_.y+= style.border.value()? style.margin.value() +style.font_size.value(): style.margin.value();
 
 		int group= 0;
 		for(const auto &elem: elements){
-			if(elem== element)
-				break;
+			if(elem== element){break;}
 
-			if(group== counter)
-				position_.y+= elem->style.size.value().y +style.padding.value();
+			else if(group== counter)
+				position_.y+= elem->style.size.value().y +style.margin.value();
 			
 			group++;
 			if(group== utility.sections.value())
@@ -617,21 +631,31 @@ public:
 
 		element->style.position.value()= position_;
 		element->style.size.value()= size_;
+
+		counter++;
 	}
 
 	void UpdateElements() override{
+		if(utility.is_minimized.value()){
+			return;
+		}
+
 		counter= 0;
 		for(auto &element: elements){
 			UpdateElement(element);
 		}
 	}
 
-	float CalcSizeY() override{	
+	float CalcSizeY() override{
+		if(utility.is_minimized.value()){
+			return style.font_size.value();
+		}
+
 		float size= 0;
 		for(auto &element: elements){
-			size+= element->style.size.value().y +style.padding.value();
+			size+= element->style.size.value().y +style.margin.value();
 		}
-		size+= style.font_size.value() +style.padding.value();
+		size+= style.font_size.value() +style.margin.value();
 		return size;
 	}
 };
@@ -672,8 +696,12 @@ public:
 					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
 					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) && !clicked_once){
 						element->status= did_click_L? S_CLICKED: S_HOVERED;
-						// clicked_once= true;
-						element->CheckCollision();
+						clicked_once= true;
+						if(element->CheckCollision()){
+							if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
+							   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.font_size.value())))
+								element->status= S_HOVERED_HEADER;
+						}
 					}
 					else{
 						if(element->status!= S_DISABLED)
@@ -690,10 +718,10 @@ public:
 							panels.erase(panels.begin() +i);
 							panels.push_back(temp);
 						}
-						// clicked_once= true;
+						clicked_once= true;
 					}
 					else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
-							(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)) ){
+							(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.margin.value()*2)) ){
 						panel->status= S_HOVERED_CORNER;
 					}
 					// if the cursor is on the right border
@@ -701,7 +729,7 @@ public:
 						panel->status= S_HOVERED_RIGHT;
 					}
 					//if the cursor is on the bottom border
-					else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)){
+					else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.margin.value()*2)){
 						panel->status= S_HOVERED_BOTTOM;
 					}
 					else{
@@ -720,6 +748,7 @@ public:
 		UpdateElementHovered();
 		for(auto &panel: panels){
 			panel->Update();
+			panel->UpdateElements();
 		}
 	}
 

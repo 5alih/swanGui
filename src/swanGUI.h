@@ -163,7 +163,7 @@ public:
 	enum_status status= S_NORMAL;
 	Style style;
 
-	virtual void Update()= 0;
+	virtual void Update(bool is_parent)= 0;
 	virtual void Draw(bool is_parent)= 0;
 
 	virtual void UpdateElements(){}
@@ -190,7 +190,7 @@ public:
 		style= style_;
 	}
 
-	void Update() override{
+	void Update(bool is_parent) override{
 		if(status== S_CLICKED){
 			if(call_back_function){
 				call_back_function();
@@ -222,7 +222,7 @@ public:
 		style= style_;
 	}
 
-	void Update() override{
+	void Update(bool is_parent) override{
 		if(status== S_CLICKED && is_checked!= nullptr){
 			*is_checked= !(*is_checked);
 		}
@@ -286,7 +286,7 @@ public:
 		elements= elements_;
 	}
 
-	void Update() override{
+	void Update(bool is_parent) override{
 		if(ind< 2){
 			UpdateElements();
 			for(auto &element: elements){
@@ -383,21 +383,22 @@ public:
 			for(auto &element: elements){
 				if((element->style.position.value().y /*+element->style.size.value().y*/)< (style.position.value().y +style.size.value().y)){
 
-					element->Update();
+					element->Update(false);
 					element->UpdateElements();
 				}
 			}
 		}
 
-		float wheel_delta= GetMouseWheelMove();
-
-		if(!utility.is_minimized.value() && status== S_HOVERED && wheel_delta!= 0){
-			float delta= utility.scroll_speed.value() *wheel_delta;	// can be changed for scroll speed
-
-			if((utility.scroll_amount.value() +delta)<= 0){	
-				for(auto &element: elements){
-					element->style.position.value().y+= delta;
-					utility.scroll_amount.value()+= delta;
+		if(is_parent){
+			float wheel_delta= GetMouseWheelMove();
+			if(!utility.is_minimized.value() && status== S_HOVERED && wheel_delta!= 0){
+				float delta= utility.scroll_speed.value() *wheel_delta;	// can be changed for scroll speed
+				
+				if((utility.scroll_amount.value() +delta)<= 0){	
+					for(auto &element: elements){
+						element->style.position.value().y+= delta;
+						utility.scroll_amount.value()+= delta;
+					}
 				}
 			}
 		}
@@ -482,6 +483,8 @@ public:
 		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
 		position_.y+= style.border.value()? style.margin.value() +style.font_size.value(): style.margin.value();
 
+		position_.y+= utility.scroll_amount.value()/ (int)elements.size();
+
 		int group= 0;
 		for(const auto &elem: elements){
 			if(elem== element){break;}
@@ -548,7 +551,7 @@ public:
 		panel.style.position.value()= style.position.value();
 	}
 
-	void Update() override{
+	void Update(bool is_parent) override{
 		if(ind< 2){
 			panel.style= style;
 			UpdateElements();
@@ -563,7 +566,7 @@ public:
 		for(auto &element: panel.elements){
 			auto checkbox = std::dynamic_pointer_cast<Checkbox>(element);
 			bool old= *(checkbox->is_checked);
-			checkbox->Update();
+			checkbox->Update(false);
 			if(old== false && *(checkbox->is_checked)== true){
 				for(auto &elem: panel.elements){
 					auto chbx = std::dynamic_pointer_cast<Checkbox>(elem);
@@ -676,7 +679,7 @@ public:
 	void Update(){
 		UpdateElementHovered();
 		for(auto &panel: panels){
-			panel->Update();
+			panel->Update(true);
 			panel->UpdateElements();
 		}
 	}

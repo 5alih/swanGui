@@ -592,6 +592,60 @@ public:
 	}
 };
 
+class Selection: public GuiElement{
+private:
+	Panel panel;
+	int ind= 0;
+
+public:
+	std::vector<std::shared_ptr<GuiElement>> elements;
+
+	Selection(std::string text_, Utility utility_, std::vector<std::shared_ptr<GuiElement>> elements_): panel(text_, utility_, elements_){
+		elements= elements_;
+		panel.style.position.value()= style.position.value();
+	}
+
+	void Update(bool is_parent) override{
+		if(ind< 2){
+			panel.style= style;
+			UpdateElements();
+			for(auto &element: panel.elements){
+				panel.ApplyStyle(element);
+			}
+			ind++;
+		}
+		panel.style.position= style.position;
+		panel.style.size= style.size;
+
+		panel.Update(false);
+
+        for(auto &element: panel.elements){
+            if(element->status== S_CLICKED){
+                panel.utility.is_minimized.value()= true;
+                break;
+            }
+        }
+		if(status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			panel.utility.is_minimized.value()= false;
+			
+		}
+
+		panel.UpdateElements();
+	}
+
+	void Draw(bool is_parent) override{
+		panel.Draw(false);
+	}
+
+	bool CheckCollision() override {
+		return panel.CheckCollision();
+	}
+
+	float CalcSizeY() override{	
+		return panel.CalcSizeY();
+	}
+};
+
 class SwanGui{
 public:
 	std::vector<std::shared_ptr<Panel>> panels;
@@ -631,9 +685,10 @@ public:
 						clicked_once= true;
 						if(element->CheckCollision()){
 							if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
-							   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.font_size.value())))
-								element->status= S_HOVERED_HEADER;
-						}
+							   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.font_size.value()))){
+									element->status= S_HOVERED_HEADER;
+								}
+							}
 					}
 					else{
 						if(element->status!= S_DISABLED)

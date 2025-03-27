@@ -106,9 +106,10 @@ struct Style{
 	std::optional<Vector2> size= (Vector2){100, 100};		// size in (width, height)
 	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
 	
-	std::optional<Color> background_color= hex("#131313");	// background color of the element
+	std::optional<Color> background_color= hex("#202020");	// background color of the element
 	std::optional<Color> background_color_hover= hex("#2C2C2C");
 	std::optional<Color> background_color_click= hex("#010101");
+	std::optional<Color> background_color_panel= hex("#131313");	// background color of the element
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
 	std::optional<Color> color_disabled= hex("#aaaaaa");
@@ -132,7 +133,7 @@ struct Style{
 // utilities for panels, can be set per panel.
 struct Utility{
 	std::optional<bool> can_minimize= false;
-	std::optional<bool> is_minimized= true;
+	std::optional<bool> is_minimized= false;
 
 	std::optional<bool> can_rescale= false;
 	std::optional<bool> is_rescaling_h= false;
@@ -148,23 +149,8 @@ struct Utility{
 	std::optional<float> scroll_amount= 0.0f;
 	std::optional<float> scroll_speed= 10.0f;
 
-	// for styling every element in this panel
-	std::optional<Color> element_background_color= hex("#202020");
-	std::optional<Color> element_background_color_hover= hex("#2C2C2C");
-	std::optional<Color> element_background_color_click= hex("#000000");
-	std::optional<Color> element_color= hex("#dddddd");
-	std::optional<Color> element_color_hover= hex("#FFFFFF");
-	std::optional<Color> element_color_disabled= hex("#aaaaaa");
-	// std::optional<Color> element_color_accent= hex("#fdd835");
-	std::optional<Color> element_color_accent= hex("#dddddd");
-	// std::optional<Color> element_color_accent_hover= hex("#fff176");
-	std::optional<Color> element_color_accent_hover= hex("#efefef");
-	// std::optional<Color> element_color_accent_disabled= hex("##CBB867");
-	std::optional<Color> element_color_accent_disabled= hex("#999999");
-	std::optional<Color> element_border_color= hex("#aaaaaa");
-	std::optional<Color> element_border_color_hover= hex("#dddddd");
-
-	std::optional<float> element_spacing= 2.0f;
+	Style ow_style;
+	std::optional<Style> style= ow_style;
 };
 
 class GuiElement{
@@ -174,7 +160,7 @@ public:
 	Style style;
 
 	virtual void Update()= 0;
-	virtual void Draw()= 0;
+	virtual void Draw(bool is_parent)= 0;
 
 	virtual void UpdateElements(){}
 	virtual void CheckCollision(){}
@@ -206,7 +192,7 @@ public:
 		}
 	}
 
-	void Draw() override{
+	void Draw(bool is_parent) override{
 		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
@@ -236,7 +222,7 @@ public:
 		}
 	}
 
-	void Draw() override{
+	void Draw(bool is_parent) override{
 		Color color_box;
 		if(*is_checked== true)  color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
 		if(*is_checked== false) color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.background_color_hover.value(): style.background_color.value();
@@ -290,47 +276,42 @@ public:
 		}
 	}
 
-	void Draw() override{
+	void Draw(bool is_parent) override{
 		Vector2 pos= {(style.position.value().x +style.padding.value()), (style.position.value().y + style.font_size.value()/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		for(auto &checkbox: checkboxes){
-			checkbox->Draw();
+			checkbox->Draw(false);
 		}
 	}
 
 	void ApplyStyle(std::shared_ptr<GuiElement> element){
 		Style default_style;
 
-		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= style.font_size.value();
+		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= utility.style.value().font_size.value();
 		if(element->style.font.value()== default_style.font.value())					element->style.font.value()= style.font.value();
-		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.element_spacing.value();
-		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= style.border_radius.value();
+		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.style.value().spacing.value();
+		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= utility.style.value().border_radius.value();
 		
-		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.element_background_color.value();
-		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.element_background_color_click.value();
-		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.element_background_color_hover.value();
-		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.element_border_color.value();
-		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
-		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
-		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
-		if(element->style.color_disabled.value()== default_style.color_disabled.value())					element->style.color_disabled.value()= utility.element_color_disabled.value();
-		if(element->style.color_accent.value()== default_style.color_accent.value())						element->style.color_accent.value()= utility.element_color_accent.value();
-		if(element->style.color_accent_hover.value()== default_style.color_accent_hover.value())			element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
-		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
+		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.style.value().background_color.value();
+		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.style.value().background_color_click.value();
+		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.style.value().background_color_hover.value();
+		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.style.value().border_color.value();
+		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.style.value().border_color_hover.value();
+		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.style.value().color.value();
+		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.style.value().color_hover.value();
+		if(element->style.color_disabled.value()== default_style.color_disabled.value())					element->style.color_disabled.value()= utility.style.value().color_disabled.value();
+		if(element->style.color_accent.value()== default_style.color_accent.value())						element->style.color_accent.value()= utility.style.value().color_accent.value();
+		if(element->style.color_accent_hover.value()== default_style.color_accent_hover.value())			element->style.color_accent_hover.value()= utility.style.value().color_accent_hover.value();
+		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.style.value().color_accent_disabled.value();
 	}
 
 	void CheckCollision() override{
 		Vector2 mouse= GetMousePosition();
 		for(auto &element: checkboxes){
-
-			// std::cout<< element->style.position.value().x<< " "<< element->style.position.value().y<< " "<< element->style.size.value().x<< " "<< element->style.size.value().y<< std::endl;		
-			// std::cout<< mouse.x<< " "<< mouse.y<< std::endl;
-
-			std::cout<< style.size.value().y<< std::endl;
-
 			if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
 			   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
 				element->status= IsMouseButtonPressed(MOUSE_BUTTON_LEFT)? S_CLICKED: S_HOVERED;
+				element->CheckCollision();
 			}
 			else{
 				if(element->status!= S_DISABLED)
@@ -365,7 +346,7 @@ public:
 		size_.x= style.size.value().x/ utility.sections.value();
 		size_.x-= style.padding.value() *4;
 
-		size_.y= style.font_size.value();
+		size_.y= element->CalcSizeY();
 
 		element->style.position.value()= position_;
 		element->style.size.value()= size_;
@@ -378,14 +359,16 @@ public:
 		}
 	}
 
-	float CalcSizeY() override{
-		return (checkboxes.size() +1)* (style.font_size.value() +style.padding.value());
+	float CalcSizeY() override{	
+		return (checkboxes.size() +1) *(style.font_size.value() +style.padding.value());
 	}
 };
 
 class Panel: public GuiElement{
 private:
 	int counter= 0;
+	bool run_once= false;
+	int ind= 0;
 
 public:
 	std::vector<std::shared_ptr<GuiElement>> elements;
@@ -394,124 +377,47 @@ public:
 	Panel(std::string text_, Style style_){
 		text= text_;
 		style= style_;
-		if(!utility.can_minimize.value()){
-			utility.is_minimized.value()= false;
-		}
+	}
+
+	Panel(std::string text_, Utility utility_, std::vector<std::shared_ptr<GuiElement>> elements_){
+		text= text_;
+		utility= utility_;
+		elements= elements_;
 	}
 
 	Panel(std::string text_, Style style_, std::vector<std::shared_ptr<GuiElement>> elements_){
 		text= text_;
 		style= style_;
-		for(auto &element: elements_){
-			this->AddElement(element);
-		}
-		if(!utility.can_minimize.value()){
-			utility.is_minimized.value()= false;
-		}
+		elements= elements_;
+	}
+
+	Panel(std::string text_, std::vector<std::shared_ptr<GuiElement>> elements_){
+		text= text_;
+		elements= elements_;
 	}
 
 	Panel(std::string text_, Style style_, Utility utility_){
 		text= text_;
 		style= style_;
 		utility= utility_;
-		if(!utility.can_minimize.value()){
-			utility.is_minimized.value()= false;
-		}
 	}
 
 	Panel(std::string text_, Style style_, Utility utility_, std::vector<std::shared_ptr<GuiElement>> elements_){
 		text= text_;
 		style= style_;
 		utility= utility_;
-		for(auto &element: elements_){
-			this->AddElement(element);
-		}
-		if(!utility.can_minimize.value()){
-			utility.is_minimized.value()= false;
-		}
-	}
-
-	template<typename T>
-	void AddElement(std::shared_ptr<T> element){
-		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
-
-		if(counter>= utility.sections.value()){
-			counter= 0;
-		}
-
-		Vector2 position_= style.position.value();
-		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
-		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
-
-		int group= 0;
-		for(const auto &elem: elements){
-			if(group== counter)
-				position_.y+= elem->style.size.value().y +style.padding.value();
-			
-			group++;
-			if(group== utility.sections.value())
-				group= 0;
-		}
-
-		Vector2 size_= style.size.value();
-		size_.x= style.size.value().x/ utility.sections.value();
-		size_.x-= style.padding.value() *4;
-		
-		// if constexpr(std::is_same<T, RadioGroup>::value){
-		// 	size_.y= element->style.font_size.value() *(element->checkboxes.size() +element->style.padding.value());
-		// }
-		// else{
-		// 	size_.y= style.font_size.value();
-		// }
-		size_.y= element->CalcSizeY();
-
-		Style default_style;
-
-		if(element->style.position.value()== default_style.position.value())	element->style.position.value()= position_;
-		if(element->style.size.value()== default_style.size.value())			element->style.size.value()= size_;
-
-		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= style.font_size.value();
-		if(element->style.font.value()== default_style.font.value())					element->style.font.value()= style.font.value();
-		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.element_spacing.value();
-		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= style.border_radius.value();
-		
-		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.element_background_color.value();
-		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.element_background_color_click.value();
-		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.element_background_color_hover.value();
-		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.element_border_color.value();
-		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.element_border_color_hover.value();
-		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.element_color.value();
-		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.element_color_hover.value();
-		if(element->style.color_accent.value()== default_style.color_hover.value())							element->style.color_accent.value()= utility.element_color_accent.value();
-		if(element->style.color_accent_hover.value()== default_style.color_hover.value())					element->style.color_accent_hover.value()= utility.element_color_accent_hover.value();
-		if(element->style.color_accent_disabled.value()== default_style.color_hover.value())				element->style.color_accent_disabled.value()= utility.element_color_accent_disabled.value();
-		elements.push_back(element);
-
-		counter++;
-	}
-
-	template<typename T>
-	void RescaleElement(std::shared_ptr<T> &element){
-		static_assert(std::is_base_of<GuiElement, T>::value, "Element must derive from GuiElement");
-
-		if(counter>= utility.sections.value()){
-			counter= 0;
-		}
-
-		Vector2 position_= style.position.value();
-		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
-
-		Vector2 size_= style.size.value();
-		size_.x= style.size.value().x/ utility.sections.value();
-		size_.x-= style.padding.value() *4;
-
-		element->style.position.value().x= position_.x;
-		element->style.size.value().x= size_.x;
-
-		counter++;
+		elements= elements_;
 	}
 
 	void Update() override{
+		if(ind< 2){
+			for(auto &element: elements){
+				UpdateElement(element);
+				ApplyStyle(element);
+			}
+			ind++;
+		}
+
 		if(style.border.value()){
 			if(utility.can_minimize.value() && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 				utility.is_minimized.value()= !utility.is_minimized.value();
@@ -579,10 +485,7 @@ public:
 				else{
 					style.size.value().x+= delta;
 				}
-				counter= 0;
-				for(auto &element: elements){
-					RescaleElement(element);
-				}
+				UpdateElements();
 			}
 			if(utility.is_rescaling_v.value()){
 				float delta= GetMouseDelta().y;
@@ -594,9 +497,7 @@ public:
 					style.size.value().y+= delta;
 				}
 				counter= 0;
-				for(auto &element: elements){
-					RescaleElement(element);
-				}
+				UpdateElements();
 			}
 		}
 
@@ -624,16 +525,19 @@ public:
 		}
 	}
 
-	void Draw() override{	// use scissoring
-		if(!utility.is_minimized.value()){
-			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+	void Draw(bool is_parent) override{	// use scissoring
+		if(is_parent){
+			if(!utility.is_minimized.value()){
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+			}
+			else{
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
+			}
 		}
-		else{
-			BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
-		}
-		DrawRectangleV(style.position.value(), style.size.value(), style.background_color.value());
+		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
 		for(auto &element: elements){
-			element->Draw();
+			// if(element->style.position.value().y> style.position.value().y && (element->style.position.value().y /*+element->style.size.value().y*/< style.position.value().y +style.size.value().y))
+				element->Draw(false);
 		}
 		if(style.border.value()){
 			DrawRectangleLines(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y, style.border_color.value());
@@ -641,7 +545,94 @@ public:
 			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
 			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
-		EndScissorMode();
+		if(is_parent)
+			EndScissorMode();
+	}
+
+	void ApplyStyle(std::shared_ptr<GuiElement> element){
+		Style default_style;
+
+		if(element->style.font_size.value()== default_style.font_size.value())			element->style.font_size.value()= utility.style.value().font_size.value();
+		if(element->style.font.value()== default_style.font.value())					element->style.font.value()= style.font.value();
+		if(element->style.spacing.value()== default_style.spacing.value())				element->style.spacing.value()= utility.style.value().spacing.value();
+		if(element->style.border_radius.value()== default_style.border_radius.value())	element->style.border_radius.value()= utility.style.value().border_radius.value();
+		if(element->style.padding.value()== default_style.padding.value())				element->style.padding.value()= utility.style.value().padding.value();
+		
+		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.style.value().background_color.value();
+		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.style.value().background_color_click.value();
+		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.style.value().background_color_hover.value();
+		if(element->style.border_color.value()== default_style.border_color.value())						element->style.border_color.value()= utility.style.value().border_color.value();
+		if(element->style.border_color_hover.value()== default_style.border_color_hover.value())			element->style.border_color_hover.value()= utility.style.value().border_color_hover.value();
+		if(element->style.color.value()== default_style.color.value())										element->style.color.value()= utility.style.value().color.value();
+		if(element->style.color_hover.value()== default_style.color_hover.value())							element->style.color_hover.value()= utility.style.value().color_hover.value();
+		if(element->style.color_disabled.value()== default_style.color_disabled.value())					element->style.color_disabled.value()= utility.style.value().color_disabled.value();
+		if(element->style.color_accent.value()== default_style.color_accent.value())						element->style.color_accent.value()= utility.style.value().color_accent.value();
+		if(element->style.color_accent_hover.value()== default_style.color_accent_hover.value())			element->style.color_accent_hover.value()= utility.style.value().color_accent_hover.value();
+		if(element->style.color_accent_disabled.value()== default_style.color_accent_disabled.value())		element->style.color_accent_disabled.value()= utility.style.value().color_accent_disabled.value();
+	}
+
+	void CheckCollision() override{
+		Vector2 mouse= GetMousePosition();
+		for(auto &element: elements){
+			if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
+			   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) ){
+				element->status= IsMouseButtonPressed(MOUSE_BUTTON_LEFT)? S_CLICKED: S_HOVERED;
+				element->CheckCollision();
+			}
+			else{
+				if(element->status!= S_DISABLED)
+					element->status= S_NORMAL;
+			}
+		}
+	}
+
+	template<typename T>
+	void UpdateElement(std::shared_ptr<T> element){
+		if(counter>= utility.sections.value()){
+			counter= 0;
+		}
+
+		Vector2 position_= style.position.value();
+		position_.x+= style.padding.value() *2 +(counter *(style.size.value().x/ utility.sections.value()));
+		position_.y+= style.border.value()? style.padding.value() +style.font_size.value(): style.padding.value();
+
+		int group= 0;
+		for(const auto &elem: elements){
+			if(elem== element)
+				break;
+
+			if(group== counter)
+				position_.y+= elem->style.size.value().y +style.padding.value();
+			
+			group++;
+			if(group== utility.sections.value())
+				group= 0;
+		}
+
+		Vector2 size_= style.size.value();
+		size_.x= style.size.value().x/ utility.sections.value();
+		size_.x-= style.padding.value() *4;
+
+		size_.y= element->CalcSizeY();
+
+		element->style.position.value()= position_;
+		element->style.size.value()= size_;
+	}
+
+	void UpdateElements() override{
+		counter= 0;
+		for(auto &element: elements){
+			UpdateElement(element);
+		}
+	}
+
+	float CalcSizeY() override{	
+		float size= 0;
+		for(auto &element: elements){
+			size+= element->style.size.value().y +style.padding.value();
+		}
+		size+= style.font_size.value() +style.padding.value();
+		return size;
 	}
 };
 
@@ -681,7 +672,7 @@ public:
 					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
 					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) && !clicked_once){
 						element->status= did_click_L? S_CLICKED: S_HOVERED;
-						clicked_once= true;
+						// clicked_once= true;
 						element->CheckCollision();
 					}
 					else{
@@ -699,7 +690,7 @@ public:
 							panels.erase(panels.begin() +i);
 							panels.push_back(temp);
 						}
-						clicked_once= true;
+						// clicked_once= true;
 					}
 					else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
 							(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.padding.value()*2)) ){
@@ -734,7 +725,7 @@ public:
 
 	void Draw(){
 		for(auto &panel: panels){
-			panel->Draw();
+			panel->Draw(true);
 		}
 	}
 };

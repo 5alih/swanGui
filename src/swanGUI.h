@@ -406,10 +406,10 @@ public:
 	void Draw(bool is_parent) override{	// use scissoring
 		if(is_parent){
 			if(!utility.is_minimized.value()){
-				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 			}
 			else{
-				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
 			}
 		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
@@ -425,8 +425,8 @@ public:
 			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
 			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
-		// if(is_parent)
-			// EndScissorMode();
+		if(is_parent)
+			EndScissorMode();
 	}
 
 	void ApplyStyle(std::shared_ptr<GuiElement> element){
@@ -557,24 +557,18 @@ public:
 			}
 			ind++;
 		}
-
 		panel.style.position= style.position;
+		panel.style.size= style.size;
 
 		for(auto &element: panel.elements){
 			auto checkbox = std::dynamic_pointer_cast<Checkbox>(element);
 			bool old= *(checkbox->is_checked);
 			checkbox->Update();
-			if(old== true && *(checkbox->is_checked)== false){
-				*(checkbox->is_checked)= true;
-				printf("AAA\n");
-				break;
-			}
-			else if(old== false && *(checkbox->is_checked)== true){
+			if(old== false && *(checkbox->is_checked)== true){
 				for(auto &elem: panel.elements){
 					auto chbx = std::dynamic_pointer_cast<Checkbox>(elem);
 					if(chbx!= checkbox)
 					*(chbx->is_checked)= false;
-					printf("BBB\n");
 				}
 				break;
 			}

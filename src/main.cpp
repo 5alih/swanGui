@@ -36,7 +36,11 @@ int main()
 			sw(Panel)("please work", sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){
 				sw(Button)("test button", [](){}),
 				sw(Button)("test button", [](){}),
-				sw(Button)("test button", [](){}),
+				sw(RadioGroup)( "Select Language", util{}, add(Checkbox){
+					sw(Checkbox)("Turkish", my_bool_var1),
+					sw(Checkbox)("English", my_bool_var2),
+					sw(Checkbox)("Spanish", my_bool_var3),
+				}),
 				sw(Button)("test button", [](){}),
 
 				sw(Panel)("AAAAAAAAAAA",  sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){

@@ -13,30 +13,48 @@ int main()
 	bool my_bool_var1= false;
 	bool my_bool_var2= false;
 	bool my_bool_var3= false;
+	bool my_bool_var4= false;
+	bool my_bool_var5= false;
+	bool my_bool_var6= false;
+	bool my_bool_var7= false;
+	bool my_bool_var8= false;
 
 	SwanGui swanGui({
-		sw(Panel)("MY COOL PANEL", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font, .spacing= 10.0f }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
+		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
+			sw(Button)("Run scene", [](){}),
+			sw(Button)("Reset scene", [](){}),
+			sw(Panel)("Add level to", util{.can_minimize= true, .is_minimized= true}, add(GuiElement){
+				sw(Checkbox)("Indoor", my_bool_var1),
+				sw(Checkbox)("Outdoor", my_bool_var2),
+				sw(Checkbox)("Day", my_bool_var3),
+				sw(Checkbox)("Night", my_bool_var4),
+				sw(Checkbox)("Easy", my_bool_var5),
+				sw(Checkbox)("Moderate", my_bool_var6),
+			}),
+			sw(Button)("Save scene", [](){}),
 
-			sw(Selection)( "Select Language", util{.can_minimize= true}, add(GuiElement){
-				sw(Checkbox)("Turkish", my_bool_var1),
-				sw(Checkbox)("English", my_bool_var2),
-				sw(Selection)( "Select Language", util{.can_minimize= true}, add(GuiElement){
-					sw(Checkbox)("Turkish", my_bool_var1),
-					sw(Checkbox)("English", my_bool_var2),
-					sw(Checkbox)("Spanish", my_bool_var3),
-				}),	
-				sw(Checkbox)("Spanish", my_bool_var3),
+			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){
+				sw(RadioGroup)( "Connection Type", util{.can_minimize= true}, add(Checkbox){
+					sw(Checkbox)("TCP", my_bool_var1),
+					sw(Checkbox)("UDP", my_bool_var2),
+				}),
+				sw(RadioGroup)( "Second Window", util{.can_minimize= true}, add(Checkbox){
+					sw(Checkbox)("Left side", my_bool_var3),
+					sw(Checkbox)("Right side", my_bool_var4),
+					sw(Checkbox)("Open external", my_bool_var5),
+				}),
+				sw(Selection)( "Server Region", util{}, add(GuiElement){
+					sw(Checkbox)("Europe", my_bool_var6),
+					sw(Checkbox)("Asia", my_bool_var7),
+					sw(Checkbox)("America", my_bool_var8),
+				}),
 			}),
 
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			
-			sw(RadioGroup)( "Select Language", util{}, add(Checkbox){
+			sw(RadioGroup)( "Select Language", util{ .can_minimize= true }, add(Checkbox){
 				sw(Checkbox)("Turkish", my_bool_var1),
 				sw(Checkbox)("English", my_bool_var2),
 				sw(Checkbox)("Spanish", my_bool_var3),

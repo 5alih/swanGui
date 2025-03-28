@@ -560,6 +560,10 @@ public:
 			}
 			ind++;
 		}
+		if(panel.utility.can_minimize.value() && status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+			panel.utility.is_minimized.value()= !panel.utility.is_minimized.value();
+		}
+
 		panel.style.position= style.position;
 		panel.style.size= style.size;
 

@@ -24,9 +24,9 @@ int main()
 			sw(Button)("Run scene", [](){}),
 			sw(Button)("Reset scene", [](){}),
 			sw(Panel)("Add level to", util{.can_minimize= true, .is_minimized= true}, add(GuiElement){
-				sw(Checkbox)("Indoor", my_bool_var1),
-				sw(Checkbox)("Outdoor", my_bool_var2),
-				sw(Checkbox)("Day", my_bool_var3),
+				sw(Switch)("Indoor", my_bool_var1),
+				sw(Switch)("Outdoor", my_bool_var2),
+				sw(Switch)("Day", my_bool_var3),
 				sw(Checkbox)("Night", my_bool_var4),
 				sw(Checkbox)("Easy", my_bool_var5),
 				sw(Checkbox)("Moderate", my_bool_var6),

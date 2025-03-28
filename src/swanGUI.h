@@ -112,13 +112,13 @@ struct Style{
 	std::optional<Color> background_color_panel= hex("#131313");	// background color of the element
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
-	std::optional<Color> color_disabled= hex("#aaaaaa");
+	std::optional<Color> color_disabled= hex("#999999");
 	// std::optional<Color> color_accent= hex("#fdd835");
 	std::optional<Color> color_accent= hex("#dddddd");
 	// std::optional<Color> color_accent_hover= hex("#fff176");
 	std::optional<Color> color_accent_hover= hex("#eeeeee");
-	// std::optional<Color> color_accent_disabled= hex("##CBB867");
-	std::optional<Color> color_accent_disabled= hex("#aaaaaa");
+	// std::optional<Color> color_accent_disabled= hex("#ad993c");
+	std::optional<Color> color_accent_disabled= hex("#999999");
 	std::optional<Color> border_color= hex("#404040");		// border color of the element
 	std::optional<Color> border_color_hover= hex("#2C2C2C");
 	
@@ -240,6 +240,43 @@ public:
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 	}
 };
+
+class Switch: public GuiElement{
+	public:
+		bool *is_checked;
+	
+		Switch(const std::string text_, bool &is_checked_){
+			text= text_;
+			is_checked= &is_checked_;
+		}
+	
+		Switch(const std::string text_, bool &is_checked_, Style style_){
+			text= text_;
+			is_checked= &is_checked_;
+			style= style_;
+		}
+	
+		void Update(bool is_parent) override{
+			if(status== S_CLICKED && is_checked!= nullptr){
+				*is_checked= !(*is_checked);
+			}
+		}
+	
+		void Draw(bool is_parent) override{
+			Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
+			Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
+	
+			Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.font_size.value() *2.5f, style.size.value().y};
+			DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
+			//switch
+			float extra= (*is_checked)? style.font_size.value() *1.5f: 0;
+			rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
+			DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
+			
+			Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		}
+	};
 
 class Panel: public GuiElement{
 private:

@@ -242,41 +242,90 @@ public:
 };
 
 class Switch: public GuiElement{
-	public:
-		bool *is_checked;
-	
-		Switch(const std::string text_, bool &is_checked_){
-			text= text_;
-			is_checked= &is_checked_;
+public:
+	bool *is_checked;
+
+	Switch(const std::string text_, bool &is_checked_){
+		text= text_;
+		is_checked= &is_checked_;
+	}
+
+	Switch(const std::string text_, bool &is_checked_, Style style_){
+		text= text_;
+		is_checked= &is_checked_;
+		style= style_;
+	}
+
+	void Update(bool is_parent) override{
+		if(status== S_CLICKED && is_checked!= nullptr){
+			*is_checked= !(*is_checked);
 		}
-	
-		Switch(const std::string text_, bool &is_checked_, Style style_){
-			text= text_;
-			is_checked= &is_checked_;
-			style= style_;
-		}
-	
-		void Update(bool is_parent) override{
-			if(status== S_CLICKED && is_checked!= nullptr){
-				*is_checked= !(*is_checked);
-			}
-		}
-	
-		void Draw(bool is_parent) override{
-			Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
-			Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
-	
-			Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.font_size.value() *2.5f, style.size.value().y};
-			DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
-			//switch
-			float extra= (*is_checked)? style.font_size.value() *1.5f: 0;
-			rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
-			DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
-			
-			Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
-		}
-	};
+	}
+
+	void Draw(bool is_parent) override{
+		Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
+		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
+
+		Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.font_size.value() *2.5f, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
+		//switch
+		float extra= (*is_checked)? style.font_size.value() *1.5f: 0;
+		rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
+		
+		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+	}
+};
+
+class Slider: public GuiElement{
+public:
+	float *target;
+	float min= 0.0f;
+	float max= 100.0f;
+
+	Slider(const std::string text_, float &target_){
+		text= text_;
+		target= &target_;
+	}
+
+	Slider(const std::string text_, float &target_, Style style_){
+		text= text_;
+		target= &target_;
+		style= style_;
+	}
+
+    void Update(bool is_parent) override{
+        if (status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            float mouse= GetMousePosition().x;
+            float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
+            float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
+            float clamped= std::clamp(mouse, sliderLeft, sliderRight);
+
+            float normalizedValue= (clamped -sliderLeft)/(sliderRight -sliderLeft);
+            *target= min +normalizedValue *(max -min);
+        }
+    }
+
+	void Draw(bool is_parent) override{
+		Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
+		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
+
+		Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.size.value().x/2.0f, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
+
+		// float extra= (*target/max) *style.size.value().x/2.0f;
+		float extra= *target *(((style.size.value().x/2.0f) -style.font_size.value())/max);
+		rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
+		
+		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		
+		pos= {(style.position.value().x + style.size.value().x/4.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), (std::to_string(*target)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+	}
+};
 
 class Panel: public GuiElement{
 private:
@@ -444,10 +493,10 @@ public:
 	void Draw(bool is_parent) override{	// use scissoring
 		if(is_parent){
 			if(!utility.is_minimized.value()){
-				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 			}
 			else{
-				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
+				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
 			}
 		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
@@ -463,8 +512,9 @@ public:
 			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
 			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
-		if(is_parent)
-			EndScissorMode();
+		if(is_parent){
+			// EndScissorMode();
+		}
 	}
 
 	void ApplyStyle(std::shared_ptr<GuiElement> element){

@@ -18,6 +18,7 @@ int main()
 	bool my_bool_var6= false;
 	bool my_bool_var7= false;
 	bool my_bool_var8= false;
+	float my_float_var1= 15.0f;
 
 	SwanGui swanGui({
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
@@ -32,7 +33,7 @@ int main()
 				sw(Checkbox)("Moderate", my_bool_var6),
 			}),
 			sw(Button)("Save scene", [](){}),
-
+			
 			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){
 				sw(RadioGroup)( "Connection Type", util{.can_minimize= true}, add(Checkbox){
 					sw(Checkbox)("TCP", my_bool_var1),
@@ -49,7 +50,8 @@ int main()
 					sw(Checkbox)("America", my_bool_var8),
 				}),
 			}),
-
+			
+			sw(Slider)("FOV", my_float_var1),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),

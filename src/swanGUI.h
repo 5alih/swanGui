@@ -493,10 +493,10 @@ public:
 	void Draw(bool is_parent) override{	// use scissoring
 		if(is_parent){
 			if(!utility.is_minimized.value()){
-				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y);
 			}
 			else{
-				// BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
+				BeginScissorMode(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value());
 			}
 		}
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
@@ -513,7 +513,7 @@ public:
 			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
 		if(is_parent){
-			// EndScissorMode();
+			EndScissorMode();
 		}
 	}
 

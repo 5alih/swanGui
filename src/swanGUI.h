@@ -74,6 +74,24 @@ bool operator==(const Color& lhs, const Color& rhs){
 	return lhs.r== rhs.r && lhs.g== rhs.g && lhs.b== rhs.b && lhs.a== rhs.a;
 }
 
+std::string fit_string(std::string content, Font font, float font_size, float spacing, float size){
+	std::string shortened_content= "";
+	if(MeasureTextEx(font, (content).c_str(), font_size, spacing).x>= size){
+		int i= 0;
+		while(MeasureTextEx(font, shortened_content.c_str(), font_size, spacing).x< size -MeasureTextEx(font, "...", font_size, spacing).x*2){
+			shortened_content.push_back((content)[i]);
+			i++;
+		}
+		shortened_content.push_back('.');
+		shortened_content.push_back('.');
+		shortened_content.push_back('.');
+	}
+	else{
+		shortened_content= content;
+	}
+	return shortened_content;
+}
+
 std::string to_fstr(float value, int digits) {
 	char buffer[16];
 	if(digits== 1)	sprintf(buffer, "%.1f", value);
@@ -478,21 +496,7 @@ public:
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 
 		pos= {(style.position.value().x +style.size.value().x/2.0f +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 -style.font_size.value()/2)};
-		std::string shortened_content= "";
-		if(MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).x>= style.size.value().x/2.0f -style.padding.value()*2){
-			int i= 0;
-			while(MeasureTextEx(style.font.value(), shortened_content.c_str(), style.font_size.value(), style.spacing.value()).x< style.size.value().x/2.0f -style.padding.value()*2 -MeasureTextEx(style.font.value(), "...", style.font_size.value(), style.spacing.value()).x*2){
-				shortened_content.push_back((*content)[i]);
-				i++;
-			}
-			shortened_content.push_back('.');
-			shortened_content.push_back('.');
-			shortened_content.push_back('.');
-		}
-		else{
-			shortened_content= *content;
-		}
-		DrawTextEx(style.font.value(), shortened_content.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		DrawTextEx(style.font.value(), fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x/2.0f -style.padding.value()*2).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 	}
 };
 

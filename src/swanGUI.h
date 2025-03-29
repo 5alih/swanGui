@@ -133,7 +133,7 @@ std::string fit_string(const std::string& content, Font font, float font_size, f
         result+= "";
     }
 
-	result_count= std::clamp((int)lines.size(), 1, line_count) +1;
+	result_count= std::clamp((int)lines.size(), 1, line_count);
     return result;
 }
 
@@ -559,7 +559,7 @@ public:
 	}
 
 	float CalcSizeY() override{
-		return MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).y *result_lines;
+		return (MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).y +style.margin.value()/2.0f) *result_lines;
 	}
 };
 

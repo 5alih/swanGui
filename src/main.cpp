@@ -8,7 +8,7 @@ int main()
 	SetExitKey(KEY_NULL);
 	SetTargetFPS(144);
 
-	Font custom_font= LoadFontEx("resource/source-sans-pro.bold.ttf", 14, 0, 0);
+	Font custom_font= LoadFontEx("resource/Inter-Regular.ttf", 14, 0, 0);
 
 	bool my_bool_var1= false;
 	bool my_bool_var2= false;
@@ -24,13 +24,13 @@ int main()
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
 			sw(Button)("Run scene", [](){}),
 			sw(Button)("Reset scene", [](){}),
-			sw(Panel)("Add level to", util{.can_minimize= true, .is_minimized= true}, add(GuiElement){
+			sw(Panel)("Add level to", util{.can_minimize= true}, add(GuiElement){
 				sw(Switch)("Indoor", my_bool_var1),
 				sw(Switch)("Outdoor", my_bool_var2),
 				sw(Switch)("Day", my_bool_var3),
-				sw(Checkbox)("Night", my_bool_var4),
-				sw(Checkbox)("Easy", my_bool_var5),
-				sw(Checkbox)("Moderate", my_bool_var6),
+				sw(Switch)("Night", my_bool_var4),
+				sw(Switch)("Easy", my_bool_var5),
+				sw(Switch)("Moderate", my_bool_var6),
 			}),
 			sw(Button)("Save scene", [](){}),
 			
@@ -52,6 +52,7 @@ int main()
 			}),
 			
 			sw(Slider)("FOV", my_float_var1),
+			sw(Slider)("Health", my_float_var1),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),

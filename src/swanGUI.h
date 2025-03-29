@@ -74,6 +74,15 @@ bool operator==(const Color& lhs, const Color& rhs){
 	return lhs.r== rhs.r && lhs.g== rhs.g && lhs.b== rhs.b && lhs.a== rhs.a;
 }
 
+std::string to_fstr(float value, int digits) {
+	char buffer[16];
+	if(digits== 1)	sprintf(buffer, "%.1f", value);
+	else if(digits== 2)	sprintf(buffer, "%.2f", value);
+	else if(digits== 3)	sprintf(buffer, "%.3f", value);
+	else if(digits== 4)	sprintf(buffer, "%.4f", value);
+    std::string str= buffer;
+	return str;
+}
 
 enum enum_position{
 	P_NORMAL,		// default position of the element decided by the parent panel
@@ -109,7 +118,7 @@ struct Style{
 	std::optional<Color> background_color= hex("#202020");	// background color of the element
 	std::optional<Color> background_color_hover= hex("#2C2C2C");
 	std::optional<Color> background_color_click= hex("#010101");
-	std::optional<Color> background_color_panel= hex("#131313");	// background color of the element
+	std::optional<Color> background_color_panel= hex("#131313");
 	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
 	std::optional<Color> color_disabled= hex("#999999");
@@ -123,7 +132,7 @@ struct Style{
 	std::optional<Color> border_color_hover= hex("#2C2C2C");
 	
 	std::optional<bool> border= true;						// enables/ disables border
-	std::optional<int> border_radius= 3;						// for corner rounding, doesnt get effected by border is being disabled
+	std::optional<int> border_radius= 3;					// for corner rounding, doesnt get effected by border is being disabled
 	std::optional<float> padding= 3.0;						// horizontal padding between elements and borders; only effects panels
 	std::optional<float> margin= 3.0;						// vertical margin between elements; only effects panels
 	
@@ -131,7 +140,7 @@ struct Style{
 	std::optional<Font> font= g_font;						// for custom fonts
 	std::optional<float> spacing= 2.0f;						// spacing of letters in text
 
-	// std::optional<bool> legacy= false;						// design of legacy version (swanGui 1.0)
+	// std::optional<bool> legacy= false;					// design of legacy version (swanGui 1.0)
 };
 
 // utilities for panels, can be set per panel.
@@ -202,7 +211,7 @@ public:
 		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
-		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureText(text.c_str(), style.font_size.value())/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureTextEx(style.font.value(), text.c_str(), style.font_size.value(), style.spacing.value()).x/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 	}
 };
@@ -297,7 +306,7 @@ public:
 
     void Update(bool is_parent) override{
         if (status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-            float mouse= GetMousePosition().x;
+            float mouse= GetMousePosition().x -style.font_size.value()/2.0f;
             float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
             float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
             float clamped= std::clamp(mouse, sliderLeft, sliderRight);
@@ -322,8 +331,8 @@ public:
 		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 		
-		pos= {(style.position.value().x + style.size.value().x/4.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), (std::to_string(*target)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		pos= {(style.position.value().x +(style.size.value().x/4.0f)) /*-(MeasureTextEx(style.font.value(), (std::to_string((int)*target)).c_str(), style.font_size.value(), style.spacing.value()).x/2.0f)*/, (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), (to_fstr(*target, 2)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 	}
 };
 

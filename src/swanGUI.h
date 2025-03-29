@@ -487,16 +487,34 @@ public:
 		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
 		
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
-		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
+		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, color);
 		
 		rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y +style.margin.value()/2.0f, style.size.value().x/2.0f -style.padding.value(), style.size.value().y -style.margin.value()};
-		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.background_color_panel.value());
+		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, style.background_color_panel.value());
 
 		Vector2 pos= {(style.position.value().x +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
 		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 
 		pos= {(style.position.value().x +style.size.value().x/2.0f +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 -style.font_size.value()/2)};
 		DrawTextEx(style.font.value(), fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x/2.0f -style.padding.value()*2).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	}
+};
+
+class Divider: public GuiElement{
+public:
+	float thickness= 1.0f;
+	float percent= 1.0f;
+
+	Divider(float thickness_, float percent_){
+		thickness= thickness_;
+		percent= percent_;
+	}
+
+	void Update(bool is_parent) override{}
+
+	void Draw(bool is_parent) override{
+		Rectangle rectangle= {style.position.value().x +(style.size.value().x *(1.0f -percent))/2.0f, style.position.value().y +(style.size.value().y -thickness)/2.0f , style.size.value().x *percent, thickness};
+		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, style.border_color.value());
 	}
 };
 

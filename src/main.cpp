@@ -39,6 +39,7 @@ int main()
 			}),
 			sw(Button)("Save scene", [](){}),
 			sw(TextField)("Enter name", my_string_var),
+			sw(Divider)(10.0f, 0.9f),
 			sw(TextField)("This is a very long text", my_string_var),
 			
 			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){

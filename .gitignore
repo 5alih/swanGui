@@ -4,3 +4,6 @@ main
 resource/b.gif
 resource/a.png
 *.vscode
+main.code-workspace
+mainn.cpp
+src/actual.h

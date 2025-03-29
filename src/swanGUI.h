@@ -119,7 +119,7 @@ struct Style{
 	std::optional<Color> background_color_hover= hex("#2C2C2C");
 	std::optional<Color> background_color_click= hex("#010101");
 	std::optional<Color> background_color_panel= hex("#131313");
-	std::optional<Color> color= hex("#f5f5f5");				// text color of the element
+	std::optional<Color> color= hex("#dddddd");				// text color of the element
 	std::optional<Color> color_hover= hex("#FFFFFF");
 	std::optional<Color> color_disabled= hex("#999999");
 	// std::optional<Color> color_accent= hex("#fdd835");
@@ -293,19 +293,25 @@ public:
 	float min= 0.0f;
 	float max= 100.0f;
 
-	Slider(const std::string text_, float &target_){
+	Slider(const std::string text_, float &target_, float min_, float max_){
 		text= text_;
 		target= &target_;
+		min= min_;
+		max= max_;
 	}
 
-	Slider(const std::string text_, float &target_, Style style_){
+	Slider(const std::string text_, float &target_, float min_, float max_, Style style_){
 		text= text_;
 		target= &target_;
+		min= min_;
+		max= max_;
 		style= style_;
 	}
 
     void Update(bool is_parent) override{
-        if (status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+		if(*target< min) *target= min;
+		else if(*target> max) *target= max;
+        if(status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
             float mouse= GetMousePosition().x -style.font_size.value()/2.0f;
             float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
             float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
@@ -324,7 +330,10 @@ public:
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
 
 		// float extra= (*target/max) *style.size.value().x/2.0f;
-		float extra= *target *(((style.size.value().x/2.0f) -style.font_size.value())/max);
+		// float extra= (*target) *(((style.size.value().x/2.0f) -style.font_size.value())/max);
+
+		float extra= ((*target -min)/(max -min))*(style.size.value().x/2.0f -style.font_size.value());
+		
 		rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
 		

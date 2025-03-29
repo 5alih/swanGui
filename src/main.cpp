@@ -19,6 +19,7 @@ int main()
 	bool my_bool_var7= false;
 	bool my_bool_var8= false;
 	float my_float_var1= 15.0f;
+	float my_float_var2= 15.0f;
 
 	SwanGui swanGui({
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
@@ -30,6 +31,7 @@ int main()
 				sw(Switch)("Day", my_bool_var3),
 				sw(Switch)("Night", my_bool_var4),
 				sw(Switch)("Easy", my_bool_var5),
+				sw(Slider)("FOV", my_float_var1, 60, 120),
 				sw(Switch)("Moderate", my_bool_var6),
 			}),
 			sw(Button)("Save scene", [](){}),
@@ -51,8 +53,8 @@ int main()
 				}),
 			}),
 			
-			sw(Slider)("FOV", my_float_var1),
-			sw(Slider)("Health", my_float_var1),
+			sw(Slider)("FOV", my_float_var1, 60, 120),
+			sw(Slider)("Health", my_float_var2, 0, 100),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),

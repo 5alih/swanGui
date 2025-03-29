@@ -74,22 +74,67 @@ bool operator==(const Color& lhs, const Color& rhs){
 	return lhs.r== rhs.r && lhs.g== rhs.g && lhs.b== rhs.b && lhs.a== rhs.a;
 }
 
-std::string fit_string(std::string content, Font font, float font_size, float spacing, float size){
-	std::string shortened_content= "";
-	if(MeasureTextEx(font, (content).c_str(), font_size, spacing).x>= size){
-		int i= 0;
-		while(MeasureTextEx(font, shortened_content.c_str(), font_size, spacing).x< size -MeasureTextEx(font, "...", font_size, spacing).x*2){
-			shortened_content.push_back((content)[i]);
-			i++;
-		}
-		shortened_content.push_back('.');
-		shortened_content.push_back('.');
-		shortened_content.push_back('.');
+std::string cut_string(const std::string& content, Font font, float font_size, float spacing, float size) {
+    std::string shortened_content = "";
+	int i= 0;
+	while(i< (int)content.size() && MeasureTextEx(font, shortened_content.c_str(), font_size, spacing).x< size -MeasureTextEx(font, "...", font_size, spacing).x*2.0f){
+		shortened_content.push_back(content[i]);
+		i++;
 	}
+	shortened_content+= "...";
+    return shortened_content;
+}
+
+std::string fit_string(const std::string& content, Font font, float font_size, float spacing, float size, int line_count, int &result_count){
+    std::vector<std::string> lines;
+    std::string current_line= "";
+    std::string current_word= "";
+
+    for(char c: content){
+        if(c== ' '){
+            std::string test_line= current_line +current_word +" ";
+            if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
+                current_line+= current_word +" ";
+            }
+			else{
+                lines.push_back(current_line);
+                current_line= current_word +" ";
+            }
+            current_word= "";
+        }
+		else{
+            current_word+= c;
+        }
+    }
+    if(!current_word.empty()){
+        std::string test_line= current_line +current_word;
+        if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
+            current_line+= current_word;
+        }
+		else{
+            lines.push_back(current_line);
+            current_line= current_word;
+        }
+    }
+    if(!current_line.empty()){
+        lines.push_back(current_line);
+    }
+
+    std::string result;
+    int i= 0;
+    for (; i< line_count -1 && i< (int)lines.size(); i++){
+        result+= lines[i] +"\n";
+    }
+
+    if(i< (int)lines.size()){
+		result+= cut_string(lines[i], font, font_size, spacing, size);
+    }
 	else{
-		shortened_content= content;
-	}
-	return shortened_content;
+        result+= "";
+    }
+
+	result_count= std::clamp((int)lines.size(), 1, line_count) +1;
+    return result;
 }
 
 std::string to_fstr(float value, int digits) {
@@ -441,15 +486,30 @@ class TextField: public GuiElement{
 public:
 	std::string *content;
 	bool reading_input= false;
+	int lines= 1;
+	int result_lines= 1;
 
 	TextField(std::string text_, std::string &content_){
 		text= text_;
 		content= &content_;
 	}
 
+	TextField(std::string text_, std::string &content_, int lines_){
+		text= text_;
+		content= &content_;
+		lines= lines_;
+	}
+
 	TextField(std::string text_, std::string &content_, Style style_){
 		text= text_;
 		content= &content_;
+		style= style_;
+	}
+
+	TextField(std::string text_, std::string &content_, int lines_, Style style_){
+		text= text_;
+		content= &content_;
+		lines= lines_;
 		style= style_;
 	}
 
@@ -468,7 +528,6 @@ public:
 			std::string input= *content;
 
 			while(key> 0){
-				// if(MeasureTextEx(style.font.value(), input.c_str(), style.font_size.value(), style.spacing.value()).x< style.size.value().x)
 				input+= (char)key;
 				key= GetCharPressed();
 			}
@@ -484,19 +543,23 @@ public:
 	}
 
 	void Draw(bool is_parent) override{
-		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
-		
+		Color color= (reading_input)? style.background_color_hover.value(): style.background_color_panel.value();
+
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
-		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, color);
+		DrawRectangleRounded(rectangle, 0.0f, 0, color);
 		
-		rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y +style.margin.value()/2.0f, style.size.value().x/2.0f -style.padding.value(), style.size.value().y -style.margin.value()};
-		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, style.background_color_panel.value());
+		color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.border_color_hover.value() :style.border_color.value();
+		DrawRectangleRoundedLines(rectangle, 0.0f, 0, 1.0f, color);
+		
+		Vector2 pos= {style.position.value().x +style.padding.value(), style.position.value().y};
+		if(lines== 1)
+			DrawTextEx(style.font.value(), cut_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		else
+			DrawTextEx(style.font.value(), fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f, lines, result_lines).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	}
 
-		Vector2 pos= {(style.position.value().x +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
-
-		pos= {(style.position.value().x +style.size.value().x/2.0f +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 -style.font_size.value()/2)};
-		DrawTextEx(style.font.value(), fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x/2.0f -style.padding.value()*2).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	float CalcSizeY() override{
+		return MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).y *result_lines;
 	}
 };
 

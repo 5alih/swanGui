@@ -21,6 +21,7 @@ int main()
 	float my_float_var1= 15.0f;
 	float my_float_var2= 15.0f;
 	int my_int_var1= 15;
+	std::string my_string_var= "Hello, World!";
 
 	SwanGui swanGui({
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 150}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
@@ -37,6 +38,8 @@ int main()
 				sw(Switch)("Moderate", my_bool_var6),
 			}),
 			sw(Button)("Save scene", [](){}),
+			sw(TextField)("Enter name", my_string_var),
+			sw(TextField)("This is a very long text", my_string_var),
 			
 			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){
 				sw(RadioGroup)( "Connection Type", util{.can_minimize= true}, add(Checkbox){

@@ -129,7 +129,7 @@ struct Style{
 	// std::optional<Color> color_accent_disabled= hex("#ad993c");
 	std::optional<Color> color_accent_disabled= hex("#999999");
 	std::optional<Color> border_color= hex("#404040");		// border color of the element
-	std::optional<Color> border_color_hover= hex("#2C2C2C");
+	std::optional<Color> border_color_hover= hex("#505050");
 	
 	std::optional<bool> border= true;						// enables/ disables border
 	std::optional<int> border_radius= 3;					// for corner rounding, doesnt get effected by border is being disabled
@@ -419,6 +419,83 @@ public:
 	}
 };
 
+class TextField: public GuiElement{
+public:
+	std::string *content;
+	bool reading_input= false;
+
+	TextField(std::string text_, std::string &content_){
+		text= text_;
+		content= &content_;
+	}
+
+	TextField(std::string text_, std::string &content_, Style style_){
+		text= text_;
+		content= &content_;
+		style= style_;
+	}
+
+	void Update(bool is_parent) override{
+		if(!content) return;
+
+		if(status== S_CLICKED){
+			reading_input= true;
+		}
+		else if((status!= S_HOVERED && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
+			reading_input= false;
+		}
+
+		if(reading_input){
+			int key= GetCharPressed();
+			std::string input= *content;
+
+			while(key> 0){
+				// if(MeasureTextEx(style.font.value(), input.c_str(), style.font_size.value(), style.spacing.value()).x< style.size.value().x)
+				input+= (char)key;
+				key= GetCharPressed();
+			}
+
+			if(IsKeyPressed(KEY_BACKSPACE) && !input.empty()){
+				input.pop_back();
+				if(IsKeyDown(KEY_LEFT_CONTROL)){
+					input.erase();
+				}
+			}
+			*content= input;
+		}
+	}
+
+	void Draw(bool is_parent) override{
+		Color color= (status== S_HOVERED)? (status== S_CLICKED)?style.background_color_click.value() :style.background_color_hover.value() :style.background_color.value();
+		
+		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
+		
+		rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y +style.margin.value()/2.0f, style.size.value().x/2.0f -style.padding.value(), style.size.value().y -style.margin.value()};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.background_color_panel.value());
+
+		Vector2 pos= {(style.position.value().x +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+
+		pos= {(style.position.value().x +style.size.value().x/2.0f +style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 -style.font_size.value()/2)};
+		std::string shortened_content= "";
+		if(MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).x>= style.size.value().x/2.0f -style.padding.value()*2){
+			int i= 0;
+			while(MeasureTextEx(style.font.value(), shortened_content.c_str(), style.font_size.value(), style.spacing.value()).x< style.size.value().x/2.0f -style.padding.value()*2 -MeasureTextEx(style.font.value(), "...", style.font_size.value(), style.spacing.value()).x*2){
+				shortened_content.push_back((*content)[i]);
+				i++;
+			}
+			shortened_content.push_back('.');
+			shortened_content.push_back('.');
+			shortened_content.push_back('.');
+		}
+		else{
+			shortened_content= *content;
+		}
+		DrawTextEx(style.font.value(), shortened_content.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+	}
+};
+
 class Panel: public GuiElement{
 private:
 	int counter= 0;
@@ -594,8 +671,8 @@ public:
 		DrawRectangleV(style.position.value(), style.size.value(), style.background_color_panel.value());
 		if(!utility.is_minimized.value()){
 			for(auto &element: elements){
-				// if(element->style.position.value().y> style.position.value().y && (element->style.position.value().y /*+element->style.size.value().y*/< style.position.value().y +style.size.value().y))
-				element->Draw(false);
+				if(element->style.position.value().y +element->style.size.value().y> style.position.value().y && (element->style.position.value().y /*+element->style.size.value().y*/< style.position.value().y +style.size.value().y))
+					element->Draw(false);
 			}
 		}
 		if(style.border.value()){

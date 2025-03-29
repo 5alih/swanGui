@@ -80,7 +80,7 @@ std::string to_fstr(float value, int digits) {
 	else if(digits== 2)	sprintf(buffer, "%.2f", value);
 	else if(digits== 3)	sprintf(buffer, "%.3f", value);
 	else if(digits== 4)	sprintf(buffer, "%.4f", value);
-    std::string str= buffer;
+	std::string str= buffer;
 	return str;
 }
 
@@ -308,19 +308,19 @@ public:
 		style= style_;
 	}
 
-    void Update(bool is_parent) override{
+	void Update(bool is_parent) override{
 		if(*target< min) *target= min;
 		else if(*target> max) *target= max;
-        if(status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-            float mouse= GetMousePosition().x -style.font_size.value()/2.0f;
-            float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
-            float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
-            float clamped= std::clamp(mouse, sliderLeft, sliderRight);
+		if(status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+			float mouse= GetMousePosition().x -style.font_size.value()/2.0f;
+			float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
+			float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
+			float clamped= std::clamp(mouse, sliderLeft, sliderRight);
 
-            float normalizedValue= (clamped -sliderLeft)/(sliderRight -sliderLeft);
-            *target= min +normalizedValue *(max -min);
-        }
-    }
+			float normalizedValue= (clamped -sliderLeft)/(sliderRight -sliderLeft);
+			*target= min +normalizedValue *(max -min);
+		}
+	}
 
 	void Draw(bool is_parent) override{
 		Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
@@ -329,11 +329,8 @@ public:
 		Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.size.value().x/2.0f, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
 
-		// float extra= (*target/max) *style.size.value().x/2.0f;
-		// float extra= (*target) *(((style.size.value().x/2.0f) -style.font_size.value())/max);
-
 		float extra= ((*target -min)/(max -min))*(style.size.value().x/2.0f -style.font_size.value());
-		
+
 		rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
 		
@@ -342,6 +339,83 @@ public:
 		
 		pos= {(style.position.value().x +(style.size.value().x/4.0f)) /*-(MeasureTextEx(style.font.value(), (std::to_string((int)*target)).c_str(), style.font_size.value(), style.spacing.value()).x/2.0f)*/, (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), (to_fstr(*target, 2)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+	}
+};
+
+class Stepper: public GuiElement{
+public:
+	int *target;
+	int min= 0;
+	int max= 100;
+	int step= 1;
+
+	Stepper(const std::string text_, int &target_, int min_, int max_){
+		text= text_;
+		target= &target_;
+		min= min_;
+		max= max_;
+	}
+
+	Stepper(const std::string text_, int &target_, int min_, int max_, int step_){
+		text= text_;
+		target= &target_;
+		min= min_;
+		max= max_;
+		step= step_;
+	}
+
+	Stepper(const std::string text_, int &target_, int min_, int max_, Style style_){
+		text= text_;
+		target= &target_;
+		min= min_;
+		max= max_;
+		style= style_;
+	}
+
+	Stepper(const std::string text_, int &target_, int min_, int max_, int step_, Style style_){
+		text= text_;
+		target= &target_;
+		min= min_;
+		max= max_;
+		step= step_;
+		style= style_;
+	}
+
+	void Update(bool is_parent) override{
+		if(*target< min) *target= min;
+		else if(*target> max) *target= max;
+		if(status== S_HOVERED && IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+			float mouse= GetMousePosition().x -style.font_size.value()/2.0f;
+			float sliderLeft= style.position.value().x +style.size.value().x/2.0f;
+			float sliderRight= sliderLeft +style.size.value().x/2.0f -style.font_size.value();
+			float clamped= std::clamp(mouse, sliderLeft, sliderRight);
+
+			float normalizedValue= (int)(clamped -sliderLeft)/(sliderRight -sliderLeft);
+			*target= min +normalizedValue *(max -min);
+			if(*target%step!= 0){
+				int mult= *target/step;
+				*target= mult *step;
+			}
+		}
+	}
+
+	void Draw(bool is_parent) override{
+		Color color_box= (status== S_HOVERED)? (status== S_CLICKED)? style.background_color_click.value(): style.color_accent_hover.value(): style.color_accent.value();
+		Color color_text= (status== S_HOVERED)? style.color_hover.value(): style.color.value();
+
+		Rectangle rectangle= {style.position.value().x +style.size.value().x/2.0f, style.position.value().y, style.size.value().x/2.0f, style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, style.color_accent_disabled.value());
+
+		float extra= ((float)(*target -min)/(float)(max -min))*(style.size.value().x/2.0f -style.font_size.value());
+
+		rectangle= {style.position.value().x +style.size.value().x/2.0f +extra, style.position.value().y, (float)style.font_size.value(), style.size.value().y};
+		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
+		
+		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		
+		pos= {(style.position.value().x +(style.size.value().x/4.0f)) /*-(MeasureTextEx(style.font.value(), (std::to_string((int)*target)).c_str(), style.font_size.value(), style.spacing.value()).x/2.0f)*/, (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
+		DrawTextEx(style.font.value(), (std::to_string(*target)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 	}
 };
 
@@ -728,12 +802,12 @@ public:
 
 		panel.Update(false);
 
-        for(auto &element: panel.elements){
-            if(element->status== S_CLICKED){
-                panel.utility.is_minimized.value()= true;
-                break;
-            }
-        }
+		for(auto &element: panel.elements){
+			if(element->status== S_CLICKED){
+				panel.utility.is_minimized.value()= true;
+				break;
+			}
+		}
 		if(status== S_HOVERED_HEADER && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
 			panel.utility.is_minimized.value()= false;
 			

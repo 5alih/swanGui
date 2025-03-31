@@ -679,15 +679,33 @@ public:
 			if((status== S_HOVERED_RIGHT || status== S_HOVERED_CORNER) && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
 				utility.is_rescaling_h.value()= true;
 			}
-			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)){
+			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE) && utility.is_rescaling_h.value()){
+				Vector2 fixed_size;
+				fixed_size.x= (int)(style.size.value().x/ utility.grid_size.value());
+
+				fixed_size.x= ( ((fixed_size.x *utility.grid_size.value()) -style.size.value().x) *(-1)< (((fixed_size.x +1) *utility.grid_size.value()) -style.size.value().x)) ?
+					fixed_size.x *utility.grid_size.value(): (fixed_size.x +1) *utility.grid_size.value();
+
+				style.size.value().x= fixed_size.x;
+
 				utility.is_rescaling_h.value()= false;
+				UpdateElements();
 			}
 
 			if((status== S_HOVERED_BOTTOM || status== S_HOVERED_CORNER) && IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
 				utility.is_rescaling_v.value()= true;
 			}
-			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)){
+			else if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE) && utility.is_rescaling_v.value()){
+				Vector2 fixed_size;
+				fixed_size.y= (int)(style.size.value().y/ utility.grid_size.value());
+
+				fixed_size.y= ( ((fixed_size.y *utility.grid_size.value()) -style.size.value().y) *(-1)< (((fixed_size.y +1) *utility.grid_size.value()) -style.size.value().y)) ?
+					fixed_size.y *utility.grid_size.value(): (fixed_size.y +1) *utility.grid_size.value();
+
+				style.size.value().y= fixed_size.y;
+
 				utility.is_rescaling_v.value()= false;
+				UpdateElements();
 			}
 
 			if(utility.is_rescaling_h.value()){

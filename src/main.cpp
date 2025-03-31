@@ -9,6 +9,7 @@ int main()
 	SetTargetFPS(144);
 
 	Font custom_font= LoadFontEx("resource/Inter-Regular.ttf", 14, 0, 0);
+	Font custom_font2= LoadFontEx("resource/Inter-Regular.ttf", 32, 0, 0);
 
 	bool my_bool_var1= false;
 	bool my_bool_var2= false;
@@ -108,7 +109,7 @@ int main()
 		
 		sw(Panel)("test", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
 			sw(TextField)("Enter name", my_string_var),
-			sw(TextField)("Enter name", my_string_var, 10),
+			sw(TextField)("Enter name", my_string_var, 10, sx{.font_size= 32, .font= custom_font2}),
 			sw(Button)("test button", [](){}),
 		}),
 	});

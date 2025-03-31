@@ -85,7 +85,7 @@ std::string cut_string(const std::string& content, Font font, float font_size, f
     return shortened_content;
 }
 
-std::string fit_string(const std::string& content, Font font, float font_size, float spacing, float size, int line_count, int &result_count){
+std::vector<std::string> fit_string2(const std::string& content, Font font, float font_size, float spacing, float size, int line_count){
     std::vector<std::string> lines;
     std::string current_line= "";
     std::string current_word= "";
@@ -120,21 +120,11 @@ std::string fit_string(const std::string& content, Font font, float font_size, f
         lines.push_back(current_line);
     }
 
-    std::string result;
-    int i= 0;
-    for (; i< line_count -1 && i< (int)lines.size(); i++){
-        result+= lines[i] +"\n";
+    if(line_count< (int)lines.size()){
+		lines[line_count -1]= cut_string(lines[line_count -1], font, font_size, spacing, size);
     }
 
-    if(i< (int)lines.size()){
-		result+= cut_string(lines[i], font, font_size, spacing, size);
-    }
-	else{
-        result+= "";
-    }
-
-	result_count= std::clamp((int)lines.size(), 1, line_count);
-    return result;
+    return lines;
 }
 
 std::string to_fstr(float value, int digits) {
@@ -486,18 +476,18 @@ class TextField: public GuiElement{
 public:
 	std::string *content;
 	bool reading_input= false;
-	int lines= 1;
-	int result_lines= 1;
+	int line_count= 1;
+	std::vector<std::string> lines;
 
 	TextField(std::string text_, std::string &content_){
 		text= text_;
 		content= &content_;
 	}
 
-	TextField(std::string text_, std::string &content_, int lines_){
+	TextField(std::string text_, std::string &content_, int line_count_){
 		text= text_;
 		content= &content_;
-		lines= lines_;
+		line_count= line_count_;
 	}
 
 	TextField(std::string text_, std::string &content_, Style style_){
@@ -506,10 +496,10 @@ public:
 		style= style_;
 	}
 
-	TextField(std::string text_, std::string &content_, int lines_, Style style_){
+	TextField(std::string text_, std::string &content_, int line_count_, Style style_){
 		text= text_;
 		content= &content_;
-		lines= lines_;
+		line_count= line_count_;
 		style= style_;
 	}
 
@@ -552,14 +542,20 @@ public:
 		DrawRectangleRoundedLines(rectangle, 0.0f, 0, 1.0f, color);
 		
 		Vector2 pos= {style.position.value().x +style.padding.value(), style.position.value().y};
-		if(lines== 1)
+		if(line_count== 1)
 			DrawTextEx(style.font.value(), cut_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
-		else
-			DrawTextEx(style.font.value(), fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f, lines, result_lines).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		else{
+			lines= fit_string2(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value() *2.0f, line_count);
+			for(int i= 0; i< line_count && i< (int)lines.size(); i++){
+				DrawTextEx(style.font.value(), lines[i].c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+				pos.y+= style.font_size.value();
+			}
+		}
 	}
 
 	float CalcSizeY() override{
-		return (MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).y +style.margin.value()/2.0f) *result_lines;
+		int size= std::clamp((int)lines.size(), 1, line_count);
+		return (MeasureTextEx(style.font.value(), (*content).c_str(), style.font_size.value(), style.spacing.value()).y) *size;
 	}
 };
 

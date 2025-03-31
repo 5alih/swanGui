@@ -53,7 +53,7 @@ int main()
 					sw(Checkbox)("Right side", my_bool_var4),
 					sw(Checkbox)("Open external", my_bool_var5),
 				}),
-				sw(Selection)( "Server Region", util{}, add(GuiElement){
+				sw(RadioGroup)( "Server Region", util{}, add(Checkbox){
 					sw(Checkbox)("Europe", my_bool_var6),
 					sw(Checkbox)("Asia", my_bool_var7),
 					sw(Checkbox)("America", my_bool_var8),
@@ -78,7 +78,7 @@ int main()
 			sw(Panel)("please work", sx{.padding= 5}, util{.can_minimize= true, .is_minimized= false, .can_rescale= true, .can_move= true}, add(GuiElement){
 				sw(Button)("test button", [](){}),
 				sw(Button)("test button", [](){}),
-				sw(Selection)( "Select Language", util{}, add(GuiElement){
+				sw(RadioGroup)( "Select Language", util{}, add(Checkbox){
 					sw(Checkbox)("Turkish", my_bool_var1),
 					sw(Checkbox)("English", my_bool_var2),
 					sw(Checkbox)("Spanish", my_bool_var3),

@@ -75,56 +75,56 @@ bool operator==(const Color& lhs, const Color& rhs){
 }
 
 std::string cut_string(const std::string& content, Font font, float font_size, float spacing, float size) {
-    std::string shortened_content = "";
+	std::string shortened_content= "";
 	int i= 0;
 	while(i< (int)content.size() && MeasureTextEx(font, shortened_content.c_str(), font_size, spacing).x< size -MeasureTextEx(font, "...", font_size, spacing).x*2.0f){
 		shortened_content.push_back(content[i]);
 		i++;
 	}
 	shortened_content+= "...";
-    return shortened_content;
+	return shortened_content;
 }
 
 std::vector<std::string> fit_string2(const std::string& content, Font font, float font_size, float spacing, float size, int line_count){
-    std::vector<std::string> lines;
-    std::string current_line= "";
-    std::string current_word= "";
+	std::vector<std::string> lines;
+	std::string current_line= "";
+	std::string current_word= "";
 
-    for(char c: content){
-        if(c== ' '){
-            std::string test_line= current_line +current_word +" ";
-            if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
-                current_line+= current_word +" ";
-            }
+	for(char c: content){
+		if(c== ' '){
+			std::string test_line= current_line +current_word +" ";
+			if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
+				current_line+= current_word +" ";
+			}
 			else{
-                lines.push_back(current_line);
-                current_line= current_word +" ";
-            }
-            current_word= "";
-        }
+				lines.push_back(current_line);
+				current_line= current_word +" ";
+			}
+			current_word= "";
+		}
 		else{
-            current_word+= c;
-        }
-    }
-    if(!current_word.empty()){
-        std::string test_line= current_line +current_word;
-        if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
-            current_line+= current_word;
-        }
+			current_word+= c;
+		}
+	}
+	if(!current_word.empty()){
+		std::string test_line= current_line +current_word;
+		if(MeasureTextEx(font, test_line.c_str(), font_size, spacing).x<= size){
+			current_line+= current_word;
+		}
 		else{
-            lines.push_back(current_line);
-            current_line= current_word;
-        }
-    }
-    if(!current_line.empty()){
-        lines.push_back(current_line);
-    }
+			lines.push_back(current_line);
+			current_line= current_word;
+		}
+	}
+	if(!current_line.empty()){
+		lines.push_back(current_line);
+	}
 
-    if(line_count< (int)lines.size()){
+	if(line_count< (int)lines.size()){
 		lines[line_count -1]= cut_string(lines[line_count -1], font, font_size, spacing, size);
-    }
+	}
 
-    return lines;
+	return lines;
 }
 
 std::string to_fstr(float value, int digits) {
@@ -509,7 +509,7 @@ public:
 		if(status== S_CLICKED){
 			reading_input= true;
 		}
-		else if((status!= S_HOVERED && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
+		else if((reading_input && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)){
 			reading_input= false;
 		}
 
@@ -923,12 +923,12 @@ public:
 		panel.style.size= style.size;
 
 		for(auto &element: panel.elements){
-			auto checkbox = std::dynamic_pointer_cast<Checkbox>(element);
+			auto checkbox= std::dynamic_pointer_cast<Checkbox>(element);
 			bool old= *(checkbox->is_checked);
 			checkbox->Update(false);
 			if(old== false && *(checkbox->is_checked)== true){
 				for(auto &elem: panel.elements){
-					auto chbx = std::dynamic_pointer_cast<Checkbox>(elem);
+					auto chbx= std::dynamic_pointer_cast<Checkbox>(elem);
 					if(chbx!= checkbox)
 					*(chbx->is_checked)= false;
 				}
@@ -1024,74 +1024,93 @@ public:
 
 	// will check each panel to see if mouse is over
 	// and if so search the elements in panel to set hovered element's status
-	void UpdateElementHovered(){
+	void HandleClick() {
 		Vector2 mouse= GetMousePosition();
 		bool did_click_L= IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 		bool did_click_M= IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE);
 		bool clicked_once= false;
-
+		
 		for(int i= (int)panels.size() -1; i>= 0; i--){
-			auto &panel= panels[i]; 
-			// if the cursor is on the panel
-			if((panel->style.position.value().x< mouse.x) && (mouse.x< (panel->style.position.value().x +panel->style.size.value().x)) &&
-			   (panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.size.value().y)) ){
-
-				// if the cursor is on the element
-				for(auto &element: panel->elements){
-					if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
-					   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.size.value().y)) && !clicked_once){
-						element->status= did_click_L? S_CLICKED: S_HOVERED;
+			auto &panel= panels[i];
+			
+			Vector2 panelPos= panel->style.position.value();
+			Vector2 panelSize= panel->style.size.value();
+			float panelPadding= panel->style.padding.value();
+			float panelMargin= panel->style.margin.value();
+			float panelFontSize= panel->style.font_size.value();
+			
+			// Check if the cursor is on the panel
+			if((panelPos.x< mouse.x) && (mouse.x< (panelPos.x +panelSize.x)) &&
+			   (panelPos.y< mouse.y) && (mouse.y< (panelPos.y +panelSize.y)) ){
+				
+				// Check elements first
+				for(auto &element : panel->elements) {
+					Vector2 elemPos= element->style.position.value();
+					Vector2 elemSize= element->style.size.value();
+					
+					if((elemPos.x< mouse.x) && (mouse.x< (elemPos.x +elemSize.x)) &&
+					   (elemPos.y< mouse.y) && (mouse.y< (elemPos.y +elemSize.y)) && !clicked_once){
+						
+						element->status= did_click_L ? S_CLICKED : S_HOVERED;
 						clicked_once= true;
-						if(element->CheckCollision()){
-							if((element->style.position.value().x< mouse.x) && (mouse.x< (element->style.position.value().x +element->style.size.value().x)) &&
-							   (element->style.position.value().y< mouse.y) && (mouse.y< (element->style.position.value().y +element->style.font_size.value()))){
-									element->status= S_HOVERED_HEADER;
-								}
+						
+						if(element->CheckCollision()) {
+							float elemFontSize= element->style.font_size.value();
+							
+							if((elemPos.x< mouse.x) && (mouse.x< (elemPos.x +elemSize.x)) &&
+							   (elemPos.y< mouse.y) && (mouse.y< (elemPos.y +elemFontSize))){
+								element->status= S_HOVERED_HEADER;
 							}
+						}
 					}
 					else{
 						if(element->status!= S_DISABLED)
 							element->status= S_NORMAL;
 					}
 				}
-
+				
+				// Panel check if no element was clicked
 				if(!clicked_once){
-					// if the cursor is on the panel header
-					if((panel->style.position.value().y< mouse.y) && (mouse.y< (panel->style.position.value().y +panel->style.font_size.value())) ){
+					// If cursor is on the panel header
+					if((panelPos.y< mouse.y) && (mouse.y< (panelPos.y +panelFontSize))){
 						panel->status= S_HOVERED_HEADER;
-						if(did_click_M || did_click_L){
-							auto temp= panel;
-							panels.erase(panels.begin() +i);
-							panels.push_back(temp);
-						}
 						clicked_once= true;
 					}
-					else if((mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)) &&
-							(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.margin.value()*2)) ){
+					// If cursor is on the resize corner
+					else if((mouse.x> panelPos.x +panelSize.x -(panelPadding *2)) &&
+							(mouse.y> panelPos.y +panelSize.y -(panelMargin *2))){
 						panel->status= S_HOVERED_CORNER;
 					}
-					// if the cursor is on the right border
-					else if(mouse.x> panel->style.position.value().x +panel->style.size.value().x -(panel->style.padding.value()*2)){
+					// If cursor is on the right border
+					else if(mouse.x> panelPos.x +panelSize.x -(panelPadding *2)){
 						panel->status= S_HOVERED_RIGHT;
 					}
-					//if the cursor is on the bottom border
-					else if(mouse.y> panel->style.position.value().y +panel->style.size.value().y -(panel->style.margin.value()*2)){
+					// If cursor is on the bottom border
+					else if(mouse.y> panelPos.y +panelSize.y -(panelMargin *2)){
 						panel->status= S_HOVERED_BOTTOM;
 					}
 					else{
 						panel->status= S_HOVERED;
 					}
 				}
+				
+				if(did_click_L || did_click_M){
+					auto temp= panel;
+					panels.erase(panels.begin() +i);
+					panels.push_back(temp);
+					break;
+				}
 			}
 			else{
-				if(panel->status!= S_DISABLED)
+				// Cursor not on panel
+				if(panel->status != S_DISABLED)
 					panel->status= S_NORMAL;
 			}
 		}
 	}
 
 	void Update(){
-		UpdateElementHovered();
+		HandleClick();
 		for(auto &panel: panels){
 			panel->Update(true);
 			panel->UpdateElements();

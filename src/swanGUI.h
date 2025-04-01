@@ -91,7 +91,7 @@ std::string cut_string(const std::string& content, Font font, float font_size, f
 	return shortened_content;
 }
 
-std::vector<std::string> fit_string2(const std::string& content, Font font, float font_size, float spacing, float size, int line_count){
+std::vector<std::string> fit_string(const std::string& content, Font font, float font_size, float spacing, float size, int line_count){
 	std::vector<std::string> lines;
 	std::string current_line= "";
 	std::string current_word= "";
@@ -594,7 +594,7 @@ public:
 		if(line_count== 1)
 			DrawTextEx(style.font.value(), cut_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		else{
-			lines= fit_string2(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value() *2.0f, line_count);
+			lines= fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value() *2.0f, line_count);
 			for(int i= 0; i< line_count && i< (int)lines.size(); i++){
 				DrawTextEx(style.font.value(), lines[i].c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 				pos.y+= style.font_size.value();
@@ -623,6 +623,30 @@ public:
 	void Draw(bool is_parent) override{
 		Rectangle rectangle= {style.position.value().x +(style.size.value().x *(1.0f -percent))/2.0f, style.position.value().y +(style.size.value().y -thickness)/2.0f , style.size.value().x *percent, thickness};
 		DrawRectangleRounded(rectangle, style.border_radius.value()/10.0f, 2, style.border_color.value());
+	}
+};
+
+class Typography: public GuiElement{
+public:
+	Typography(std::string text_){
+		text= text_;
+	}
+
+	Typography(std::string text_, Style style_){
+		text= text_;
+		style= style_;
+	}
+
+	void Update(bool is_parent) override{}
+
+	void Draw(bool is_parent) override{
+		Vector2 pos= {style.position.value().x, style.position.value().y};
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		}
 	}
 };
 

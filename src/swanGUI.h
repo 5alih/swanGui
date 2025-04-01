@@ -49,6 +49,12 @@
 inline Vector2 g_mouse_position= GetMousePosition();
 inline int g_font_size= 14;
 inline Font g_font= GetFontDefault();
+inline Font g_icon_font= GetFontDefault();
+
+#define CODEPOINT_START 0xE000
+#define CODEPOINT_END 0xf8ff
+inline int g_codepoint_count= CODEPOINT_END -CODEPOINT_START +1;
+inline int g_codepoints[CODEPOINT_END -CODEPOINT_START +1];
 
 inline Color hex(const std::string &hex_code_){
 	std::string hex_code= hex_code_;
@@ -137,6 +143,15 @@ std::string to_fstr(float value, int digits) {
 	return str;
 }
 
+void DrawTextIcon(const char* icon, const char* text, Vector2 position, float fontSize, float spacing, Font iconFont, Font textFont, Color iconColor, Color textColor){
+	DrawTextEx(iconFont, icon, position, fontSize, 1, iconColor);
+
+	float icon_width= MeasureTextEx(iconFont, icon, fontSize, 1).x;
+	Vector2 textPos= {position.x +icon_width +spacing, position.y};
+
+	DrawTextEx(textFont, text, textPos, fontSize, 1, textColor);
+}
+
 enum enum_position{
 	P_NORMAL,		// default position of the element decided by the parent panel
 	P_FIXED,		// fixed position relative to top left corner, doesnt get effected by anything
@@ -168,6 +183,11 @@ struct Style{
 	std::optional<Vector2> size= (Vector2){100, 100};		// size in (width, height)
 	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
 	
+	std::optional<char> icon= '?';
+	std::optional<Color> icon_color= hex("#dddddd");
+	std::optional<float> icon_size= g_font_size;
+	std::optional<Font> icon_font= g_icon_font;
+
 	std::optional<Color> background_color= hex("#202020");	// background color of the element
 	std::optional<Color> background_color_hover= hex("#2C2C2C");
 	std::optional<Color> background_color_click= hex("#010101");
@@ -1008,10 +1028,24 @@ public:
 class SwanGui{
 public:
 	std::vector<std::shared_ptr<Panel>> panels;
-	
+
+	void LoadIconFont(std::string path, float font_size){
+		for(int i= 0; i< g_codepoint_count; i++) g_codepoints[i]= CODEPOINT_START +i;
+		g_icon_font= LoadFontEx(path.c_str(), font_size, g_codepoints, g_codepoint_count);
+	}
+
 	SwanGui(){}
 
+	SwanGui(std::string path_, float font_size_){
+		LoadIconFont(path_, font_size_);
+	}
+
 	SwanGui( std::vector<std::shared_ptr<Panel>> panels_ ){
+		panels= panels_;
+	}
+
+	SwanGui(std::string path_, float font_size_, std::vector<std::shared_ptr<Panel>> panels_ ){
+		LoadIconFont(path_, font_size_);
 		panels= panels_;
 	}
 

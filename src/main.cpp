@@ -1,4 +1,5 @@
 #include "swangui.h"
+#include "fa_api.h"
 
 int main() 
 {
@@ -9,7 +10,7 @@ int main()
 	SetTargetFPS(144);
 
 	Font custom_font= LoadFontEx("resource/Inter-Regular.ttf", 14, 0, 0);
-	Font custom_font2= LoadFontEx("resource/Inter-Regular.ttf", 32, 0, 0);
+	Font custom_font32= LoadFontEx("resource/Inter-Regular.ttf", 32, 0, 0);
 
 	bool my_bool_var1= false;
 	bool my_bool_var2= false;
@@ -24,7 +25,7 @@ int main()
 	int my_int_var1= 15;
 	std::string my_string_var= "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed, independently of the copy that will subsequently populate it, or to demonstrate various fonts of a typeface without meaningful text that could be distracting. Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed, independently of the copy that will subsequently populate it, or to demonstrate various fonts of a typeface without meaningful text that could be distracting.";
 
-	SwanGui swanGui({
+	SwanGui swanGui("resource/FontAwesome.ttf", 14, {
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 120}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
 			sw(Button)("Run scene", [](){}),
 			sw(Button)("Reset scene", [](){}),
@@ -106,14 +107,16 @@ int main()
 			sw(Button)("test button", [](){}),
 			sw(Button)("test button", [](){}),
 		}),
-		
-		sw(Panel)("test", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
+
+		sw(Panel)( "TEXT FIELD", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
 			sw(TextField)("Enter name", my_string_var),
-			sw(TextField)("Enter name", my_string_var, 10, sx{.font_size= 32, .font= custom_font2}),
+			sw(TextField)("Enter name", my_string_var, 10, sx{.font_size= 32, .font= custom_font32}),
 			sw(Button)("test button", [](){}),
 		}),
 	});
 
+
+	
 	while(!WindowShouldClose())
 	{
 		swanGui.Update();

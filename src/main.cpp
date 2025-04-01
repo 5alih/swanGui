@@ -27,16 +27,16 @@ int main()
 
 	SwanGui swanGui("resource/FontAwesome.ttf", 12, {
 		sw(Panel)("SETTINGS", sx{ .position= (Vector2){500, 120}, .size= (Vector2){360, 600}, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
-			sw(Button)("Run scene", [](){}),
+			sw(Button)("Run scene", [](){}, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
 			sw(Button)("Reset scene", [](){}),
-			sw(Panel)("Add level to", util{.can_minimize= true}, add(GuiElement){
-				sw(Switch)("Indoor", my_bool_var1),
+			sw(Panel)("Add level to", sx{.icon= FA_face_grin_hearts, .icon_color= RED}, util{.can_minimize= true}, add(GuiElement){
+				sw(Switch)("Indoor", my_bool_var1, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
 				sw(Switch)("Outdoor", my_bool_var2),
 				sw(Switch)("Day", my_bool_var3),
 				sw(Switch)("Night", my_bool_var4),
 				sw(Switch)("Easy", my_bool_var5),
-				sw(Slider)("FOV", my_float_var1, 60, 120),
-				sw(Stepper)("vm_x", my_int_var1, 60, 120, 5),
+				sw(Slider)("FOV", my_float_var1, 60, 120, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
+				sw(Stepper)("vm_x", my_int_var1, 60, 120, 5, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
 				sw(Switch)("Moderate", my_bool_var6),
 			}),
 			sw(Button)("Save scene", [](){}),
@@ -46,7 +46,7 @@ int main()
 			
 			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){
 				sw(RadioGroup)( "Connection Type", util{.can_minimize= true}, add(Checkbox){
-					sw(Checkbox)("TCP", my_bool_var1),
+					sw(Checkbox)("TCP", my_bool_var1, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
 					sw(Checkbox)("UDP", my_bool_var2),
 				}),
 				sw(RadioGroup)( "Second Window", util{.can_minimize= true}, add(Checkbox){
@@ -108,7 +108,7 @@ int main()
 			sw(Button)("test button", [](){}),
 		}),
 
-		sw(Panel)( "TEXT FIELD", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .icon= FA_face_laugh_squint, .icon_color= YELLOW, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
+		sw(Panel)( "TEXT FIELD", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .icon= FA_face_laugh_squint, .icon_color= SKYBLUE, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
 			sw(TextField)("Enter name", my_string_var),
 			sw(TextField)("Enter name", my_string_var, 10, sx{.font_size= 32, .font= custom_font32}),
 			sw(Button)("test button", [](){}),

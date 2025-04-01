@@ -143,13 +143,13 @@ std::string to_fstr(float value, int digits) {
 	return str;
 }
 
-void DrawTextIcon(std::string icon, std::string text, Vector2 position, float font_size_icon, float font_size_text, float spacing, Font textFont, Color iconColor, Color textColor){
-	DrawTextEx(g_icon_font, icon.c_str(), position, font_size_icon, 1, iconColor);
+void DrawTextIcon(std::string icon, std::string text, Vector2 position, float font_size_icon, float font_size_text, float spacing, Font text_font, Color icon_color, Color text_color){
+	DrawTextEx(g_icon_font, icon.c_str(), position, font_size_icon, 1, icon_color);
 
 	float icon_width= MeasureTextEx(g_icon_font, icon.c_str(), font_size_icon, 1).x;
-	Vector2 textPos= {position.x +icon_width +spacing, position.y};
+	Vector2 text_pos= {position.x +icon_width +spacing, position.y};
 
-	DrawTextEx(textFont, text.c_str(), textPos, font_size_text, 1, textColor);
+	DrawTextEx(text_font, text.c_str(), text_pos, font_size_text, 1, text_color);
 }
 
 enum enum_position{
@@ -284,7 +284,13 @@ public:
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color);
 		Vector2 pos= {(style.position.value().x +style.size.value().x/2.0f -MeasureTextEx(style.font.value(), text.c_str(), style.font_size.value(), style.spacing.value()).x/2.0f), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+		}
 	}
 };
 
@@ -318,7 +324,13 @@ public:
 		Rectangle rectangle= {style.position.value().x, style.position.value().y, style.size.value().y, style.size.value().y};
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);
 		Vector2 pos= {(style.position.value().x +style.padding.value() + style.size.value().y), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		}
 	}
 };
 
@@ -355,7 +367,13 @@ public:
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
 		
 		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		}
 	}
 };
 
@@ -407,7 +425,13 @@ public:
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
 		
 		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		}
 		
 		pos= {(style.position.value().x +(style.size.value().x/4.0f)) /*-(MeasureTextEx(style.font.value(), (std::to_string((int)*target)).c_str(), style.font_size.value(), style.spacing.value()).x/2.0f)*/, (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), (to_fstr(*target, 2)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
@@ -484,8 +508,14 @@ public:
 		DrawRectangleRounded(rectangle , style.border_radius.value()/10.0f, 2, color_box);	
 		
 		Vector2 pos= {(style.position.value().x), (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
-		DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 		
+		if(style.icon.value()!= "?"){
+			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+		}
+		else{
+			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
+		}
+
 		pos= {(style.position.value().x +(style.size.value().x/4.0f)) /*-(MeasureTextEx(style.font.value(), (std::to_string((int)*target)).c_str(), style.font_size.value(), style.spacing.value()).x/2.0f)*/, (style.position.value().y + style.size.value().y/2.0f -style.font_size.value()/2.5f)};
 		DrawTextEx(style.font.value(), (std::to_string(*target)).c_str(), pos, style.font_size.value(), style.spacing.value(), color_text);
 	}

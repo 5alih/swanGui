@@ -80,6 +80,23 @@ bool operator==(const Color& lhs, const Color& rhs){
 	return lhs.r== rhs.r && lhs.g== rhs.g && lhs.b== rhs.b && lhs.a== rhs.a;
 }
 
+std::string crop_string(const std::string &content, Font font, float font_size, float spacing, float size) {
+	std::string shortened_content= "";
+	int i= 0;
+	if(MeasureTextEx(font, content.c_str(), font_size, spacing).x>= size -MeasureTextEx(font, "...", font_size, spacing).x){
+
+		while(i< (int)content.size() && MeasureTextEx(font, shortened_content.c_str(), font_size, spacing).x< size -MeasureTextEx(font, "...", font_size, spacing).x*2.0f){
+			shortened_content.push_back(content[i]);
+			i++;
+		}
+		shortened_content+= "...";
+	}
+	else{
+		return content;
+	}
+	return shortened_content;
+}
+
 std::string cut_string(const std::string& content, Font font, float font_size, float spacing, float size) {
 	std::string shortened_content= "";
 	int i= 0;
@@ -592,7 +609,7 @@ public:
 		
 		Vector2 pos= {style.position.value().x +style.padding.value(), style.position.value().y};
 		if(line_count== 1)
-			DrawTextEx(style.font.value(), cut_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+			DrawTextEx(style.font.value(), crop_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value()*2.0f).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		else{
 			lines= fit_string(*content, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x -style.padding.value() *2.0f, line_count);
 			for(int i= 0; i< line_count && i< (int)lines.size(); i++){
@@ -645,7 +662,7 @@ public:
 			DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
 		}
 		else{
-			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+			DrawTextEx(style.font.value(), (crop_string(text, style.font.value(), style.font_size.value(), style.spacing.value(), style.size.value().x)).c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
 		}
 	}
 };

@@ -30,7 +30,7 @@ int main()
 			sw(Button)("Run scene", [](){}, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
 			sw(Button)("Reset scene", [](){}),
 			sw(Panel)("Add level to", sx{.icon= FA_face_grin_hearts, .icon_color= RED}, util{.can_minimize= true}, add(GuiElement){
-				sw(Switch)("Indoor", my_bool_var1, sx{.icon= FA_face_grin_hearts, .icon_color= RED}),
+				sw(Switch)("Indoor", my_bool_var1, sx{.icon= FA_face_grin_hearts, .icon_color= RED, .color= YELLOW}),
 				sw(Switch)("Outdoor", my_bool_var2),
 				sw(Switch)("Day", my_bool_var3),
 				sw(Switch)("Night", my_bool_var4),

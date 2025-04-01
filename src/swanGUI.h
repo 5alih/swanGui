@@ -849,6 +849,8 @@ public:
 		if(element->style.padding.value()== default_style.padding.value())				element->style.padding.value()= utility.style.value().padding.value();
 		if(element->style.margin.value()== default_style.margin.value())				element->style.margin.value()= utility.style.value().margin.value();
 		
+		if(element->style.icon_color.value()== default_style.icon_color.value())							element->style.icon_color.value()= element->style.color.value();
+
 		if(element->style.background_color.value()== default_style.background_color.value())				element->style.background_color.value()= utility.style.value().background_color.value();
 		if(element->style.background_color_click.value()== default_style.background_color_click.value())	element->style.background_color_click.value()= utility.style.value().background_color_click.value();
 		if(element->style.background_color_hover.value()== default_style.background_color_hover.value())	element->style.background_color_hover.value()= utility.style.value().background_color_hover.value();

@@ -143,13 +143,13 @@ std::string to_fstr(float value, int digits) {
 	return str;
 }
 
-void DrawTextIcon(const char* icon, const char* text, Vector2 position, float fontSize, float spacing, Font iconFont, Font textFont, Color iconColor, Color textColor){
-	DrawTextEx(iconFont, icon, position, fontSize, 1, iconColor);
+void DrawTextIcon(std::string icon, std::string text, Vector2 position, float font_size_icon, float font_size_text, float spacing, Font textFont, Color iconColor, Color textColor){
+	DrawTextEx(g_icon_font, icon.c_str(), position, font_size_icon, 1, iconColor);
 
-	float icon_width= MeasureTextEx(iconFont, icon, fontSize, 1).x;
+	float icon_width= MeasureTextEx(g_icon_font, icon.c_str(), font_size_icon, 1).x;
 	Vector2 textPos= {position.x +icon_width +spacing, position.y};
 
-	DrawTextEx(textFont, text, textPos, fontSize, 1, textColor);
+	DrawTextEx(textFont, text.c_str(), textPos, font_size_text, 1, textColor);
 }
 
 enum enum_position{
@@ -183,10 +183,9 @@ struct Style{
 	std::optional<Vector2> size= (Vector2){100, 100};		// size in (width, height)
 	std::optional<Vector2> min_size= (Vector2){100, 100};	// minimum size in (width, height); to limit shrinking when the panel scaling is enabled
 	
-	std::optional<char> icon= '?';
+	std::optional<std::string> icon= "?";
 	std::optional<Color> icon_color= hex("#dddddd");
-	std::optional<float> icon_size= g_font_size;
-	std::optional<Font> icon_font= g_icon_font;
+	std::optional<float> icon_size= g_font_size -2;
 
 	std::optional<Color> background_color= hex("#202020");	// background color of the element
 	std::optional<Color> background_color_hover= hex("#2C2C2C");
@@ -798,7 +797,12 @@ public:
 			DrawRectangleLines(style.position.value().x, style.position.value().y, style.size.value().x, style.size.value().y, style.border_color.value());
 			DrawRectangle(style.position.value().x, style.position.value().y, style.size.value().x, style.font_size.value(), style.border_color.value());
 			Vector2 pos= {(style.position.value().x + style.padding.value()), (float)(style.position.value().y + style.font_size.value()/2 - style.font_size.value()/2.5)};
-			DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+			if(style.icon.value()!= "?"){
+				DrawTextIcon(style.icon.value(), text, pos, style.icon_size.value(), style.font_size.value(), style.spacing.value(), style.font.value(), style.icon_color.value(), style.color.value());
+			}
+			else{
+				DrawTextEx(style.font.value(), text.c_str(), pos, style.font_size.value(), style.spacing.value(), style.color.value());
+			}
 		}
 		if(is_parent){
 			EndScissorMode();

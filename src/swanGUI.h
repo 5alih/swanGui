@@ -253,6 +253,8 @@ struct Utility{
 
 	Style ow_style;
 	std::optional<Style> style= ow_style;
+
+	std::optional<bool> reorder= true;
 };
 
 class GuiElement{
@@ -676,6 +678,8 @@ private:
 public:
 	std::vector<std::shared_ptr<GuiElement>> elements;
 	Utility utility;	// utilities for panels
+
+	Panel(){}
 
 	Panel(std::string text_, Style style_){
 		text= text_;
@@ -1102,6 +1106,29 @@ public:
 	}
 };
 
+class Alert: public Panel{
+private:
+	Panel panel;
+	int ind= 0;
+	bool *show_alert;
+
+public:
+	Alert(std::string text_, Style style_, bool &show_alert_): panel(text_, style_, {
+		sw(Typography)("test"),
+	}){
+		style.size.value()= (Vector2){0, 0};
+		show_alert= &show_alert_;
+
+		utility.reorder.value()= false;
+	}
+
+	void Draw(bool is_parent) override{
+		if(*show_alert){
+			panel.Draw(false);
+		}
+	}
+};
+
 class SwanGui{
 public:
 	std::vector<std::shared_ptr<Panel>> panels;
@@ -1155,7 +1182,7 @@ public:
 			   (panelPos.y< mouse.y) && (mouse.y< (panelPos.y +panelSize.y)) ){
 				
 				// Check elements first
-				for(auto &element : panel->elements) {
+				for(auto &element : panel->elements){
 					Vector2 elemPos= element->style.position.value();
 					Vector2 elemSize= element->style.size.value();
 					
@@ -1165,7 +1192,7 @@ public:
 						element->status= did_click_L ? S_CLICKED : S_HOVERED;
 						clicked_once= true;
 						
-						if(element->CheckCollision()) {
+						if(element->CheckCollision()){
 							float elemFontSize= element->style.font_size.value();
 							
 							if((elemPos.x< mouse.x) && (mouse.x< (elemPos.x +elemSize.x)) &&
@@ -1205,10 +1232,25 @@ public:
 					}
 				}
 				
+				// Reorder panels if clicked on one
 				if(did_click_L || did_click_M){
-					auto temp= panel;
-					panels.erase(panels.begin() +i);
-					panels.push_back(temp);
+					if(i< (int)panels.size() && panels[i]->utility.reorder.value()){
+						auto temp= panels[i];
+						
+						// Find the rightmost position among reorderable panels
+						int target_position= i;
+						for(int j= 0; j< (int)panels.size(); j++){
+							if(panels[j]->utility.reorder.value() && j> target_position){
+								target_position= j;
+							}
+						}
+						
+						// If we found a better position, move the panel there
+						if(target_position> i) {
+							panels.erase(panels.begin() +i);
+							panels.insert(panels.begin() +target_position, temp);
+						}
+					}
 					break;
 				}
 			}

@@ -23,7 +23,7 @@ int main()
 	float my_float_var1= 15.0f;
 	float my_float_var2= 15.0f;
 	int my_int_var1= 15;
-	bool show_alert= false;
+	bool show_alert= true;
 	std::string my_string_var= "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed, independently of the copy that will subsequently populate it, or to demonstrate various fonts of a typeface without meaningful text that could be distracting. Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed, independently of the copy that will subsequently populate it, or to demonstrate various fonts of a typeface without meaningful text that could be distracting.";
 
 	SwanGui swanGui("resource/FontAwesome.ttf", 12, {
@@ -42,9 +42,9 @@ int main()
 			}),
 			sw(Typography)("Lets see if this works or not."),
 			sw(Button)("Save scene", [](){}),
-			sw(TextField)("Enter name", my_string_var, 2),
+			sw(TextField)(my_string_var, 2),
 			sw(Divider)(1.0f, 0.9f),
-			sw(TextField)("This is a very long text", my_string_var, 10),
+			sw(TextField)(my_string_var, 10),
 			
 			sw(Panel)( "Networking Settings", util{.can_minimize= true}, add(GuiElement){
 				sw(RadioGroup)( "Connection Type", util{.can_minimize= true}, add(Checkbox){
@@ -111,14 +111,15 @@ int main()
 		}),
 
 		sw(Panel)( "TEXT FIELD", sx{ .position= (Vector2){1000, 180}, .size= (Vector2){360, 600}, .icon= FA_face_laugh_squint, .icon_color= SKYBLUE, .font= custom_font }, util{.can_rescale= true, .can_move= true, .sections= 1}, add(GuiElement){
-			sw(TextField)("Enter name", my_string_var),
-			sw(TextField)("Enter name", my_string_var, 10, sx{.font_size= 32, .font= custom_font32}),
+			sw(TextField)(my_string_var),
+			sw(TextField)(my_string_var, 10, sx{.font_size= 32, .font= custom_font32}),
 			sw(Button)("test button", [](){}),
-			sw(Button)("test button", [](){}),
+			sw(Button)("show alert", [&show_alert](){show_alert= !show_alert;}),
+			sw(Checkbox)("Show Alert", show_alert),
 		}),
 
-		sw(Alert)("test alert", sx{.position= (Vector2){100, 100}, .size= (Vector2){500, 100}, .font= custom_font}, show_alert),
-		// sw(Alert)("ERROR: Data Overwrite!", sx{.position= (Vector2){100, 100}, .size= (Vector2){500, 60}, .icon= FA_circle_xmark, .icon_color= rgb(200, 100, 100), .icon_size= 12, .background_color_panel= hex("#1a0000"), .border_color= rgb(150, 20, 20), /*.font_size= 32,*/ .font= custom_font}, util{.can_minimize= true, .can_rescale= true, .can_move= true}),
+		// sw(Alert)("test alert", my_string_var, sx{.position= (Vector2){100, 100}, .size= (Vector2){500, 100}, .color= hex("#000000"), .border_color= rgb(200, 200, 250), .font= custom_font}, show_alert),
+		sw(Alert)("ERROR: Data Overwrite!", my_string_var, sx{.position= (Vector2){100, 100}, .size= (Vector2){500, 150}, .icon= FA_circle_xmark, .icon_color= rgb(200, 100, 100), .icon_size= 12, .background_color_panel= hex("#1a0000"), .border_color= rgb(150, 20, 20), /*.font_size= 32,*/ .font= custom_font}, show_alert),
 	});
 
 
@@ -126,7 +127,6 @@ int main()
 	while(!WindowShouldClose())
 	{
 		swanGui.Update();
-		show_alert= IsKeyDown(KEY_A);
 
 		BeginDrawing();
 			ClearBackground( hex("#000000") );

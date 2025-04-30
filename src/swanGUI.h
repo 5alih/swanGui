@@ -547,25 +547,21 @@ public:
 	int line_count= 1;
 	std::vector<std::string> lines;
 
-	TextField(std::string text_, std::string &content_){
-		text= text_;
+	TextField(std::string &content_){
 		content= &content_;
 	}
 
-	TextField(std::string text_, std::string &content_, int line_count_){
-		text= text_;
+	TextField(std::string &content_, int line_count_){
 		content= &content_;
 		line_count= line_count_;
 	}
 
-	TextField(std::string text_, std::string &content_, Style style_){
-		text= text_;
+	TextField(std::string &content_, Style style_){
 		content= &content_;
 		style= style_;
 	}
 
-	TextField(std::string text_, std::string &content_, int line_count_, Style style_){
-		text= text_;
+	TextField(std::string &content_, int line_count_, Style style_){
 		content= &content_;
 		line_count= line_count_;
 		style= style_;
@@ -1108,13 +1104,14 @@ public:
 
 class Alert: public Panel{
 private:
+	std::string alert_content;
 	Panel panel;
 	int ind= 0;
 	bool *show_alert;
 
 public:
-	Alert(std::string text_, Style style_, bool &show_alert_): panel(text_, style_, {
-		sw(Typography)("test"),
+	Alert(std::string alert_title, std::string text_, Style style_, bool &show_alert_): alert_content(text_), panel(alert_title, style_, {
+		sw(TextField)(alert_content, (style_.size.value().y/ style_.font_size.value()) -2, sx{}),
 	}){
 		style.size.value()= (Vector2){0, 0};
 		show_alert= &show_alert_;
@@ -1122,9 +1119,19 @@ public:
 		utility.reorder.value()= false;
 	}
 
+	void Update(bool is_parent) override{
+		if(ind< 2){
+			for(auto &element: panel.elements){
+				panel.ApplyStyle(element);
+			}
+			ind++;
+			panel.UpdateElements();
+		}
+	}
+
 	void Draw(bool is_parent) override{
 		if(*show_alert){
-			panel.Draw(false);
+			panel.Draw(true);
 		}
 	}
 };
